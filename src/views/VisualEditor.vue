@@ -1,7 +1,7 @@
 <template>
   <div class="visual-editor">
-    <SatelliteMapViewer :show-all-status="false" :show-float-card="false" class="cesium-bg" />
-    
+    <CesiumViewer :show-all-status="false" :show-float-card="false" class="cesium-bg" />
+
     <!-- 浮动：打开全部卫星列表按钮 -->
     <el-button 
       class="toggle-btn" 
@@ -125,7 +125,7 @@
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Operation } from '@element-plus/icons-vue'
-import SatelliteMapViewer from '../components/cesium/SatelliteMapViewer.vue'
+import CesiumViewer from '../components/cesium/CesiumViewer.vue'
 import { useSatelliteStore } from '../stores/satellite'
 
 const satelliteStore = useSatelliteStore()

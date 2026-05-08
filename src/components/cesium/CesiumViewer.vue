@@ -223,13 +223,15 @@ const uiStore = useUIStore()
 
 const isPaused = ref(false)
 const webglUnavailable = ref(false)
-const sceneMode = ref('自动巡航')
+const sceneMode = ref('自由查看')
 let interactionTimeout: number | null = null
 let selectionHandler: Cesium.ScreenSpaceEventHandler | null = null
 
 const EARTH_RADIUS_METERS = 6378137
 const EARTH_MU = 3.986004418e14
 const EARTH_ROTATION_RAD_PER_SEC = (2 * Math.PI) / 86164.0905
+const HOME_VIEW_RANGE = 14000000
+const INITIAL_ORBIT_STEP = 4
 
 const satelliteCount = computed(() => satelliteStore.satellites.length)
 const focusedSatelliteName = computed(() => satelliteStore.selectedSatellite?.name || '未选择')
@@ -269,19 +271,11 @@ function statusColor(status: string) {
 function clearSelection() {
   satelliteStore.selectedSatelliteId = null
   isPaused.value = false
-  sceneMode.value = '自动巡航'
+  sceneMode.value = '自由查看'
   if (viewer.value && !viewer.value.isDestroyed()) {
     viewer.value.trackedEntity = undefined
     viewer.value.clock.shouldAnimate = true
-    viewer.value.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(108, 24, 18500000),
-      orientation: {
-        heading: Cesium.Math.toRadians(0),
-        pitch: Cesium.Math.toRadians(-90),
-        roll: 0
-      },
-      duration: 1.2
-    })
+    focusFreeEarthView(viewer.value, HOME_VIEW_RANGE)
   }
 }
 
@@ -401,7 +395,7 @@ function makeOrbitPositions(inclination: number, baseLon: number, altitude: numb
   const sinRaan = Math.sin(raan)
   const cosInclination = Math.cos(inclRad)
   const sinInclination = Math.sin(inclRad)
-  for (let i = 0; i <= 360; i += 2) {
+  for (let i = 0; i <= 360; i += INITIAL_ORBIT_STEP) {
     const trueAnomaly = Cesium.Math.toRadians(i)
     const xOrbital = orbit.orbitalRadius * Math.cos(trueAnomaly)
     const yOrbital = orbit.orbitalRadius * Math.sin(trueAnomaly)
@@ -479,8 +473,7 @@ function buildScene(v: Cesium.Viewer) {
         pixelSize: isAbnormal ? (isGeo ? 12 : 9) : isGeo ? 5 : 3.5,
         color: isAbnormal ? color : Cesium.Color.WHITE,
         outlineColor: isAbnormal ? color.withAlpha(0.95) : color.withAlpha(0.6),
-        outlineWidth: isAbnormal ? 2 : 1,
-        disableDepthTestDistance: Number.POSITIVE_INFINITY
+        outlineWidth: isAbnormal ? 2 : 1
       },
       path: {
         show: isAbnormal || satelliteStore.selectedSatelliteId === sat.id,
@@ -497,7 +490,6 @@ function buildScene(v: Cesium.Viewer) {
         horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
         pixelOffset: new Cesium.Cartesian2(0, -10),
         fillColor: isAbnormal ? color.withAlpha(0.98) : Cesium.Color.WHITE.withAlpha(0.85),
-        disableDepthTestDistance: Number.POSITIVE_INFINITY,
         show: isAbnormal || satelliteStore.selectedSatelliteId === sat.id
       }
     })
@@ -562,8 +554,7 @@ function buildScene(v: Cesium.Viewer) {
         text: ground.name,
         font: '600 12px "Microsoft YaHei", sans-serif',
         pixelOffset: new Cesium.Cartesian2(0, -24),
-        fillColor: Cesium.Color.WHITE,
-        disableDepthTestDistance: Number.POSITIVE_INFINITY
+        fillColor: Cesium.Color.WHITE
       }
     })
   })
@@ -615,22 +606,78 @@ function buildScene(v: Cesium.Viewer) {
   })
 }
 
-onMounted(() => {
-  if (!cesiumContainer.value) return
-  const isElectron = typeof window !== 'undefined' && (window as any).electronAPI
+function focusFreeEarthView(v: Cesium.Viewer, range = HOME_VIEW_RANGE) {
+  v.trackedEntity = undefined
+  isPaused.value = false
+  sceneMode.value = '自由查看'
+  v.clock.shouldAnimate = true
+  v.camera.flyTo({
+    destination: Cesium.Cartesian3.fromDegrees(108, 24, range),
+    orientation: {
+      heading: Cesium.Math.toRadians(0),
+      pitch: Cesium.Math.toRadians(-88),
+      roll: 0
+    },
+    duration: 1.4
+  })
+}
 
-  setTimeout(async () => {
+function tuneImageryLayer(layer: Cesium.ImageryLayer) {
+  layer.brightness = 1.05
+  layer.gamma = 1
+  layer.saturation = 1.05
+  layer.contrast = 1.02
+}
+
+async function applyWorldImageryStyle(style: Cesium.IonWorldImageryStyle) {
+  return Cesium.createWorldImageryAsync({ style })
+}
+
+async function applyDefaultBingImagery(v: Cesium.Viewer) {
+  const imageryStyles = [
+    Cesium.IonWorldImageryStyle.AERIAL_WITH_LABELS,
+    Cesium.IonWorldImageryStyle.AERIAL
+  ]
+
+  let imageryProvider: Cesium.ImageryProvider | null = null
+  let lastError: unknown = null
+
+  for (const style of imageryStyles) {
     try {
-      await Promise.all([
+      imageryProvider = await applyWorldImageryStyle(style)
+      break
+    } catch (imageryError) {
+      lastError = imageryError
+      console.warn(`[Cesium] Failed to load world imagery style: ${style}`, imageryError)
+    }
+  }
+
+  if (!imageryProvider) {
+    console.warn('[Cesium] Failed to load all world imagery styles, keeping fallback globe color.', lastError)
+    return
+  }
+
+  while (v.imageryLayers.length > 0) {
+    v.imageryLayers.remove(v.imageryLayers.get(0), true)
+  }
+
+  const imageryLayer = v.imageryLayers.addImageryProvider(imageryProvider)
+  tuneImageryLayer(imageryLayer)
+}
+
+onMounted(async () => {
+  if (!cesiumContainer.value) return
+  try {
+      const v = await initCesium(cesiumContainer.value as HTMLElement)
+      const canvasElement = v.canvas
+
+      const initialDataLoad = Promise.all([
         instanceStore.fetchInstances(),
         instanceStore.fetchAllResources(),
         linkStore.fetchLinks(),
         linkStore.fetchAllResources(),
         satelliteStore.fetchPositions()
       ])
-
-      const v = await initCesium(cesiumContainer.value as HTMLElement)
-      const canvasElement = v.canvas
 
       if (canvasElement) {
         canvasElement.addEventListener('webglcontextlost', (event: Event) => {
@@ -650,32 +697,8 @@ onMounted(() => {
       v.scene.postProcessStages.fxaa.enabled = true
       v.shadowMap.enabled = false
 
-      if (!v.imageryLayers.length) {
-        try {
-          const highResMap = await Cesium.ArcGisMapServerImageryProvider.fromUrl(
-            'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
-            { enablePickFeatures: false }
-          )
-          v.imageryLayers.addImageryProvider(highResMap)
-        } catch (imageryError) {
-          // Keep the scene usable when the external imagery service is blocked or unavailable.
-          console.warn('[Cesium] Failed to load ArcGIS imagery, continuing without satellite basemap.', imageryError)
-        }
-      }
-
-      if (v.imageryLayers.length > 0) {
-        const imageryLayer = v.imageryLayers.get(0)
-        imageryLayer.brightness = 0.5
-        imageryLayer.gamma = 0.7
-        imageryLayer.saturation = 0.2
-      }
-
-      const earthCenter = Cesium.Cartesian3.fromDegrees(108, 24, 0)
-      v.camera.lookAt(
-        earthCenter,
-        new Cesium.HeadingPitchRange(Cesium.Math.toRadians(0), Cesium.Math.toRadians(-90), 18500000)
-      )
-      v.camera.lookAtTransform(Cesium.Matrix4.IDENTITY)
+      applyDefaultBingImagery(v)
+      focusFreeEarthView(v)
       v.clock.shouldAnimate = true
       v.clock.multiplier = 1
 
@@ -694,31 +717,32 @@ onMounted(() => {
       v.camera.moveStart.addEventListener(() => {
         if (interactionTimeout) clearTimeout(interactionTimeout)
         sceneMode.value = '手动控制'
-        if (!v.trackedEntity && !isPaused.value) v.clock.shouldAnimate = false
+        if (v.trackedEntity) {
+          v.trackedEntity = undefined
+        }
       })
+
+      await initialDataLoad
+      buildScene(v)
+
+      watch(
+        () => [
+          satelliteStore.satellites.map((sat) => `${sat.id}:${sat.alt}:${sat.inclination}:${sat.baseLon}:${sat.phase}:${sat.status}`).join('|'),
+          JSON.stringify(satelliteStore.positions),
+          instanceStore.instancesForDisplay.map((item) => `${item.id}:${item.name}:${item.type}:${item.status}`).join('|'),
+          linkStore.linksForDisplay.map((link) => `${link.id}:${link.status}:${link.enabled}:${link.endpoints.join('>')}`).join('|')
+        ],
+        () => buildScene(v)
+      )
 
       v.camera.moveEnd.addEventListener(() => {
         if (interactionTimeout) clearTimeout(interactionTimeout)
         interactionTimeout = window.setTimeout(() => {
           if (!v.trackedEntity && !isPaused.value) {
-            v.clock.shouldAnimate = true
-            sceneMode.value = '自动巡航'
+            sceneMode.value = '自由查看'
           }
-        }, 2200)
+        }, 400)
       })
-
-      buildScene(v)
-
-      watch(
-        () => [
-          satelliteStore.satellites,
-          satelliteStore.positions,
-          instanceStore.instancesForDisplay,
-          linkStore.linksForDisplay
-        ],
-        () => buildScene(v),
-        { deep: true }
-      )
     } catch (error: any) {
       const errorMessage = error?.message || error?.toString() || 'unknown error'
       const isWebGLError =
@@ -736,7 +760,6 @@ onMounted(() => {
         `
       }
     }
-  }, isElectron ? 1500 : 500)
 })
 
 watch(

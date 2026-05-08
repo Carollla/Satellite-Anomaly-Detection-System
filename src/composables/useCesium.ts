@@ -94,14 +94,16 @@ export function useCesium() {
     viewer!.value.scene.backgroundColor = Cesium.Color.fromCssColorString('#000510')
     viewer!.value.scene.globe.enableLighting = false
     viewer!.value.scene.globe.showGroundAtmosphere = true
+    viewer!.value.scene.globe.depthTestAgainstTerrain = true
+    viewer!.value.scene.globe.translucency.enabled = false
     if (viewer!.value.scene.sun) viewer!.value.scene.sun.show = false
     if (viewer!.value.scene.moon) viewer!.value.scene.moon.show = false
     viewer!.value.scene.fog.enabled = false
 
     const controller = viewer!.value.scene.screenSpaceCameraController
-    controller.minimumZoomDistance = 5000000
+    controller.minimumZoomDistance = 25000
     controller.maximumZoomDistance = 80000000
-    controller.enableCollisionDetection = false
+    controller.enableCollisionDetection = true
 
     viewer!.value.camera.percentageChanged = 0.01
 
