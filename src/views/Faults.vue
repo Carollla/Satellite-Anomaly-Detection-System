@@ -1,7 +1,7 @@
 <template>
   <div class="page-container">
-    <h2>Faults</h2>
-    <p>页面正在开发中...</p>
+    <h2>故障注入</h2>
+    <p>这里用于在仿真环境中注入链路中断、节点离线、资源耗尽等故障，验证 Agent 的检测和恢复能力。</p>
   </div>
 </template>
 
@@ -11,9 +11,13 @@
 <style scoped>
 .page-container {
   padding: 24px;
-  background-color: var(--vscode-bg);
+  min-height: 100%;
+  background: var(--vscode-bg);
   color: var(--vscode-text);
-  border-radius: 8px;
-  height: 100%;
+}
+
+p {
+  color: var(--vscode-text-muted);
+  line-height: 1.7;
 }
 </style>

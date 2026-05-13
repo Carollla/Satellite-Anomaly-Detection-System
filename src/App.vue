@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
+﻿<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
 import {
   ChatLineRound,
@@ -14,6 +14,7 @@ import {
   Notification,
   Odometer,
   Operation,
+  Picture,
   Position,
   Setting,
   User
@@ -55,8 +56,7 @@ const helperSending = ref(false)
 const helperMessages = ref<HelperMessage[]>([
   {
     role: 'assistant',
-    content:
-      '您好，我是 SpaceMAN 智能协作助手。已接入全网运行监控与诊断系统，您可以向我下达运维指令，例如“分析当前全网异常节点”、“排查 LEO 链路中断原因”或“查看大模型调度负载”。'
+    content: '这里是 SpaceMAN 智能运维助手。你可以让我检查卫星告警、分析链路异常、生成遥感任务建议，或者给出下一步处置方案。'
   }
 ])
 
@@ -66,9 +66,10 @@ const groups: NavGroup[] = [
     label: '总览',
     icon: Monitor,
     children: [
-      { path: '/', label: '卫星群仿真', icon: Odometer },
+      { path: '/', label: '运维仪表盘', icon: Odometer },
       { path: '/earth', label: '卫星群视图', icon: Position },
-      { path: '/editor', label: '卫星可视编辑', icon: Operation }
+      { path: '/editor', label: '可视化编辑', icon: Operation },
+      { path: '/remote-sensing', label: '遥感工作台', icon: Picture }
     ]
   },
   {
@@ -85,9 +86,9 @@ const groups: NavGroup[] = [
     label: '智能协作',
     icon: Connection,
     children: [
-      { path: '/agent', label: '协调控制台', icon: ChatLineRound },
+      { path: '/agent', label: '异常监测 Agent', icon: ChatLineRound },
       { path: '/dag-pipeline', label: '执行流图', icon: Connection },
-      { path: '/blackboard', label: '黑板审计', icon: Document }
+      { path: '/blackboard', label: '黑板状态', icon: Document }
     ]
   },
   {
@@ -96,8 +97,8 @@ const groups: NavGroup[] = [
     icon: Operation,
     children: [
       { path: '/faults', label: '故障注入', icon: Notification },
-      { path: '/security', label: '审批审计', icon: Document },
-      { path: '/llm', label: 'LLM 配置', icon: Cpu }
+      { path: '/security', label: '安全审计', icon: Document },
+      { path: '/llm', label: '模型配置', icon: Cpu }
     ]
   }
 ]
@@ -117,13 +118,8 @@ onMounted(() => {
 
 function toggleTheme() {
   isDark.value = !isDark.value
-  if (isDark.value) {
-    document.documentElement.classList.add('dark')
-    localStorage.setItem('theme', 'dark')
-  } else {
-    document.documentElement.classList.remove('dark')
-    localStorage.setItem('theme', 'light')
-  }
+  document.documentElement.classList.toggle('dark', isDark.value)
+  localStorage.setItem('theme', isDark.value ? 'dark' : 'light')
 }
 
 async function handleLogin() {
@@ -142,13 +138,11 @@ function handleLogout() {
 }
 
 function handleNav(path: string | undefined) {
-  if (path) {
-    router.push(path)
-  }
+  if (path) router.push(path)
 }
 
 function isActive(path: string | undefined) {
-  return path && route.path === path
+  return path && (route.path === path || (path !== '/' && route.path.startsWith(path)))
 }
 
 async function sendHelper() {
@@ -178,13 +172,13 @@ async function sendHelper() {
 
     helperMessages.value.push({
       role: 'assistant',
-      content: extras || '已收到，但没有返回可展示内容。'
+      content: extras || '已收到请求，但当前没有可展示的结果。'
     })
   } catch (error: any) {
     ElMessage.error(error?.message || '助手请求失败')
     helperMessages.value.push({
       role: 'assistant',
-      content: '当前助手请求失败。你可以先进入“协调控制台”页面直接发起任务。'
+      content: '当前助手服务不可用。你仍然可以进入 Agent 页面查看已有任务和状态。'
     })
   } finally {
     helperSending.value = false
@@ -192,29 +186,30 @@ async function sendHelper() {
 }
 
 const currentTitle = computed(() => {
+  if (route.path.startsWith('/satellite/')) return '卫星详情'
   for (const group of groups) {
     const match = group.children.find((child) => child.path === route.path)
     if (match) return match.label
   }
-  return '卫星群仿真'
+  return '运维仪表盘'
 })
 </script>
 
 <template>
-  <div class="vscode-layout" :class="{ 'is-dark': isDark }">
+  <div class="ops-shell" :class="{ 'is-dark': isDark }">
     <aside class="sidebar" :class="{ collapsed }">
       <div class="sidebar-header">
-        <img :src="logoUrl" alt="logo" class="logo" />
-        <span v-if="!collapsed" class="title">星网智控台</span>
+        <img v-if="!collapsed" :src="logoUrl" alt="SpaceMAN" class="logo" />
+        <span v-if="!collapsed" class="title">SpaceMAN</span>
         <el-icon class="collapse-btn" @click="collapsed = !collapsed">
           <Fold />
         </el-icon>
       </div>
 
-      <div class="sidebar-menu">
-        <div v-for="group in groups" :key="group.id" class="menu-group">
+      <nav class="sidebar-menu">
+        <section v-for="group in groups" :key="group.id" class="menu-group">
           <div v-if="!collapsed" class="group-title">{{ group.label }}</div>
-          <div
+          <button
             v-for="child in group.children"
             :key="child.path"
             class="menu-item"
@@ -224,48 +219,49 @@ const currentTitle = computed(() => {
           >
             <el-icon><component :is="child.icon" /></el-icon>
             <span v-if="!collapsed">{{ child.label }}</span>
-          </div>
-        </div>
-      </div>
+          </button>
+        </section>
+      </nav>
 
       <div class="sidebar-footer">
-        <div class="menu-item" :title="isDark ? '切换浅色模式' : '切换深色模式'" @click="toggleTheme">
+        <button class="menu-item" @click="toggleTheme">
           <el-icon><Setting /></el-icon>
           <span v-if="!collapsed">{{ isDark ? '浅色模式' : '深色模式' }}</span>
-        </div>
-        <div
-          class="menu-item"
-          :title="authStore.isAuthenticated ? '退出登录' : '登录'"
-          @click="authStore.isAuthenticated ? handleLogout() : (loginVisible = true)"
-        >
+        </button>
+        <button class="menu-item" @click="authStore.isAuthenticated ? handleLogout() : (loginVisible = true)">
           <el-icon><User /></el-icon>
           <span v-if="!collapsed" class="truncate">
-            {{ authStore.isAuthenticated ? (authStore.user?.username || '退出') : '登录' }}
+            {{ authStore.isAuthenticated ? authStore.user?.username || '退出登录' : '登录' }}
           </span>
-        </div>
+        </button>
       </div>
     </aside>
 
-    <main class="editor-area">
-      <header class="editor-header">
+    <main class="workspace">
+      <header class="workspace-header">
         <div class="breadcrumbs">
           <span class="view-title">{{ currentTitle }}</span>
         </div>
         <div class="actions">
+          <el-button plain size="small" @click="router.push('/remote-sensing')">
+            <el-icon><Picture /></el-icon>
+            <span>遥感工作台</span>
+          </el-button>
           <el-button type="primary" plain size="small" @click="agentDrawerVisible = true">
             <el-icon><ChatLineRound /></el-icon>
-            <span class="ml-1">智能助手</span>
+            <span>智能助手</span>
           </el-button>
         </div>
       </header>
-      <div class="editor-content">
+
+      <div class="workspace-content">
         <RouterView />
       </div>
     </main>
 
     <aside class="agent-panel" :class="{ 'is-open': agentDrawerVisible }">
       <div class="agent-header">
-        <span class="agent-title">智能协作助手</span>
+        <span class="agent-title">智能运维助手</span>
         <el-icon class="agent-close" @click="agentDrawerVisible = false"><Close /></el-icon>
       </div>
       <div class="drawer-chat">
@@ -274,20 +270,20 @@ const currentTitle = computed(() => {
             v-for="(msg, index) in helperMessages"
             :key="index"
             class="msg-card"
-            :class="msg.role === 'user' ? 'user-msg' : 'bot-msg'"
+            :class="msg.role === 'user' ? 'user-msg' : 'assistant-msg'"
           >
-            <div class="msg-role">{{ msg.role === 'user' ? '你' : '助手' }}</div>
+            <div class="msg-role">{{ msg.role === 'user' ? '用户' : '助手' }}</div>
             <div class="msg-content">{{ msg.content }}</div>
           </div>
         </div>
         <div class="chat-input-area">
           <el-input
             v-model="helperInput"
-            placeholder="输入运维问题..."
+            placeholder="输入运维问题，例如：分析当前卫星告警"
             :disabled="helperSending"
             @keyup.enter="sendHelper"
           />
-          <el-button type="primary" class="mt-2 w-full" :loading="helperSending" @click="sendHelper">
+          <el-button type="primary" class="send-btn" :loading="helperSending" @click="sendHelper">
             发送
           </el-button>
         </div>
@@ -316,7 +312,7 @@ const currentTitle = computed(() => {
             @keyup.enter="handleLogin"
           />
         </el-form-item>
-        <el-button type="primary" class="w-full mt-4" style="width: 100%" @click="handleLogin">
+        <el-button type="primary" class="login-btn" @click="handleLogin">
           登录进入系统
         </el-button>
       </el-form>
@@ -326,17 +322,17 @@ const currentTitle = computed(() => {
 
 <style>
 :root {
-  --vscode-bg: #f8fafc;
+  --vscode-bg: #f6f8fb;
   --vscode-sidebar-bg: #ffffff;
-  --vscode-border: #e2e8f0;
-  --vscode-text: #1e293b;
-  --vscode-text-muted: #64748b;
-  --vscode-hover: #f1f5f9;
-  --vscode-active: #e2e8f0;
-  --vscode-primary: #3b82f6;
-  --vscode-primary-text: #ffffff;
-  --vscode-shadow: rgba(0, 0, 0, 0.04);
   --vscode-header-bg: #ffffff;
+  --vscode-border: #dbe3ef;
+  --vscode-text: #172033;
+  --vscode-text-muted: #667085;
+  --vscode-hover: #eef3fa;
+  --vscode-active: #e7f0ff;
+  --vscode-primary: #2563eb;
+  --vscode-primary-text: #ffffff;
+  --vscode-shadow: rgba(15, 23, 42, 0.08);
   --el-color-primary: var(--vscode-primary);
   --el-bg-color: var(--vscode-bg);
   --el-bg-color-overlay: var(--vscode-sidebar-bg);
@@ -345,63 +341,64 @@ const currentTitle = computed(() => {
   --el-border-color: var(--vscode-border);
   --el-border-color-light: var(--vscode-border);
   --el-border-color-lighter: var(--vscode-hover);
-  --el-border-radius-base: 8px;
 }
 
 html.dark {
   --vscode-bg: #0f172a;
-  --vscode-sidebar-bg: #1e293b;
-  --vscode-border: rgba(255, 255, 255, 0.08);
+  --vscode-sidebar-bg: #151f32;
+  --vscode-header-bg: #151f32;
+  --vscode-border: rgba(226, 232, 240, 0.12);
   --vscode-text: #f8fafc;
-  --vscode-text-muted: #94a3b8;
-  --vscode-hover: rgba(255, 255, 255, 0.06);
-  --vscode-active: rgba(255, 255, 255, 0.1);
-  --vscode-primary: #38bdf8;
+  --vscode-text-muted: #a9b6c8;
+  --vscode-hover: rgba(255, 255, 255, 0.07);
+  --vscode-active: rgba(37, 99, 235, 0.2);
+  --vscode-primary: #60a5fa;
   --vscode-primary-text: #0f172a;
-  --vscode-shadow: rgba(0, 0, 0, 0.4);
-  --vscode-header-bg: #1e293b;
+  --vscode-shadow: rgba(0, 0, 0, 0.36);
   --el-bg-color: var(--vscode-bg);
   --el-bg-color-overlay: var(--vscode-sidebar-bg);
   --el-text-color-primary: var(--vscode-text);
   --el-text-color-regular: var(--vscode-text-muted);
   --el-border-color: var(--vscode-border);
   --el-border-color-light: var(--vscode-border);
-  --el-border-color-lighter: var(--vscode-hover);
 }
 
-html, body, #app {
+html,
+body,
+#app {
   margin: 0;
-  padding: 0;
   width: 100%;
   height: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-  background-color: var(--vscode-bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: var(--vscode-bg);
   color: var(--vscode-text);
   overflow: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 * {
   box-sizing: border-box;
 }
 
-.vscode-layout {
+button {
+  font: inherit;
+}
+
+.ops-shell {
   display: flex;
-  height: 100vh;
   width: 100vw;
-  background-color: var(--vscode-bg);
+  height: 100vh;
+  background: var(--vscode-bg);
   color: var(--vscode-text);
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .sidebar {
-  width: 250px;
-  background-color: var(--vscode-sidebar-bg);
-  border-right: 1px solid var(--vscode-border);
+  width: 248px;
   display: flex;
   flex-direction: column;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease;
   flex-shrink: 0;
+  background: var(--vscode-sidebar-bg);
+  border-right: 1px solid var(--vscode-border);
+  transition: width 0.2s ease;
 }
 
 .sidebar.collapsed {
@@ -412,167 +409,135 @@ html, body, #app {
   height: 56px;
   display: flex;
   align-items: center;
-  padding: 0 20px;
+  gap: 10px;
+  padding: 0 18px;
   border-bottom: 1px solid var(--vscode-border);
-  transition: border-color 0.3s ease;
-}
-
-.sidebar.collapsed .sidebar-header {
-  padding: 0;
-  justify-content: center;
 }
 
 .logo {
-  width: 28px;
-  height: 28px;
-  margin-right: 12px;
-}
-
-.sidebar.collapsed .logo {
-  margin-right: 0;
-  display: none;
+  width: 26px;
+  height: 26px;
 }
 
 .title {
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: 700;
   flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  letter-spacing: 0.5px;
 }
 
 .collapse-btn {
   cursor: pointer;
   color: var(--vscode-text-muted);
-  font-size: 18px;
-  transition: color 0.2s;
-}
-
-.collapse-btn:hover {
-  color: var(--vscode-primary);
 }
 
 .sidebar-menu {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 0;
+  padding: 14px 0;
 }
 
 .menu-group {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .group-title {
-  padding: 0 20px;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 0 18px 8px;
   color: var(--vscode-text-muted);
-  text-transform: uppercase;
-  margin-bottom: 8px;
-  letter-spacing: 0.5px;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .menu-item {
+  width: 100%;
   display: flex;
   align-items: center;
-  padding: 10px 20px;
-  cursor: pointer;
-  color: var(--vscode-text-muted);
-  font-size: 14px;
-  font-weight: 500;
-  transition: background 0.2s, color 0.2s;
+  gap: 12px;
+  padding: 10px 18px;
+  border: 0;
   border-left: 3px solid transparent;
+  background: transparent;
+  color: var(--vscode-text-muted);
+  text-align: left;
+  cursor: pointer;
 }
 
 .sidebar.collapsed .menu-item {
   justify-content: center;
-  padding: 14px 0;
+  padding: 13px 0;
   border-left: none;
 }
 
 .menu-item:hover {
-  background-color: var(--vscode-hover);
+  background: var(--vscode-hover);
   color: var(--vscode-text);
 }
 
 .menu-item.active {
-  background-color: var(--vscode-active);
-  color: var(--vscode-primary);
+  background: var(--vscode-active);
   border-left-color: var(--vscode-primary);
-}
-
-.sidebar.collapsed .menu-item.active {
-  border-left: none;
+  color: var(--vscode-primary);
 }
 
 .menu-item .el-icon {
   font-size: 18px;
-  margin-right: 12px;
-}
-
-.sidebar.collapsed .menu-item .el-icon {
-  margin-right: 0;
-  font-size: 22px;
+  flex-shrink: 0;
 }
 
 .sidebar-footer {
   border-top: 1px solid var(--vscode-border);
-  padding: 12px 0;
-  transition: border-color 0.3s ease;
+  padding: 10px 0;
 }
 
 .truncate {
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 180px;
+  white-space: nowrap;
 }
 
-.editor-area {
+.workspace {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  transition: flex 0.3s ease, width 0.3s ease;
 }
 
-.editor-header {
+.workspace-header {
   height: 56px;
-  background-color: var(--vscode-header-bg);
-  border-bottom: 1px solid var(--vscode-border);
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  gap: 16px;
+  padding: 0 22px;
+  border-bottom: 1px solid var(--vscode-border);
+  background: var(--vscode-header-bg);
 }
 
-.breadcrumbs .view-title {
+.view-title {
   font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  font-weight: 700;
 }
 
-.editor-content {
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.workspace-content {
   flex: 1;
-  overflow: auto;
-  position: relative;
-  background-color: var(--vscode-bg);
-  transition: background-color 0.3s ease;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .agent-panel {
   width: 0;
-  background-color: var(--vscode-sidebar-bg);
-  border-left: 1px solid transparent;
+  flex-shrink: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, background-color 0.3s ease;
-  overflow: hidden;
-  flex-shrink: 0;
-  box-shadow: -4px 0 16px var(--vscode-shadow);
+  background: var(--vscode-sidebar-bg);
+  border-left: 1px solid transparent;
+  box-shadow: -8px 0 24px var(--vscode-shadow);
+  transition: width 0.2s ease, border-color 0.2s ease;
 }
 
 .agent-panel.is-open {
@@ -581,103 +546,74 @@ html, body, #app {
 }
 
 .agent-header {
+  min-width: 360px;
   height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 18px;
   border-bottom: 1px solid var(--vscode-border);
-  flex-shrink: 0;
-  min-width: 360px;
 }
 
 .agent-title {
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: 700;
 }
 
 .agent-close {
   cursor: pointer;
-  font-size: 20px;
   color: var(--vscode-text-muted);
-  transition: color 0.2s;
-}
-
-.agent-close:hover {
-  color: var(--vscode-primary);
 }
 
 .drawer-chat {
+  min-width: 360px;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-width: 360px;
 }
 
 .chat-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 18px;
 }
 
 .msg-card {
-  margin-bottom: 20px;
-  font-size: 14px;
-  line-height: 1.6;
+  margin-bottom: 14px;
 }
 
 .msg-role {
-  font-weight: 600;
   margin-bottom: 6px;
-  color: var(--vscode-primary);
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.user-msg .msg-role {
   color: var(--vscode-text-muted);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .msg-content {
-  background: var(--vscode-bg);
+  padding: 12px 14px;
   border: 1px solid var(--vscode-border);
-  padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: 12px;
+  background: var(--vscode-bg);
+  line-height: 1.7;
   white-space: pre-wrap;
-  box-shadow: 0 2px 8px var(--vscode-shadow);
+}
+
+.assistant-msg .msg-role {
+  color: var(--vscode-primary);
 }
 
 .chat-input-area {
+  padding: 16px;
   border-top: 1px solid var(--vscode-border);
-  padding: 20px;
-  background: var(--vscode-sidebar-bg);
-  flex-shrink: 0;
 }
 
-.ml-1 {
-  margin-left: 4px;
-}
-
-.mt-2 {
-  margin-top: 8px;
-}
-
-.mt-4 {
-  margin-top: 16px;
-}
-
-.w-full {
+.send-btn,
+.login-btn {
   width: 100%;
+  margin-top: 10px;
 }
 
 .login-dialog .el-dialog {
-  background-color: var(--vscode-sidebar-bg);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px var(--vscode-shadow);
-}
-
-.login-dialog .el-form-item__label {
-  color: var(--vscode-text);
+  border-radius: 14px;
+  background: var(--vscode-sidebar-bg);
 }
 </style>

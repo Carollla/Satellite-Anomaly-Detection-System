@@ -1,7 +1,7 @@
 <template>
   <div class="page-container">
-    <h2>LinkManagement</h2>
-    <p>页面正在开发中...</p>
+    <h2>链路拓扑</h2>
+    <p>这里用于查看星间链路、星地链路、链路质量和转发状态。下一步可接入链路表格、吞吐趋势和绕行操作。</p>
   </div>
 </template>
 
@@ -11,9 +11,13 @@
 <style scoped>
 .page-container {
   padding: 24px;
-  background-color: var(--vscode-bg);
+  min-height: 100%;
+  background: var(--vscode-bg);
   color: var(--vscode-text);
-  border-radius: 8px;
-  height: 100%;
+}
+
+p {
+  color: var(--vscode-text-muted);
+  line-height: 1.7;
 }
 </style>

@@ -24,3 +24,5 @@ Thumbs.db
 .claude/
 
 claw-code-main-reference/
+
+.tmp-chrome*/

@@ -17,81 +17,94 @@ export interface Satellite {
   inclination: number
   baseLon: number
   phase: number
+  faultType?: string
+}
+
+const CONSTALLATION_LIMIT = 600
+
+function getLayerFromAltitude(alt: number) {
+  if (alt >= 30000000) return 'GEO'
+  if (alt >= 20000000) return 'MEO'
+  return 'LEO'
+}
+
+function getDefaultAltitudeByLayer(layer: 'LEO' | 'MEO' | 'GEO') {
+  if (layer === 'GEO') return 35786000
+  if (layer === 'MEO') return 21500000
+  return 550000
 }
 
 function generateArchitecture(): Satellite[] {
-  const sats: Satellite[] = [];
-  let idCounter = 1;
+  const sats: Satellite[] = []
+  let idCounter = 1
 
-  // LEO Shell A: 200 sats, 550km, 53° incl, 20 planes x 10
-  for (let p = 0; p < 20; p++) {
-    const planeLon = (p / 20) * 360 - 180;
-    for (let s = 0; s < 10; s++) {
-      const phase = (s / 10) * 360;
-      sats.push({
-        id: idCounter,
-        name: `LEO-A-${p + 1}-${s + 1}`,
-        code: `LEO-A-${idCounter}`,
-        instanceId: `sat-leo-a-${idCounter}`,
-        status: 'normal',
-        alt: 550000,
-        inclination: 53,
-        baseLon: planeLon,
-        phase: phase,
-        cpu: 20,
-        temp: 35
-      });
-      idCounter++;
+  const pushShell = (options: {
+    prefix: string
+    instancePrefix: string
+    altitude: number
+    inclination: number
+    planeCount: number
+    satPerPlane: number
+  }) => {
+    for (let p = 0; p < options.planeCount; p++) {
+      const planeLon = (p / options.planeCount) * 360 - 180
+      for (let s = 0; s < options.satPerPlane; s++) {
+        const phase = (s / options.satPerPlane) * 360
+        sats.push({
+          id: idCounter,
+          name: `${options.prefix}-${p + 1}-${s + 1}`,
+          code: `${options.prefix}-${idCounter}`,
+          instanceId: `${options.instancePrefix}-${idCounter}`,
+          status: 'normal',
+          alt: options.altitude,
+          inclination: options.inclination,
+          baseLon: planeLon,
+          phase,
+          cpu: 20,
+          temp: 35
+        })
+        idCounter++
+      }
     }
   }
 
-  // LEO Shell B: 220 sats, 530km, 97.6° incl, 10 planes x 22
-  for (let p = 0; p < 10; p++) {
-    const planeLon = (p / 10) * 360 - 180;
-    for (let s = 0; s < 22; s++) {
-      const phase = (s / 22) * 360;
-      sats.push({
-        id: idCounter,
-        name: `LEO-B-${p + 1}-${s + 1}`,
-        code: `LEO-B-${idCounter}`,
-        instanceId: `sat-leo-b-${idCounter}`,
-        status: 'normal',
-        alt: 530000,
-        inclination: 97.6,
-        baseLon: planeLon,
-        phase: phase,
-        cpu: 20,
-        temp: 35
-      });
-      idCounter++;
-    }
-  }
+  pushShell({
+    prefix: 'LEO-A',
+    instancePrefix: 'sat-leo-a',
+    altitude: 550000,
+    inclination: 53,
+    planeCount: 24,
+    satPerPlane: 10
+  })
 
-  // MEO: 24 sats, 21500km, 55° incl, 3 planes x 8
-  for (let p = 0; p < 3; p++) {
-    const planeLon = (p / 3) * 360 - 180;
-    for (let s = 0; s < 8; s++) {
-      const phase = (s / 8) * 360;
-      sats.push({
-        id: idCounter,
-        name: `MEO-${p + 1}-${s + 1}`,
-        code: `MEO-${idCounter}`,
-        instanceId: `sat-meo-${idCounter}`,
-        status: 'normal',
-        alt: 21500000,
-        inclination: 55,
-        baseLon: planeLon,
-        phase: phase,
-        cpu: 20,
-        temp: 35
-      });
-      idCounter++;
-    }
-  }
+  pushShell({
+    prefix: 'LEO-B',
+    instancePrefix: 'sat-leo-b',
+    altitude: 530000,
+    inclination: 97.6,
+    planeCount: 12,
+    satPerPlane: 22
+  })
 
-  // GEO: 6 sats, 35786km, 0° incl, longitudes: 0, 60, 120, 180, 240, 300
-  const geoLons = [0, 60, 120, 180, 240, 300];
-  geoLons.forEach((lon, i) => {
+  pushShell({
+    prefix: 'LEO-C',
+    instancePrefix: 'sat-leo-c',
+    altitude: 760000,
+    inclination: 86.4,
+    planeCount: 6,
+    satPerPlane: 8
+  })
+
+  pushShell({
+    prefix: 'MEO',
+    instancePrefix: 'sat-meo',
+    altitude: 21500000,
+    inclination: 55,
+    planeCount: 4,
+    satPerPlane: 8
+  })
+
+  ;Array.from({ length: 16 }, (_, i) => i * 22.5).forEach((lon, i) => {
     sats.push({
       id: idCounter,
       name: `GEO-${i + 1}`,
@@ -104,11 +117,11 @@ function generateArchitecture(): Satellite[] {
       phase: 0,
       cpu: 20,
       temp: 35
-    });
-    idCounter++;
-  });
+    })
+    idCounter++
+  })
 
-  return sats;
+  return sats
 }
 
 export const useSatelliteStore = defineStore('satellite', () => {
@@ -117,6 +130,7 @@ export const useSatelliteStore = defineStore('satellite', () => {
   
   const defaultArchitecture = generateArchitecture()
   const satellites = ref<Satellite[]>([])
+  const constellationCount = ref(CONSTALLATION_LIMIT)
   
   const positions = ref<Record<string, { latitude: number; longitude: number; altitude: number }>>({})
   const positionSource = ref<'mock-server' | 'local-fallback'>('mock-server')
@@ -131,7 +145,7 @@ export const useSatelliteStore = defineStore('satellite', () => {
         // Find changes
         let hasChanges = false
         const changes: any = {}
-        for (const k of ['name', 'status', 'alt', 'inclination', 'baseLon', 'phase'] as const) {
+        for (const k of ['name', 'status', 'alt', 'inclination', 'baseLon', 'phase', 'faultType'] as const) {
           if (sat[k] !== def[k]) {
             hasChanges = true
             changes[k] = sat[k]
@@ -163,6 +177,7 @@ export const useSatelliteStore = defineStore('satellite', () => {
     
     list.push(...savedCustoms)
     satellites.value = list
+    constellationCount.value = Math.min(list.length, CONSTALLATION_LIMIT)
   }
   
   // Call initialization
@@ -237,9 +252,11 @@ export const useSatelliteStore = defineStore('satellite', () => {
       phase: sat.phase || 0,
       alt: sat.alt || 500000,
       cpu: sat.cpu || 20,
-      temp: sat.temp || 30
+      temp: sat.temp || 30,
+      faultType: sat.faultType || 'none'
     }
     satellites.value.push(newSat)
+    constellationCount.value = satellites.value.length
     saveToStorage()
     return newSat
   }
@@ -259,6 +276,7 @@ export const useSatelliteStore = defineStore('satellite', () => {
       if (selectedSatelliteId.value === id) {
         selectedSatelliteId.value = null
       }
+      constellationCount.value = satellites.value.length
       saveToStorage()
     }
   }
@@ -274,8 +292,61 @@ export const useSatelliteStore = defineStore('satellite', () => {
     }
   }
 
+  const setConstellationCount = (count: number) => {
+    const nextCount = Math.max(1, Math.min(CONSTALLATION_LIMIT, Math.round(count)))
+    const preservedEdits = new Map<number, Partial<Satellite>>()
+    satellites.value.forEach((sat) => {
+      const def = defaultArchitecture.find((item) => item.id === sat.id)
+      if (def) {
+        const changes: Partial<Satellite> = {}
+        if (sat.name !== def.name) changes.name = sat.name
+        if (sat.status !== def.status) changes.status = sat.status
+        if (sat.alt !== def.alt) changes.alt = sat.alt
+        if (sat.inclination !== def.inclination) changes.inclination = sat.inclination
+        if (sat.baseLon !== def.baseLon) changes.baseLon = sat.baseLon
+        if (sat.phase !== def.phase) changes.phase = sat.phase
+        if (sat.faultType !== def.faultType) changes.faultType = sat.faultType
+        if (Object.keys(changes).length) {
+          preservedEdits.set(sat.id, changes)
+        }
+      }
+    })
+
+    satellites.value = defaultArchitecture.slice(0, nextCount).map((sat) => ({
+      ...sat,
+      ...(preservedEdits.get(sat.id) || {})
+    }))
+    constellationCount.value = satellites.value.length
+    if (selectedSatelliteId.value && !satellites.value.some((item) => item.id === selectedSatelliteId.value)) {
+      selectedSatelliteId.value = null
+    }
+    saveToStorage()
+  }
+
+  const setLayerAltitude = (layer: 'LEO' | 'MEO' | 'GEO', altitude: number) => {
+    const targetAlt = Math.max(100000, Math.round(altitude / 1000) * 1000)
+    satellites.value = satellites.value.map((sat) => {
+      const currentLayer = getLayerFromAltitude(sat.alt)
+      if (currentLayer !== layer) return sat
+      return {
+        ...sat,
+        alt: targetAlt
+      }
+    })
+    saveToStorage()
+  }
+
+  const normalizeAllAltitudes = () => {
+    satellites.value = satellites.value.map((sat) => ({
+      ...sat,
+      alt: getDefaultAltitudeByLayer(getLayerFromAltitude(sat.alt))
+    }))
+    saveToStorage()
+  }
+
   return {
     satellites,
+    constellationCount,
     positions,
     positionSource,
     selectedSatelliteId,
@@ -284,6 +355,9 @@ export const useSatelliteStore = defineStore('satellite', () => {
     updateSatellite,
     deleteSatellite,
     restoreSatellite,
+    setConstellationCount,
+    setLayerAltitude,
+    normalizeAllAltitudes,
     updateSatellitesFromInstances,
     fetchPositions
   }

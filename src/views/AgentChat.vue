@@ -1,311 +1,176 @@
 <template>
-  <div class="agent-console">
-    <section class="hero-panel">
-      <div class="hero-copy">
-        <p class="eyebrow">Satellite AIOps Console</p>
-        <h2>卫星智能运维 Agent</h2>
-        <p class="hero-text">
-          面向卫星网络智能运维的统一控制台，整合协调器、专家代理、审批、黑板和联邦诊断。
-        </p>
+  <div class="agent-page">
+    <header class="agent-head">
+      <div>
+        <span>Anomaly Monitoring Agent</span>
+        <h1>异常监测 Agent</h1>
       </div>
-      <div class="hero-actions">
-        <el-button type="primary" @click="refreshAll" :loading="bootstrapping">
-          刷新态势
-        </el-button>
-        <el-tag :type="llmOnline ? 'success' : 'warning'" effect="dark">
-          {{ llmOnline ? 'LLM 已接入' : 'Mock 模式' }}
+      <div class="head-actions">
+        <el-tag :type="status?.coordinator.status === 'online' ? 'success' : 'warning'">
+          {{ status?.coordinator.status === 'online' ? '在线' : '未连接' }}
         </el-tag>
+        <el-button size="small" :loading="loading" @click="refreshAll">刷新</el-button>
+        <el-button size="small" type="primary" :loading="sending" @click="sendMessage">运行诊断</el-button>
       </div>
+    </header>
+
+    <section class="top-grid">
+      <article v-for="item in summaryCards" :key="item.label" class="summary-item">
+        <span>{{ item.label }}</span>
+        <strong>{{ item.value }}</strong>
+        <em>{{ item.desc }}</em>
+      </article>
     </section>
 
-    <section class="summary-grid">
-      <el-card class="summary-card" shadow="hover">
-        <p class="summary-label">Coordinator</p>
-        <div class="summary-main">
-          <span class="summary-value">{{ status?.coordinator.model || '-' }}</span>
-          <el-tag size="small" :type="status?.coordinator.status === 'online' ? 'success' : 'info'">
-            {{ status?.coordinator.status || 'unknown' }}
-          </el-tag>
+    <section class="agent-grid">
+      <main class="work-panel panel">
+        <div class="panel-head">
+          <h3>诊断任务</h3>
+          <el-select v-model="agentType" size="small" class="agent-select">
+            <el-option label="协调器" value="coordinator" />
+            <el-option label="网络专家" value="network" />
+            <el-option label="健康专家" value="health" />
+            <el-option label="运维专家" value="ops" />
+            <el-option label="安全专家" value="security" />
+          </el-select>
         </div>
-        <p class="summary-sub">活跃任务 {{ status?.coordinator.active_tasks ?? 0 }}</p>
-      </el-card>
-
-      <el-card class="summary-card" shadow="hover">
-        <p class="summary-label">Specialists</p>
-        <div class="summary-main">
-          <span class="summary-value">{{ status?.specialists.length ?? 0 }}</span>
-          <el-tag size="small" type="primary">地面专家</el-tag>
+        <div class="quick-actions">
+          <el-button v-for="item in quickPrompts" :key="item" size="small" plain @click="message = item">
+            {{ item }}
+          </el-button>
         </div>
-        <p class="summary-sub">
-          在线 {{ onlineSpecialists }}/{{ status?.specialists.length ?? 0 }}
-        </p>
-      </el-card>
-
-      <el-card class="summary-card" shadow="hover">
-        <p class="summary-label">Edge Agents</p>
-        <div class="summary-main">
-          <span class="summary-value">{{ status?.edge_agents.length ?? 0 }}</span>
-          <el-tag size="small" type="success">星上心跳</el-tag>
+        <el-input
+          v-model="message"
+          type="textarea"
+          :rows="4"
+          resize="none"
+          placeholder="输入真实排障问题，例如：分析当前离线卫星和链路影响范围"
+        />
+        <div class="run-row">
+          <el-checkbox v-model="continueTrace" :disabled="!currentTraceId">续接 Trace</el-checkbox>
+          <el-button size="small" @click="message = ''">清空</el-button>
         </div>
-        <p class="summary-sub">最近轮询 {{ refreshTime }}</p>
-      </el-card>
 
-      <el-card class="summary-card" shadow="hover">
-        <p class="summary-label">Pending Approval</p>
-        <div class="summary-main">
-          <span class="summary-value">{{ approvals.length }}</span>
-          <el-tag size="small" :type="criticalApprovalCount > 0 ? 'danger' : 'warning'">
-            {{ criticalApprovalCount > 0 ? '高风险' : '待处理' }}
-          </el-tag>
+        <div class="result-grid">
+          <section class="result-box">
+            <div class="mini-head">
+              <strong>诊断结果</strong>
+              <span>{{ messages[0]?.time || '-' }}</span>
+            </div>
+            <div class="answer-text">{{ latestAnswer }}</div>
+            <div class="suggestions">
+              <el-tag v-for="item in latestSuggestions" :key="item" size="small">{{ item }}</el-tag>
+            </div>
+          </section>
+          <section class="result-box">
+            <div class="mini-head">
+              <strong>执行 Trace</strong>
+              <span>{{ trace?.current_phase || 'idle' }}</span>
+            </div>
+            <div class="trace-list">
+              <div v-for="item in traceRows" :key="`${item.assignee}-${item.task}`" class="trace-row">
+                <span>{{ item.task }}</span>
+                <el-tag size="small" :type="statusTagType(item.status)">{{ item.status }}</el-tag>
+              </div>
+              <div v-if="!traceRows.length" class="empty-state">等待任务</div>
+            </div>
+          </section>
         </div>
-        <p class="summary-sub">联邦协商 {{ negotiations.length }} 条</p>
-      </el-card>
-    </section>
+      </main>
 
-    <section class="content-grid">
-      <div class="chat-column">
-        <el-card class="panel-card" shadow="never">
-          <template #header>
-            <div class="panel-head">
-              <div>
-                <h3>任务输入</h3>
-                <p>通过协调器或专家代理发起排障与运维任务</p>
-              </div>
-              <el-select v-model="agentType" class="agent-select">
-                <el-option label="协调器" value="coordinator" />
-                <el-option label="网络专家" value="network" />
-                <el-option label="健康专家" value="health" />
-                <el-option label="运维专家" value="ops" />
-                <el-option label="安全专家" value="security" />
-              </el-select>
-            </div>
-          </template>
-
-          <div class="quick-actions">
-            <el-button
-              v-for="prompt in quickPrompts"
-              :key="prompt"
-              plain
-              size="small"
-              @click="message = prompt"
-            >
-              {{ prompt }}
-            </el-button>
+      <aside class="config-stack">
+        <section class="panel config-panel">
+          <div class="panel-head">
+            <h3>大模型 API</h3>
+            <el-button size="small" text type="primary" :loading="testing" @click="testLlm">测试</el-button>
           </div>
-
-          <el-input
-            v-model="message"
-            type="textarea"
-            :rows="4"
-            resize="none"
-            placeholder="例如：排查 GEO 骨干链路丢包异常，并给出处置建议"
-          />
-
-          <div class="composer-actions">
-            <el-checkbox v-model="continueTrace" :disabled="!currentTraceId">
-              续接当前 Trace
-            </el-checkbox>
-            <div class="composer-buttons">
-              <el-button @click="message = ''">清空</el-button>
-              <el-button type="primary" :loading="sending" @click="sendMessage">
-                发送任务
-              </el-button>
-            </div>
+          <div class="config-grid">
+            <label>
+              <span>Provider</span>
+              <el-input v-model="llmForm.provider" size="small" placeholder="openai / ollama / custom" />
+            </label>
+            <label>
+              <span>API 地址</span>
+              <el-input v-model="llmForm.endpoint" size="small" placeholder="https://..." />
+            </label>
+            <label>
+              <span>模型</span>
+              <el-input v-model="llmForm.model" size="small" placeholder="model name" />
+            </label>
+            <label>
+              <span>API Key</span>
+              <el-input v-model="llmForm.apiKey" size="small" type="password" show-password placeholder="真实密钥" />
+            </label>
           </div>
-        </el-card>
+          <div class="model-row">
+            <el-input-number v-model="llmForm.temperature" size="small" :min="0" :max="2" :step="0.1" />
+            <el-input-number v-model="llmForm.maxTokens" size="small" :min="128" :max="8192" :step="128" />
+            <el-button size="small" type="primary" :loading="savingConfig" @click="saveLlmConfig">保存</el-button>
+          </div>
+        </section>
 
-        <el-card class="panel-card message-card" shadow="never">
-          <template #header>
-            <div class="panel-head">
-              <div>
-                <h3>消息流</h3>
-                <p>展示智能运维 Agent 的回复、建议和动作摘要</p>
-              </div>
-              <el-tag v-if="currentTraceId" type="info">Trace {{ currentTraceId }}</el-tag>
-            </div>
-          </template>
+        <section class="panel feature-panel">
+          <div class="panel-head">
+            <h3>Agent 功能</h3>
+            <el-button size="small" text type="primary" :loading="savingConfig" @click="saveAgentConfig">保存</el-button>
+          </div>
+          <div class="feature-grid">
+            <label v-for="item in featureOptions" :key="item.key" class="feature-item">
+              <span>{{ item.label }}</span>
+              <el-switch v-model="agentFeatures[item.key]" size="small" />
+            </label>
+          </div>
+          <div class="agent-settings">
+            <el-select v-model="agentConfig.default_agent" size="small">
+              <el-option label="协调器" value="coordinator" />
+              <el-option label="网络专家" value="network" />
+              <el-option label="健康专家" value="health" />
+              <el-option label="安全专家" value="security" />
+            </el-select>
+            <el-input-number v-model="agentConfig.max_steps" size="small" :min="1" :max="20" />
+          </div>
+        </section>
 
-          <div class="message-list">
-            <div
-              v-for="item in messages"
-              :key="item.id"
-              class="message-item"
-              :class="item.role === 'user' ? 'is-user' : 'is-assistant'"
-            >
-              <div class="message-meta">
-                <span>{{ item.role === 'user' ? '用户' : item.agentLabel }}</span>
-                <span>{{ item.time }}</span>
-              </div>
-              <div class="message-body">{{ item.content }}</div>
-              <div v-if="item.suggestions?.length" class="message-extra">
-                <span class="extra-title">建议动作</span>
-                <el-tag
-                  v-for="suggestion in item.suggestions"
-                  :key="suggestion"
-                  size="small"
-                  class="extra-tag"
-                >
-                  {{ suggestion }}
-                </el-tag>
-              </div>
-              <div v-if="item.actions?.length" class="message-extra">
-                <span class="extra-title">执行摘要</span>
-                <div
-                  v-for="action in item.actions"
-                  :key="`${item.id}-${action.tool}`"
-                  class="action-row"
-                >
-                  <span>{{ action.tool }}</span>
-                  <span>{{ action.result }}</span>
-                </div>
-              </div>
+        <section class="panel anomaly-panel">
+          <div class="panel-head">
+            <h3>当前异常</h3>
+            <el-tag size="small" type="warning">{{ anomalyCards.length }}</el-tag>
+          </div>
+          <div class="anomaly-list">
+            <div v-for="item in anomalyCards" :key="item.title" class="anomaly-row">
+              <strong>{{ item.title }}</strong>
+              <span>{{ item.solution }}</span>
             </div>
           </div>
-        </el-card>
-      </div>
+        </section>
 
-      <div class="context-column">
-        <el-card class="panel-card" shadow="never">
-          <template #header>
-            <div class="panel-head">
-              <div>
-                <h3>Trace 与执行计划</h3>
-                <p>协调器拆解后的排障流程</p>
-              </div>
-              <el-tag :type="tracePhaseType">{{ trace?.current_phase || 'idle' }}</el-tag>
-            </div>
-          </template>
-
-          <div v-if="trace?.plan?.length" class="plan-list">
-            <div v-for="item in trace.plan" :key="`${item.assignee}-${item.task}`" class="plan-item">
-              <div class="plan-main">
-                <strong>{{ item.task }}</strong>
-                <span>{{ item.assignee }}</span>
-              </div>
-              <el-tag size="small" :type="statusTagType(item.status)">
-                {{ item.status }}
-              </el-tag>
-            </div>
+        <section class="panel approval-panel">
+          <div class="panel-head">
+            <h3>审批</h3>
+            <el-button size="small" text @click="refreshApprovals">刷新</el-button>
           </div>
-          <el-empty v-else description="等待任务创建 Trace" />
-        </el-card>
-
-        <el-card class="panel-card" shadow="never">
-          <template #header>
-            <div class="panel-head">
-              <div>
-                <h3>Blackboard</h3>
-                <p>跨代理共享的结构化状态快照</p>
-              </div>
-              <span class="muted">{{ blackboard?.updated_at ? formatTime(blackboard.updated_at) : '-' }}</span>
-            </div>
-          </template>
-
-          <div v-if="blackboardEntries.length" class="blackboard-list">
-            <div v-for="entry in blackboardEntries" :key="entry.key" class="blackboard-row">
-              <span class="blackboard-key">{{ entry.key }}</span>
-              <span class="blackboard-value">{{ entry.value }}</span>
-            </div>
-          </div>
-          <el-empty v-else description="暂无黑板数据" />
-        </el-card>
-
-        <el-card class="panel-card" shadow="never">
-          <template #header>
-            <div class="panel-head">
-              <div>
-                <h3>审批与联邦协商</h3>
-                <p>高风险动作审批和 A2A 共识结果</p>
-              </div>
-              <el-button text @click="refreshApprovals">刷新</el-button>
-            </div>
-          </template>
-
           <div class="approval-list">
-            <div v-for="approval in approvals" :key="approval.request_id" class="approval-card">
-              <div class="approval-top">
-                <strong>{{ approval.action }}</strong>
-                <el-tag size="small" :type="approval.security_level === 'critical' ? 'danger' : 'warning'">
-                  {{ approval.security_level }}
-                </el-tag>
-              </div>
-              <p>目标：{{ approval.target }}</p>
-              <p>原因：{{ approval.reason || '未说明' }}</p>
-              <div class="approval-actions">
-                <el-button size="small" @click="decideApproval(approval.request_id, 'reject')">驳回</el-button>
-                <el-button size="small" type="primary" @click="decideApproval(approval.request_id, 'approve')">
-                  通过
-                </el-button>
-              </div>
-            </div>
-          </div>
-
-          <el-divider />
-
-          <div class="negotiation-list">
-            <div v-for="item in negotiations" :key="item.negotiation_id" class="negotiation-card">
-              <div class="approval-top">
-                <strong>{{ item.type }}</strong>
-                <el-tag size="small" type="success">{{ item.status }}</el-tag>
-              </div>
-              <p>参与节点：{{ item.participating_agents.join(', ') }}</p>
-              <p>{{ item.result }}</p>
-            </div>
-          </div>
-        </el-card>
-
-        <el-card class="panel-card" shadow="never">
-          <template #header>
-            <div class="panel-head">
+            <div v-for="approval in approvals.slice(0, 2)" :key="approval.request_id" class="approval-row">
+              <strong>{{ approval.action }}</strong>
               <div>
-                <h3>千问模型配置</h3>
-                <p>用于协调器与网络专家的 OpenAI 兼容模式接入</p>
+                <el-button size="small" @click="decideApproval(approval.request_id, 'reject')">驳回</el-button>
+                <el-button size="small" type="primary" @click="decideApproval(approval.request_id, 'approve')">通过</el-button>
               </div>
-              <el-button text @click="loadLlmConfig">重载</el-button>
             </div>
-          </template>
-
-          <div class="config-stack">
-            <div class="config-block">
-              <span class="config-title">协调器</span>
-              <el-input v-model="coordinatorModel" placeholder="qwen-plus" />
-              <el-input v-model="coordinatorEndpoint" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1" />
-            </div>
-            <div class="config-block">
-              <span class="config-title">网络专家</span>
-              <el-input v-model="specialistModel" placeholder="qwen-turbo" />
-              <el-input v-model="specialistEndpoint" placeholder="https://dashscope.aliyuncs.com/compatible-mode/v1" />
-            </div>
-            <div class="config-actions">
-              <el-button :loading="testing" @click="testLlm('specialist_network')">测试网络专家</el-button>
-              <el-button :loading="testing" @click="testLlm('coordinator')">测试协调器</el-button>
-              <el-button type="primary" :loading="savingConfig" @click="saveLlmConfig">保存配置</el-button>
-            </div>
-            <el-alert
-              :title="llmTip"
-              type="info"
-              :closable="false"
-              show-icon
-            />
+            <div v-if="!approvals.length" class="empty-state">暂无待审批</div>
           </div>
-        </el-card>
-      </div>
+        </section>
+      </aside>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
 import { agentApi, llmApi, satopsApi } from '../api'
-import type {
-  AgentStatus,
-  ApprovalRequest,
-  A2ANegotiation,
-  BlackboardState,
-  TraceDetail
-} from '../api/types'
+import type { AgentStatus, ApprovalRequest, TraceDetail } from '../api/types'
 import { usePolling } from '../composables/usePolling'
 
 interface ChatMessage {
@@ -315,92 +180,84 @@ interface ChatMessage {
   content: string
   time: string
   suggestions?: string[]
-  actions?: Array<{ tool: string; result: string }>
 }
 
-const quickPrompts = [
-  '排查 GEO 骨干链路丢包异常',
-  '检查边界站与中心主控站的回传健康度',
-  '给出当前网络最脆弱链路及处置建议',
-  '生成一份针对卫星异常的排障计划'
-]
+const quickPrompts = ['分析当前卫星告警', '检查链路中断影响', '评估星上算力负载', '生成处置审批建议']
+const featureOptions = [
+  { key: 'anomaly_detection', label: '异常检测' },
+  { key: 'root_cause', label: '根因分析' },
+  { key: 'auto_recovery', label: '自动处置' },
+  { key: 'audit_required', label: '审计审批' },
+  { key: 'semantic_compression', label: '语义压缩' },
+  { key: 'remote_sensing', label: '遥感联动' }
+] as const
 
-const bootstrapping = ref(false)
+const loading = ref(false)
 const sending = ref(false)
-const savingConfig = ref(false)
 const testing = ref(false)
+const savingConfig = ref(false)
 const continueTrace = ref(true)
 const agentType = ref('coordinator')
 const message = ref('')
 const currentTraceId = ref('')
-const refreshTime = ref('--')
-
 const status = ref<AgentStatus | null>(null)
 const trace = ref<TraceDetail | null>(null)
-const blackboard = ref<BlackboardState | null>(null)
 const approvals = ref<ApprovalRequest[]>([])
-const negotiations = ref<A2ANegotiation[]>([])
-const llmStatus = ref<Record<string, any>>({})
-const llmConfig = ref<Record<string, any>>({})
+const llmRawConfig = ref<Record<string, any>>({})
+const agentRawConfig = ref<Record<string, any>>({})
 
-const coordinatorModel = ref('')
-const coordinatorEndpoint = ref('')
-const specialistModel = ref('')
-const specialistEndpoint = ref('')
+const llmForm = reactive({
+  provider: '',
+  endpoint: '',
+  model: '',
+  apiKey: '',
+  temperature: 0.2,
+  maxTokens: 2048
+})
+const agentConfig = reactive({
+  default_agent: 'coordinator',
+  max_steps: 8
+})
+const agentFeatures = reactive<Record<string, boolean>>({
+  anomaly_detection: true,
+  root_cause: true,
+  auto_recovery: false,
+  audit_required: true,
+  semantic_compression: true,
+  remote_sensing: true
+})
 
 const messages = ref<ChatMessage[]>([
   {
     id: 'welcome',
     role: 'assistant',
     agentLabel: 'Coordinator',
-    content:
-      '已进入卫星智能运维控制台。你可以直接发起排障任务，我会同时创建 Trace、拉取 Blackboard，并展示审批与联邦协商状态。',
+    content: '等待真实诊断任务。配置大模型 API 后，可以调用后端 Agent 服务进行异常分析。',
     time: dayjs().format('HH:mm:ss')
   }
 ])
 
-const onlineSpecialists = computed(
-  () => status.value?.specialists.filter((item) => item.status === 'online').length ?? 0
-)
-
-const criticalApprovalCount = computed(
-  () => approvals.value.filter((item) => item.security_level === 'critical').length
-)
-
-const llmOnline = computed(() =>
-  Object.values(llmStatus.value || {}).some((item: any) => item?.provider === 'real-llm' || item?.status === 'online')
-)
-
-const blackboardEntries = computed(() => {
-  const findings = blackboard.value?.findings || {}
-  return Object.entries(findings).map(([key, value]) => ({
-    key,
-    value: typeof value === 'string' ? value : JSON.stringify(value)
-  }))
+const summaryCards = computed(() => [
+  { label: '协调器', value: status.value?.coordinator.status || 'unknown', desc: status.value?.coordinator.model || '-' },
+  { label: '专家 Agent', value: status.value?.specialists.length ?? 0, desc: '后端返回' },
+  { label: '星上 Agent', value: status.value?.edge_agents.length ?? 0, desc: '后端返回' },
+  { label: '待审批', value: approvals.value.length, desc: '真实审批队列' }
+])
+const latestAnswer = computed(() => messages.value.find((item) => item.role === 'assistant')?.content || '等待诊断结果')
+const latestSuggestions = computed(() => messages.value.find((item) => item.role === 'assistant')?.suggestions || [])
+const traceRows = computed(() => trace.value?.plan?.slice(0, 4) || [])
+const anomalyCards = computed(() => {
+  const coordinatorOffline = status.value?.coordinator.status && status.value.coordinator.status !== 'online'
+  const pendingApprovals = approvals.value.length > 0
+  return [
+    coordinatorOffline
+      ? { title: 'Agent 未在线', solution: '检查后端 Agent 服务和模型 API 配置。' }
+      : { title: 'Agent 在线', solution: '可发起卫星、链路、遥感与审批诊断。' },
+    pendingApprovals
+      ? { title: '存在待审批动作', solution: '先复核动作目标和影响范围。' }
+      : { title: '审批队列正常', solution: '当前没有阻塞性审批。' }
+  ]
 })
-
-const tracePhaseType = computed(() => {
-  switch (trace.value?.current_phase) {
-    case 'completed':
-      return 'success'
-    case 'review':
-      return 'warning'
-    case 'execute':
-      return 'primary'
-    case 'plan':
-      return 'info'
-    default:
-      return 'info'
-  }
-})
-
-const llmTip = computed(() => {
-  return `当前默认使用 DashScope OpenAI 兼容模式。若要启用真实千问，请在 .env.mock 中设置 DASHSCOPE_API_KEY 或 SATOPS_LLM_API_KEY。`
-})
-
-function formatTime(value: string) {
-  return dayjs(value).format('MM-DD HH:mm:ss')
-}
 
 function statusTagType(status: string) {
   if (status === 'completed') return 'success'
@@ -409,13 +266,20 @@ function statusTagType(status: string) {
   return 'info'
 }
 
-function syncLlmForm() {
-  const coordinator = llmConfig.value?.coordinator || {}
-  const specialist = llmConfig.value?.specialist_network || {}
-  coordinatorModel.value = coordinator.model || ''
-  coordinatorEndpoint.value = coordinator.endpoint || ''
-  specialistModel.value = specialist.model || ''
-  specialistEndpoint.value = specialist.endpoint || ''
+function applyLlmConfig(config: Record<string, any>) {
+  const coordinator = config.coordinator || config.default || config
+  llmForm.provider = coordinator.provider || config.provider || ''
+  llmForm.endpoint = coordinator.endpoint || coordinator.base_url || config.endpoint || config.base_url || ''
+  llmForm.model = coordinator.model || config.model || ''
+  llmForm.apiKey = coordinator.api_key || coordinator.apiKey || config.api_key || config.apiKey || ''
+  llmForm.temperature = Number(coordinator.temperature ?? config.temperature ?? 0.2)
+  llmForm.maxTokens = Number(coordinator.max_tokens ?? coordinator.maxTokens ?? config.max_tokens ?? 2048)
+}
+
+function applyAgentConfig(config: Record<string, any>) {
+  agentConfig.default_agent = config.default_agent || config.defaultAgent || 'coordinator'
+  agentConfig.max_steps = Number(config.max_steps || config.maxSteps || 8)
+  Object.assign(agentFeatures, config.features || {})
 }
 
 async function loadStatus() {
@@ -426,50 +290,91 @@ async function loadApprovals() {
   approvals.value = await satopsApi.getPendingApprovals()
 }
 
-async function loadNegotiations() {
-  negotiations.value = await satopsApi.getA2ANegotiations()
-}
-
-async function loadLlmStatus() {
-  llmStatus.value = await llmApi.getStatus()
-}
-
-async function loadLlmConfig() {
-  llmConfig.value = await llmApi.getConfig()
-  syncLlmForm()
+async function loadConfigs() {
+  const [llmConfig, agentConfigData] = await Promise.all([llmApi.getConfig(), agentApi.getConfig()])
+  llmRawConfig.value = llmConfig || {}
+  agentRawConfig.value = agentConfigData || {}
+  applyLlmConfig(llmRawConfig.value)
+  applyAgentConfig(agentRawConfig.value)
 }
 
 async function loadTraceArtifacts(traceId: string) {
   currentTraceId.value = traceId
-  const [traceData, blackboardData] = await Promise.all([
-    satopsApi.getTrace(traceId),
-    satopsApi.getBlackboard(traceId)
-  ])
-  trace.value = traceData
-  blackboard.value = blackboardData
+  trace.value = await satopsApi.getTrace(traceId)
 }
 
 async function refreshAll() {
   try {
-    bootstrapping.value = true
-    await Promise.all([loadStatus(), loadApprovals(), loadNegotiations(), loadLlmStatus(), loadLlmConfig()])
+    loading.value = true
+    await Promise.all([loadStatus(), loadApprovals(), loadConfigs()])
     if (currentTraceId.value) {
       await loadTraceArtifacts(currentTraceId.value)
     }
-    refreshTime.value = dayjs().format('HH:mm:ss')
   } catch (error: any) {
     ElMessage.error(error?.message || '刷新失败')
   } finally {
-    bootstrapping.value = false
+    loading.value = false
   }
 }
 
 async function refreshApprovals() {
   try {
-    await Promise.all([loadApprovals(), loadNegotiations()])
-    ElMessage.success('审批与联邦协商状态已刷新')
+    await loadApprovals()
+    ElMessage.success('审批状态已刷新')
   } catch (error: any) {
     ElMessage.error(error?.message || '刷新失败')
+  }
+}
+
+async function saveLlmConfig() {
+  try {
+    savingConfig.value = true
+    await llmApi.updateConfig({
+      ...llmRawConfig.value,
+      provider: llmForm.provider,
+      endpoint: llmForm.endpoint,
+      base_url: llmForm.endpoint,
+      model: llmForm.model,
+      api_key: llmForm.apiKey,
+      temperature: llmForm.temperature,
+      max_tokens: llmForm.maxTokens
+    })
+    ElMessage.success('大模型配置已保存')
+    await loadConfigs()
+  } catch (error: any) {
+    ElMessage.error(error?.message || '保存失败')
+  } finally {
+    savingConfig.value = false
+  }
+}
+
+async function saveAgentConfig() {
+  try {
+    savingConfig.value = true
+    await agentApi.updateConfig({
+      ...agentRawConfig.value,
+      default_agent: agentConfig.default_agent,
+      max_steps: agentConfig.max_steps,
+      features: { ...agentFeatures }
+    })
+    ElMessage.success('Agent 配置已保存')
+    await loadConfigs()
+  } catch (error: any) {
+    ElMessage.error(error?.message || '保存失败')
+  } finally {
+    savingConfig.value = false
+  }
+}
+
+async function testLlm() {
+  try {
+    testing.value = true
+    const result = await llmApi.testConnection('coordinator')
+    ElMessage.success(result.connected ? `连接成功：${result.model}` : '连接失败')
+  } catch (error: any) {
+    ElMessage.error(error?.message || '测试失败')
+  } finally {
+    testing.value = false
   }
 }
 
@@ -479,24 +384,25 @@ async function sendMessage() {
     ElMessage.warning('请输入任务内容')
     return
   }
-
-  const time = dayjs().format('HH:mm:ss')
   messages.value.unshift({
     id: `user-${Date.now()}`,
     role: 'user',
     agentLabel: 'User',
     content,
-    time
+    time: dayjs().format('HH:mm:ss')
   })
-
   sending.value = true
   try {
     const [chatReply, traceAcceptance] = await Promise.all([
       agentApi.chat({
         agent_type: agentType.value,
         message: content,
+        context: {
+          llm: { ...llmForm },
+          agent_features: { ...agentFeatures }
+        },
         history: messages.value
-          .slice(0, 8)
+          .slice(0, 6)
           .reverse()
           .map((item) => ({ role: item.role, content: item.content }))
       }),
@@ -505,26 +411,19 @@ async function sendMessage() {
         trace_id: continueTrace.value ? currentTraceId.value || undefined : undefined
       })
     ])
-
     if (traceAcceptance.trace_id) {
       await loadTraceArtifacts(traceAcceptance.trace_id)
     }
-
     messages.value.unshift({
       id: `assistant-${Date.now()}`,
       role: 'assistant',
-      agentLabel: agentType.value === 'coordinator' ? 'Coordinator' : 'Specialist',
+      agentLabel: agentType.value,
       content: chatReply.response,
       time: dayjs().format('HH:mm:ss'),
-      suggestions: chatReply.suggestions,
-      actions: (chatReply.actions_taken || []).map((item: any) => ({
-        tool: item.tool,
-        result: String(item.result)
-      }))
+      suggestions: chatReply.suggestions
     })
-
-    await Promise.all([loadApprovals(), loadNegotiations()])
     message.value = ''
+    await loadApprovals()
   } catch (error: any) {
     ElMessage.error(error?.message || '任务发送失败')
   } finally {
@@ -536,7 +435,7 @@ async function decideApproval(requestId: string, decision: 'approve' | 'reject')
   try {
     await satopsApi.submitApprovalDecision(requestId, {
       decision,
-      reason: decision === 'approve' ? '控制台操作员确认通过' : '控制台操作员驳回'
+      reason: decision === 'approve' ? '控制台确认通过' : '控制台驳回'
     })
     await loadApprovals()
     ElMessage.success(decision === 'approve' ? '审批已通过' : '审批已驳回')
@@ -545,416 +444,233 @@ async function decideApproval(requestId: string, decision: 'approve' | 'reject')
   }
 }
 
-async function saveLlmConfig() {
-  try {
-    savingConfig.value = true
-    const nextConfig = {
-      ...llmConfig.value,
-      coordinator: {
-        ...(llmConfig.value?.coordinator || {}),
-        model: coordinatorModel.value,
-        endpoint: coordinatorEndpoint.value
-      },
-      specialist_network: {
-        ...(llmConfig.value?.specialist_network || {}),
-        model: specialistModel.value,
-        endpoint: specialistEndpoint.value
-      }
-    }
-    await llmApi.updateConfig(nextConfig)
-    await loadLlmConfig()
-    ElMessage.success('模型配置已保存')
-  } catch (error: any) {
-    ElMessage.error(error?.message || '模型配置保存失败')
-  } finally {
-    savingConfig.value = false
-  }
-}
-
-async function testLlm(role: 'coordinator' | 'specialist_network') {
-  try {
-    testing.value = true
-    const result = await llmApi.testConnection(role)
-    if (result.connected) {
-      ElMessage.success(`${role} 连通成功：${result.reply}`)
-    } else {
-      ElMessage.warning(`${role} 当前未连到真实模型：${result.reply}`)
-    }
-    await loadLlmStatus()
-  } catch (error: any) {
-    ElMessage.error(error?.message || '模型测试失败')
-  } finally {
-    testing.value = false
-  }
-}
-
 usePolling(refreshAll, 20000, true)
 </script>
 
 <style scoped>
-.agent-console {
-  padding: 24px;
-  min-height: 100%;
-  background:
-    radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 28%),
-    radial-gradient(circle at left bottom, rgba(16, 185, 129, 0.1), transparent 32%),
-    var(--vscode-bg);
-}
-
-.hero-panel,
-.summary-card,
-.panel-card {
-  border: 1px solid var(--vscode-border);
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(10px);
-}
-
-html.dark .hero-panel,
-html.dark .summary-card,
-html.dark .panel-card {
-  background: rgba(15, 23, 42, 0.72);
-}
-
-.hero-panel {
-  display: flex;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 28px;
-  border-radius: 24px;
-  margin-bottom: 20px;
-}
-
-.eyebrow {
-  margin: 0 0 8px;
-  font-size: 12px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--vscode-primary);
-}
-
-.hero-copy h2 {
-  margin: 0;
-  font-size: 28px;
-}
-
-.hero-text {
-  max-width: 720px;
-  margin: 12px 0 0;
-  color: var(--vscode-text-muted);
-  line-height: 1.7;
-}
-
-.hero-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.summary-grid {
+.agent-page {
+  height: 100%;
+  min-height: 0;
+  padding: 12px;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
+  grid-template-rows: 38px 72px minmax(0, 1fr);
+  gap: 10px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(37, 99, 235, 0.14), transparent 24%),
+    linear-gradient(180deg, var(--vscode-bg), color-mix(in srgb, var(--vscode-bg) 88%, #ffffff));
+  color: var(--vscode-text);
 }
 
-.summary-card {
-  border-radius: 20px;
-}
-
-.summary-label {
-  margin: 0 0 10px;
-  color: var(--vscode-text-muted);
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.summary-main {
+.agent-head,
+.head-actions,
+.panel-head,
+.mini-head,
+.trace-row,
+.approval-row,
+.model-row,
+.agent-settings {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
 }
 
-.summary-value {
-  font-size: 26px;
-  font-weight: 700;
-}
-
-.summary-sub {
-  margin: 12px 0 0;
+.agent-head span,
+.summary-item span,
+.summary-item em,
+.config-grid span,
+.feature-item span,
+.mini-head span,
+.empty-state,
+.anomaly-row span {
   color: var(--vscode-text-muted);
-  font-size: 13px;
+  font-size: 12px;
 }
 
-.content-grid {
+.agent-head h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.top-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(360px, 0.8fr);
-  gap: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
 }
 
-.chat-column,
-.context-column {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.summary-item,
+.panel {
+  border: 1px solid var(--vscode-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--vscode-sidebar-bg) 88%, transparent);
+  box-shadow: 0 12px 28px var(--vscode-shadow);
+}
+
+.summary-item {
   min-width: 0;
+  display: grid;
+  gap: 3px;
+  padding: 9px 11px;
 }
 
-.panel-card {
-  border-radius: 22px;
+.summary-item strong {
+  font-size: 20px;
+  line-height: 1;
 }
 
-.panel-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
+.summary-item em {
+  font-style: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-grid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(350px, 0.78fr);
+  gap: 10px;
+}
+
+.work-panel,
+.config-stack {
+  min-height: 0;
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.work-panel {
+  padding: 10px;
+  grid-template-rows: 28px 28px 96px 26px minmax(0, 1fr);
+}
+
+.config-stack {
+  grid-template-rows: 198px 148px minmax(0, 0.72fr) minmax(0, 0.58fr);
+}
+
+.panel {
+  min-height: 0;
+  padding: 10px;
+  overflow: hidden;
 }
 
 .panel-head h3 {
   margin: 0;
-  font-size: 18px;
-}
-
-.panel-head p,
-.muted {
-  margin: 6px 0 0;
-  color: var(--vscode-text-muted);
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .agent-select {
-  width: 140px;
+  width: 126px;
 }
 
 .quick-actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.composer-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 14px;
-}
-
-.composer-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.message-card {
-  min-height: 620px;
-}
-
-.message-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  max-height: 820px;
-  overflow: auto;
-}
-
-.message-item {
-  padding: 16px;
-  border-radius: 18px;
-  border: 1px solid var(--vscode-border);
-}
-
-.message-item.is-user {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.14), rgba(59, 130, 246, 0.04));
-}
-
-.message-item.is-assistant {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.04));
-}
-
-.message-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
-  font-size: 12px;
-  color: var(--vscode-text-muted);
-}
-
-.message-body {
-  white-space: pre-wrap;
-  line-height: 1.75;
-}
-
-.message-extra {
-  margin-top: 14px;
-}
-
-.extra-title {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 12px;
-  color: var(--vscode-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.extra-tag {
-  margin-right: 8px;
-  margin-bottom: 8px;
-}
-
-.action-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 0;
-  border-top: 1px dashed var(--vscode-border);
-  font-size: 13px;
-}
-
-.action-row:first-of-type {
-  border-top: none;
-}
-
-.plan-list,
-.approval-list,
-.negotiation-list,
-.config-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.plan-item,
-.approval-card,
-.negotiation-card {
-  border: 1px solid var(--vscode-border);
-  border-radius: 16px;
-  padding: 14px 16px;
-}
-
-.plan-main {
-  display: flex;
-  flex-direction: column;
   gap: 6px;
+  flex-wrap: wrap;
+  overflow: hidden;
 }
 
-.approval-top {
+.run-row {
   display: flex;
-  justify-content: space-between;
-  gap: 12px;
   align-items: center;
+  justify-content: space-between;
 }
 
-.approval-card p,
-.negotiation-card p {
-  margin: 10px 0 0;
-  line-height: 1.65;
-  color: var(--vscode-text-muted);
+.result-grid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.75fr);
+  gap: 10px;
 }
 
-.approval-actions {
-  display: flex;
-  justify-content: flex-end;
+.result-box {
+  min-height: 0;
+  padding: 10px;
+  border: 1px solid var(--vscode-border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--vscode-bg) 78%, transparent);
+  display: grid;
+  grid-template-rows: 22px minmax(0, 1fr) 28px;
   gap: 8px;
-  margin-top: 12px;
 }
 
-.blackboard-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.answer-text {
+  min-height: 0;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow: hidden;
 }
 
-.blackboard-row {
-  display: grid;
-  grid-template-columns: 160px 1fr;
-  gap: 12px;
-  padding: 10px 0;
-  border-bottom: 1px dashed var(--vscode-border);
-}
-
-.blackboard-row:last-child {
-  border-bottom: none;
-}
-
-.blackboard-key {
-  color: var(--vscode-text-muted);
-  font-size: 13px;
-}
-
-.blackboard-value {
-  line-height: 1.65;
-}
-
-.config-block {
-  display: grid;
-  gap: 10px;
-}
-
-.config-title {
-  font-size: 13px;
-  color: var(--vscode-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.config-actions {
+.suggestions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 6px;
+  overflow: hidden;
 }
 
-@media (max-width: 1280px) {
-  .summary-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .content-grid {
-    grid-template-columns: 1fr;
-  }
+.trace-list,
+.anomaly-list,
+.approval-list,
+.config-grid,
+.feature-grid {
+  min-height: 0;
+  display: grid;
+  gap: 7px;
 }
 
-@media (max-width: 768px) {
-  .agent-console {
-    padding: 16px;
-  }
+.trace-row,
+.anomaly-row,
+.approval-row {
+  min-width: 0;
+  padding: 7px 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--vscode-hover) 70%, transparent);
+}
 
-  .hero-panel {
-    flex-direction: column;
-    padding: 20px;
-  }
+.trace-row span,
+.anomaly-row strong,
+.anomaly-row span,
+.approval-row strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-  .hero-actions {
-    align-items: stretch;
-  }
+.config-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 
-  .summary-grid {
-    grid-template-columns: 1fr;
-  }
+.config-grid label {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
 
-  .composer-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
+.model-row,
+.agent-settings {
+  margin-top: 8px;
+}
 
-  .composer-buttons,
-  .config-actions {
-    width: 100%;
-  }
+.feature-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 
-  .composer-buttons :deep(.el-button),
-  .config-actions :deep(.el-button) {
-    flex: 1;
-  }
+.feature-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--vscode-hover) 64%, transparent);
+}
 
-  .blackboard-row {
-    grid-template-columns: 1fr;
-  }
+.empty-state {
+  height: 100%;
+  display: grid;
+  place-items: center;
 }
 </style>

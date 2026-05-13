@@ -1,497 +1,761 @@
 <template>
-  <div class="visual-editor">
-    <SatelliteMapViewer :show-all-status="false" :show-float-card="false" class="cesium-bg" />
-    
-    <!-- 浮动：打开全部卫星列表按钮 -->
-    <el-button 
-      class="toggle-btn" 
-      type="primary" 
-      circle 
-      size="large"
-      :icon="Operation" 
-      @click="showListPanel = !showListPanel" 
-      title="菜单 / 卫星列表"
-    />
+  <div class="editor-page">
+    <header class="editor-head">
+      <div>
+        <span>Constellation Editor</span>
+        <h1>可视化编辑</h1>
+      </div>
+      <div class="head-actions">
+        <el-input v-model="keyword" size="small" clearable placeholder="输入卫星名称定位" @keyup.enter="focusByKeyword" />
+        <el-button size="small" @click="focusByKeyword">定位</el-button>
+        <el-button size="small" @click="addNewSatellite">新增卫星</el-button>
+        <el-button size="small" type="primary" :disabled="!selectedSatellite" @click="applySelected">保存修改</el-button>
+      </div>
+    </header>
 
-    <!-- 左侧面板：全局卫星列表 -->
-    <transition name="fade-panel">
-      <div class="editor-panel list-panel" v-if="showListPanel">
-        <div class="panel-header">
-          <h3>卫星编辑菜单</h3>
-          <el-button type="primary" size="small" @click="handleAddNew">新增</el-button>
-        </div>
-
-        <el-scrollbar class="sat-list">
-          <div 
-            v-for="sat in satelliteStore.satellites" 
-            :key="sat.id" 
-            class="sat-item"
-            :class="{ active: satelliteStore.selectedSatelliteId === sat.id }"
-            @click="selectSatellite(sat.id)"
-          >
-            <div class="sat-info">
-              <span class="sat-name">{{ sat.name }}</span>
-              <el-tag size="small" :type="getStatusType(sat.status)">
-                {{ getStatusText(sat.status) }}
-              </el-tag>
+    <section class="editor-grid">
+      <main class="scene-panel">
+        <div class="scene">
+          <i v-for="star in stars" :key="star" class="star" :style="starStyle(star)"></i>
+          <div class="globe-stage">
+            <div class="orbit orbit-leo"></div>
+            <div class="orbit orbit-meo"></div>
+            <div class="orbit orbit-geo"></div>
+            <div class="earth">
+              <div class="earth-map"></div>
+              <div class="earth-light"></div>
             </div>
-            <div class="sat-actions">
-              <el-button type="danger" link size="small" @click.stop="confirmDelete(sat.id)">删除</el-button>
+            <button
+              v-for="sat in visibleSatellites"
+              :key="sat.id"
+              class="sat-dot"
+              :class="[layerOf(sat), sat.status, { active: selectedSatellite?.id === sat.id, muted: !matchesFilter(sat) }]"
+              :style="satStyle(sat)"
+              :title="`${sat.name} · ${statusLabel(sat.status)}`"
+              @click="selectSatellite(sat.id)"
+            ></button>
+          </div>
+          <div class="scene-summary">
+            <article v-for="item in sceneStats" :key="item.label">
+              <span>{{ item.label }}</span>
+              <strong>{{ item.value }}</strong>
+            </article>
+          </div>
+          <div class="legend-row">
+            <span><i class="leo"></i>LEO</span>
+            <span><i class="meo"></i>MEO</span>
+            <span><i class="geo"></i>GEO</span>
+            <span><i class="warning"></i>异常</span>
+          </div>
+        </div>
+      </main>
+
+      <aside class="control-area">
+        <section class="panel selected-panel">
+          <div class="panel-head">
+            <h3>选中卫星</h3>
+            <el-tag v-if="selectedSatellite" size="small" :type="statusTagType(editForm.status)">
+              {{ statusLabel(editForm.status) }}
+            </el-tag>
+          </div>
+          <div v-if="selectedSatellite" class="selected-card">
+            <strong>{{ selectedSatellite.name }}</strong>
+            <span>{{ layerOf(selectedSatellite) }} · {{ Math.round(selectedSatellite.alt / 1000) }} km · CPU {{ selectedSatellite.cpu.toFixed(1) }}%</span>
+            <div class="selected-actions">
+              <el-button size="small" @click="resetSelected">恢复</el-button>
+              <el-button size="small" type="danger" plain @click="deleteSelected">删除</el-button>
             </div>
           </div>
-        </el-scrollbar>
-      </div>
-    </transition>
+          <div v-else class="empty-state">点击左侧卫星点进行编辑</div>
+        </section>
 
-    <!-- 右侧面板：选中卫星的详情/编辑卡片 -->
-    <transition name="fade-panel">
-      <div class="editor-panel detail-panel" v-if="isAdding || satelliteStore.selectedSatellite">
-        
-        <!-- 编辑模式 -->
-        <div class="edit-form" v-if="isAdding || isEditing">
-          <h4>{{ isAdding ? '新增自定义卫星' : '编辑卫星参数' }}</h4>
-          <el-form :model="formData" label-position="top" size="small">
-            <el-form-item label="卫星名称">
-              <el-input v-model="formData.name" />
+        <section class="panel orbit-panel">
+          <div class="panel-head">
+            <h3>轨道与状态</h3>
+            <el-tag size="small">{{ visibleSatellites.length }} 颗</el-tag>
+          </div>
+          <el-form v-if="selectedSatellite" label-position="top" :model="editForm" class="edit-form">
+            <el-form-item label="名称">
+              <el-input v-model="editForm.name" size="small" />
             </el-form-item>
-            <el-form-item label="运行状态">
-              <el-select v-model="formData.status" class="w-full">
+            <div class="form-row">
+              <el-form-item label="高度 m">
+                <el-input-number v-model="editForm.alt" size="small" :step="1000" :min="100000" class="full" />
+              </el-form-item>
+              <el-form-item label="倾角">
+                <el-input-number v-model="editForm.inclination" size="small" :step="0.1" :min="0" :max="180" class="full" />
+              </el-form-item>
+            </div>
+            <div class="form-row">
+              <el-form-item label="经度">
+                <el-input-number v-model="editForm.baseLon" size="small" :step="1" :min="-180" :max="360" class="full" />
+              </el-form-item>
+              <el-form-item label="相位">
+                <el-input-number v-model="editForm.phase" size="small" :step="1" :min="0" :max="360" class="full" />
+              </el-form-item>
+            </div>
+            <el-form-item label="状态">
+              <el-select v-model="editForm.status" size="small" class="full">
                 <el-option label="正常" value="normal" />
                 <el-option label="告警" value="warning" />
                 <el-option label="严重" value="danger" />
                 <el-option label="离线" value="offline" />
               </el-select>
             </el-form-item>
-            <el-form-item label="轨道面经度 (Base Longitude)">
-              <el-slider v-model="formData.baseLon" :min="-180" :max="180" :step="0.1" show-input />
-            </el-form-item>
-            <el-form-item label="轨道倾角 (Inclination)">
-              <el-slider v-model="formData.inclination" :min="-90" :max="90" :step="0.1" show-input />
-            </el-form-item>
-            <el-form-item label="初始相位角 (Phase)">
-              <el-slider v-model="formData.phase" :min="0" :max="360" :step="0.1" show-input />
-            </el-form-item>
-            <el-form-item label="轨道高度 (km)">
-              <el-slider v-model="displayAlt" :min="100" :max="40000" :step="10" show-input />
-            </el-form-item>
-            <div class="form-actions">
-              <el-button type="warning" plain v-if="!isAdding" @click="restoreSatellite">恢复初始</el-button>
-              <el-button @click="cancelEdit">取消</el-button>
-              <el-button type="primary" @click="saveEdit">保存并应用</el-button>
-            </div>
           </el-form>
-        </div>
+        </section>
 
-        <!-- 查看模式 -->
-        <div class="view-card" v-else-if="satelliteStore.selectedSatellite">
-          <div class="float-card-head">
-            <div>
-              <strong>{{ satelliteStore.selectedSatellite.name }}</strong>
-              <span>{{ satelliteStore.selectedSatellite.instanceId }}</span>
-            </div>
-            <el-button class="collapse-btn" plain @click="closeDetail">关闭视图</el-button>
+        <section class="panel fault-panel">
+          <div class="panel-head">
+            <h3>异常设置</h3>
+            <el-button size="small" text type="primary" :disabled="!selectedSatellite" @click="clearFault">清除</el-button>
           </div>
-          <div class="float-card-grid">
-            <div class="float-item">
-              <label>状态</label>
-              <strong class="detail-status" :class="satelliteStore.selectedSatellite.status">
-                {{ getStatusText(satelliteStore.selectedSatellite.status) }}
-              </strong>
-            </div>
-            <div class="float-item">
-              <label>CPU</label>
-              <strong>{{ satelliteStore.selectedSatellite.cpu.toFixed(1) }}%</strong>
-            </div>
-            <div class="float-item">
-              <label>温度</label>
-              <strong>{{ satelliteStore.selectedSatellite.temp.toFixed(1) }}°C</strong>
-            </div>
-            <div class="float-item">
-              <label>高度</label>
-              <strong>{{ Math.round((satelliteStore.selectedSatellite.alt || 0) / 1000) }} km</strong>
-            </div>
+          <div class="fault-grid">
+            <button
+              v-for="fault in faultOptions"
+              :key="fault.value"
+              class="fault-item"
+              :class="{ active: editForm.faultType === fault.value }"
+              :disabled="!selectedSatellite"
+              @click="applyFault(fault)"
+            >
+              <strong>{{ fault.label }}</strong>
+              <span>{{ fault.statusText }}</span>
+            </button>
           </div>
-          <div class="card-footer mt-4">
-             <el-button type="primary" class="w-full" @click="isEditing = true">编辑此卫星</el-button>
-          </div>
-        </div>
+        </section>
 
-      </div>
-    </transition>
+        <section class="panel scale-panel">
+          <div class="panel-head">
+            <h3>星座规模</h3>
+            <el-tag size="small">{{ constellationCount }} 颗</el-tag>
+          </div>
+          <el-slider v-model="constellationCount" :min="1" :max="600" :step="1" />
+          <div class="scale-actions">
+            <el-button size="small" @click="applyCount">同步数量</el-button>
+            <el-button size="small" @click="resetConstellation">恢复默认</el-button>
+          </div>
+        </section>
+      </aside>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Operation } from '@element-plus/icons-vue'
-import SatelliteMapViewer from '../components/cesium/SatelliteMapViewer.vue'
-import { useSatelliteStore } from '../stores/satellite'
+import { useSatelliteStore, type Satellite } from '../stores/satellite'
+
+type LayerKey = 'LEO' | 'MEO' | 'GEO'
 
 const satelliteStore = useSatelliteStore()
+const keyword = ref('')
+const stars = Array.from({ length: 42 }, (_, index) => index)
 
-const showListPanel = ref(false)
-const isAdding = ref(false)
-const isEditing = ref(false)
+const constellationCount = computed({
+  get: () => satelliteStore.constellationCount,
+  set: (value: number) => satelliteStore.setConstellationCount(value)
+})
 
-const formData = ref({
+const editForm = reactive({
   name: '',
-  status: 'normal',
+  alt: 550000,
+  inclination: 53,
   baseLon: 0,
-  inclination: 0,
   phase: 0,
-  alt: 500000
+  status: 'normal' as Satellite['status'],
+  faultType: 'none'
 })
 
-const displayAlt = computed({
-  get: () => Math.round(formData.value.alt / 1000),
-  set: (val: number) => { formData.value.alt = val * 1000 }
-})
+const faultOptions = [
+  { value: 'link_loss', label: '星间链路脱锁', status: 'warning', statusText: '告警' },
+  { value: 'gateway_loss', label: '信关站失联', status: 'danger', statusText: '严重' },
+  { value: 'power_drop', label: '电量快速下降', status: 'warning', statusText: '告警' },
+  { value: 'thermal_high', label: '热控异常', status: 'danger', statusText: '严重' },
+  { value: 'payload_fault', label: '载荷故障', status: 'danger', statusText: '严重' },
+  { value: 'attitude_drift', label: '姿态漂移', status: 'warning', statusText: '告警' },
+  { value: 'compute_overload', label: '算力过载', status: 'warning', statusText: '告警' },
+  { value: 'telemetry_loss', label: '遥测中断', status: 'offline', statusText: '离线' }
+] as const
 
-// Automatically populate form if a satellite is clicked in the Cesium map or list
-watch(() => satelliteStore.selectedSatellite, (newSat) => {
-  if (newSat && !isAdding.value) {
-    formData.value = {
-      name: newSat.name,
-      status: newSat.status,
-      baseLon: newSat.baseLon || 0,
-      inclination: newSat.inclination || 0,
-      phase: newSat.phase || 0,
-      alt: newSat.alt || 500000
-    }
-    // We only force view mode if we select a NEW satellite while NOT adding.
-    // If user is already editing and clicks a different satellite, it drops to view mode.
-    isEditing.value = false
-  } else if (!newSat && !isAdding.value) {
-    isEditing.value = false
-  }
-})
+const selectedSatellite = computed(() => satelliteStore.selectedSatellite)
+const visibleSatellites = computed(() => satelliteStore.satellites.slice(0, constellationCount.value))
+const sceneStats = computed(() => [
+  { label: '总数', value: visibleSatellites.value.length },
+  { label: '正常', value: visibleSatellites.value.filter((item) => item.status === 'normal').length },
+  { label: '异常', value: visibleSatellites.value.filter((item) => item.status !== 'normal').length },
+  { label: '已选', value: selectedSatellite.value?.name || '-' }
+])
 
-function getStatusType(status: string) {
-  if (status === 'warning') return 'warning'
-  if (status === 'danger') return 'danger'
-  if (status === 'offline') return 'info'
-  return 'success'
+watch(
+  selectedSatellite,
+  (sat) => {
+    if (!sat) return
+    editForm.name = sat.name
+    editForm.alt = sat.alt
+    editForm.inclination = sat.inclination
+    editForm.baseLon = sat.baseLon
+    editForm.phase = sat.phase
+    editForm.status = sat.status
+    editForm.faultType = sat.faultType || 'none'
+  },
+  { immediate: true }
+)
+
+function layerOf(sat: Satellite): LayerKey {
+  if (sat.alt >= 30000000) return 'GEO'
+  if (sat.alt >= 20000000) return 'MEO'
+  return 'LEO'
 }
 
-function getStatusText(status: string) {
+function starStyle(index: number) {
+  return {
+    left: `${(index * 29) % 100}%`,
+    top: `${(index * 41) % 100}%`,
+    width: `${1 + (index % 3)}px`,
+    height: `${1 + (index % 3)}px`,
+    animationDelay: `${(index % 9) * 0.2}s`
+  }
+}
+
+function satStyle(sat: Satellite) {
+  const layer = layerOf(sat)
+  const radius = layer === 'GEO' ? 300 : layer === 'MEO' ? 238 : 178
+  const angle = (sat.baseLon + sat.phase + sat.id * 0.73) * (Math.PI / 180)
+  const x = Math.cos(angle) * radius
+  const y = Math.sin(angle) * radius * 0.44
+  return {
+    left: '50%',
+    top: '50%',
+    transform: `translate(-50%, -50%) translate(${x}px, ${y}px)`,
+    zIndex: String(layer === 'GEO' ? 7 : layer === 'MEO' ? 8 : 9)
+  }
+}
+
+function matchesFilter(sat: Satellite) {
+  const term = keyword.value.trim().toLowerCase()
+  if (!term) return true
+  return sat.name.toLowerCase().includes(term) || sat.code.toLowerCase().includes(term)
+}
+
+function statusLabel(status: Satellite['status']) {
   if (status === 'warning') return '告警'
   if (status === 'danger') return '严重'
   if (status === 'offline') return '离线'
   return '正常'
 }
 
+function statusTagType(status: Satellite['status']) {
+  if (status === 'warning') return 'warning'
+  if (status === 'danger') return 'danger'
+  if (status === 'offline') return 'info'
+  return 'success'
+}
+
 function selectSatellite(id: number) {
   satelliteStore.selectedSatelliteId = id
-  isAdding.value = false
-  isEditing.value = false
 }
 
-function handleAddNew() {
-  satelliteStore.selectedSatelliteId = null
-  isAdding.value = true
-  isEditing.value = false
-  formData.value = {
-    name: '新建卫星',
-    status: 'normal',
-    baseLon: 0,
-    inclination: 0,
-    phase: 0,
-    alt: 500000
+function focusByKeyword() {
+  const term = keyword.value.trim().toLowerCase()
+  if (!term) return
+  const sat = visibleSatellites.value.find((item) => matchesFilter(item))
+  if (!sat) {
+    ElMessage.warning('未找到匹配卫星')
+    return
   }
+  selectSatellite(sat.id)
 }
 
-function closeDetail() {
-  satelliteStore.selectedSatelliteId = null
-  isAdding.value = false
-  isEditing.value = false
+function applySelected() {
+  if (!selectedSatellite.value) return
+  satelliteStore.updateSatellite(selectedSatellite.value.id, {
+    name: editForm.name,
+    alt: editForm.alt,
+    inclination: editForm.inclination,
+    baseLon: editForm.baseLon,
+    phase: editForm.phase,
+    status: editForm.status,
+    faultType: editForm.faultType
+  })
+  ElMessage.success('卫星参数已保存')
 }
 
-function restoreSatellite() {
-  if (satelliteStore.selectedSatellite) {
-    ElMessageBox.confirm('确定要恢复为初始轨道配置吗？', '警告', {
-      type: 'warning',
-      confirmButtonText: '恢复',
-      cancelButtonText: '取消'
-    }).then(() => {
-      satelliteStore.restoreSatellite(satelliteStore.selectedSatelliteId!)
-      ElMessage.success('已恢复初始轨道配置')
-      isEditing.value = false
-    }).catch(() => {})
-  }
+function applyFault(fault: (typeof faultOptions)[number]) {
+  if (!selectedSatellite.value) return
+  editForm.faultType = fault.value
+  editForm.status = fault.status as Satellite['status']
+  applySelected()
 }
 
-function confirmDelete(id: number) {
-  ElMessageBox.confirm('确定要删除这颗卫星吗？', '警告', {
-    type: 'warning',
+function clearFault() {
+  if (!selectedSatellite.value) return
+  editForm.faultType = 'none'
+  editForm.status = 'normal'
+  applySelected()
+}
+
+function resetSelected() {
+  if (!selectedSatellite.value) return
+  satelliteStore.restoreSatellite(selectedSatellite.value.id)
+  ElMessage.success('选中卫星已恢复')
+}
+
+function deleteSelected() {
+  if (!selectedSatellite.value) return
+  const sat = selectedSatellite.value
+  ElMessageBox.confirm(`确认删除 ${sat.name}？`, '删除卫星', {
     confirmButtonText: '删除',
-    cancelButtonText: '取消'
-  }).then(() => {
-    satelliteStore.deleteSatellite(id)
-    ElMessage.success('卫星已删除')
-  }).catch(() => {})
-}
-
-function cancelEdit() {
-  if (isAdding.value) {
-    isAdding.value = false
-  } else {
-    isEditing.value = false
-  }
-}
-
-function saveEdit() {
-  if (isAdding.value) {
-    satelliteStore.addSatellite({
-      name: formData.value.name,
-      status: formData.value.status as any,
-      baseLon: formData.value.baseLon,
-      inclination: formData.value.inclination,
-      phase: formData.value.phase,
-      alt: formData.value.alt
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(() => {
+      satelliteStore.deleteSatellite(sat.id)
+      ElMessage.success('卫星已删除')
     })
-    ElMessage.success('卫星添加成功')
-    isAdding.value = false
-  } else if (satelliteStore.selectedSatellite) {
-    satelliteStore.updateSatellite(satelliteStore.selectedSatelliteId!, {
-      name: formData.value.name,
-      status: formData.value.status as any,
-      baseLon: formData.value.baseLon,
-      inclination: formData.value.inclination,
-      phase: formData.value.phase,
-      alt: formData.value.alt
-    })
-    ElMessage.success('参数修改成功，轨道已重新计算')
-    isEditing.value = false
-  }
+    .catch(() => {})
 }
 
-// Clear selected on exit so we don't interfere with other pages
-onUnmounted(() => {
-  satelliteStore.selectedSatelliteId = null
+function addNewSatellite() {
+  const sat = satelliteStore.addSatellite({
+    name: `自定义卫星-${Date.now().toString().slice(-4)}`,
+    alt: 550000,
+    inclination: 53,
+    baseLon: 0,
+    phase: 0,
+    status: 'normal',
+    faultType: 'none'
+  })
+  satelliteStore.selectedSatelliteId = sat.id
+  ElMessage.success('卫星已新增')
+}
+
+function applyCount() {
+  satelliteStore.setConstellationCount(Number(constellationCount.value))
+  if (!satelliteStore.selectedSatelliteId && satelliteStore.satellites[0]) {
+    satelliteStore.selectedSatelliteId = satelliteStore.satellites[0].id
+  }
+  ElMessage.success('数量已同步')
+}
+
+function resetConstellation() {
+  ElMessageBox.confirm('恢复默认后会重置当前星座编辑，是否继续？', '恢复默认', {
+    confirmButtonText: '恢复',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+    .then(() => {
+      satelliteStore.normalizeAllAltitudes()
+      satelliteStore.setConstellationCount(450)
+      satelliteStore.selectedSatelliteId = satelliteStore.satellites[0]?.id || null
+      ElMessage.success('已恢复默认配置')
+    })
+    .catch(() => {})
+}
+
+onMounted(() => {
+  if (!satelliteStore.selectedSatelliteId) {
+    satelliteStore.selectedSatelliteId = satelliteStore.satellites[0]?.id || null
+  }
 })
 </script>
 
 <style scoped>
-.visual-editor {
-  position: relative;
-  width: calc(100% + 48px);
-  height: calc(100% + 48px);
-  margin: -24px;
-  overflow: hidden;
-}
-
-.cesium-bg {
-  position: absolute;
-  inset: 0;
-}
-
-.toggle-btn {
-  position: absolute;
-  top: 24px;
-  left: 24px;
-  z-index: 15;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-}
-
-.editor-panel {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  z-index: 10;
-  color: var(--vscode-text);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-}
-
-.list-panel {
-  top: 80px;
-  left: 24px;
-  width: 320px;
-  max-height: calc(100% - 104px);
-}
-
-.detail-panel {
-  top: 24px;
-  right: 24px;
-  width: 380px;
-  max-height: calc(100% - 48px);
-}
-
-.panel-header {
-  padding: 16px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.panel-header h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  color: #fff;
-}
-
-.sat-list {
-  flex: 1;
+.editor-page {
+  height: 100%;
+  min-height: 0;
   padding: 12px;
+  display: grid;
+  grid-template-rows: 38px minmax(0, 1fr);
+  gap: 10px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 16% 8%, rgba(47, 109, 246, 0.18), transparent 26%),
+    linear-gradient(180deg, #f8fbff 0%, #ffffff 42%, #f4f7fb 100%);
+  color: #172033;
 }
 
-.sat-item {
+.editor-head,
+.head-actions,
+.panel-head,
+.selected-actions,
+.scale-actions,
+.legend-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  margin-bottom: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid transparent;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.sat-item:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.sat-item.active {
-  border-color: var(--vscode-primary);
-  background: rgba(59, 130, 246, 0.1);
-}
-
-.sat-info {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.sat-name {
-  font-weight: 500;
-  color: #e2e8f0;
-}
-
-.sat-actions {
-  display: flex;
+  justify-content: space-between;
   gap: 8px;
 }
 
-.edit-form {
-  padding: 20px;
-  overflow-y: auto;
+.editor-head span,
+.scene-summary span,
+.legend-row,
+.selected-card span,
+.fault-item span,
+.empty-state {
+  color: #667085;
+  font-size: 12px;
 }
 
-.edit-form h4 {
-  margin: 0 0 20px 0;
-  color: #fff;
+.editor-head h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.head-actions :deep(.el-input) {
+  width: 210px;
+}
+
+.editor-grid {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(360px, 0.7fr);
+  gap: 10px;
+}
+
+.scene-panel,
+.panel {
+  border: 1px solid rgba(47, 109, 246, 0.14);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+  overflow: hidden;
+}
+
+.scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(37, 99, 235, 0.22), transparent 28%),
+    linear-gradient(145deg, #07111f, #0d2450 58%, #121d35);
+}
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(232, 240, 255, 0.88);
+  box-shadow: 0 0 12px rgba(232, 240, 255, 0.72);
+  animation: twinkle 3.6s ease-in-out infinite;
+}
+
+.globe-stage {
+  position: absolute;
+  left: 50%;
+  top: 49%;
+  width: min(760px, 94%);
+  height: min(520px, 82%);
+  transform: translate(-50%, -50%);
+}
+
+.orbit {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scaleY(0.44);
+  border: 1px solid rgba(147, 197, 253, 0.24);
+}
+
+.orbit-leo {
+  width: 356px;
+  height: 356px;
+}
+
+.orbit-meo {
+  width: 476px;
+  height: 476px;
+  border-color: rgba(45, 212, 191, 0.28);
+}
+
+.orbit-geo {
+  width: 600px;
+  height: 600px;
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.earth {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 190px;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  overflow: hidden;
+  background: #0c3b7c;
+  box-shadow: 0 0 48px rgba(70, 168, 255, 0.58), inset -24px -20px 34px rgba(3, 10, 31, 0.54);
+  z-index: 5;
+}
+
+.earth-map {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent 0 7%, rgba(49, 173, 111, 0.82) 8% 18%, transparent 19% 30%, rgba(93, 204, 142, 0.78) 31% 43%, transparent 44% 57%, rgba(53, 186, 122, 0.76) 58% 71%, transparent 72% 100%),
+    repeating-linear-gradient(90deg, rgba(114, 196, 255, 0.2) 0 1px, transparent 1px 18px),
+    radial-gradient(circle at 45% 40%, #1d9bf0 0, #1554c0 48%, #0b245a 100%);
+  background-size: 230% 100%, 100% 100%, 100% 100%;
+  animation: earthSpin 18s linear infinite;
+}
+
+.earth-light {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.42), transparent 34%);
+}
+
+.sat-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #60a5fa;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(96, 165, 250, 0.85);
+  transition: transform 0.16s ease, opacity 0.16s ease, box-shadow 0.16s ease;
+}
+
+.sat-dot.MEO {
+  background: #2dd4bf;
+  box-shadow: 0 0 10px rgba(45, 212, 191, 0.85);
+}
+
+.sat-dot.GEO {
+  width: 8px;
+  height: 8px;
+  background: #fbbf24;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.9);
+}
+
+.sat-dot.warning,
+.sat-dot.danger,
+.sat-dot.offline {
+  width: 10px;
+  height: 10px;
+  background: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18), 0 0 18px rgba(239, 68, 68, 0.9);
+}
+
+.sat-dot.active {
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.28), 0 0 24px rgba(250, 204, 21, 0.95);
+}
+
+.sat-dot.muted {
+  opacity: 0.18;
+}
+
+.scene-summary {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(82px, auto));
+  gap: 8px;
+  z-index: 12;
+}
+
+.scene-summary article {
+  padding: 8px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.5);
+  color: #f8fafc;
+}
+
+.scene-summary strong {
+  display: block;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.legend-row {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 12px;
+  justify-content: flex-start;
+  color: #cbd5e1;
+}
+
+.legend-row i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: #60a5fa;
+}
+
+.legend-row .meo {
+  background: #2dd4bf;
+}
+
+.legend-row .geo {
+  background: #fbbf24;
+}
+
+.legend-row .warning {
+  background: #ef4444;
+}
+
+.control-area {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: 104px minmax(0, 1.12fr) minmax(0, 0.86fr) 104px;
+  gap: 10px;
+}
+
+.panel {
+  min-height: 0;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-head h3 {
+  margin: 0;
   font-size: 15px;
 }
 
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
+.selected-card {
+  min-height: 0;
+  display: grid;
+  gap: 6px;
 }
 
-.w-full {
+.selected-card strong,
+.selected-card span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.edit-form {
+  min-height: 0;
+  display: grid;
+  gap: 7px;
+}
+
+.edit-form :deep(.el-form-item) {
+  margin-bottom: 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.full {
   width: 100%;
 }
 
-/* View Card Styles */
-.view-card {
-  padding: 20px;
-}
-
-.float-card-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.float-card-head strong {
-  color: #f5f9fd;
-  display: block;
-  font-size: 16px;
-  margin-bottom: 4px;
-}
-
-.float-card-head span {
-  color: #9cb3c7;
-  font-size: 13px;
-}
-
-.collapse-btn {
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  color: #eaf3fb;
-}
-
-.float-card-grid {
+.fault-grid {
+  min-height: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 7px;
 }
 
-.float-item {
-  padding: 14px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
+.fault-item {
+  min-width: 0;
+  padding: 7px 8px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 9px;
+  background: #fff;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
-.float-item label,
-.float-item strong {
+.fault-item strong,
+.fault-item span {
   display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.float-item label {
-  color: #9cb3c7;
-  margin-bottom: 6px;
-  font-size: 13px;
-}
-
-.float-item strong {
-  color: #f5f9fd;
-  font-size: 15px;
-}
-
-.detail-status {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2px 8px;
-  border-radius: 999px;
+.fault-item strong {
   font-size: 12px;
-  font-weight: 600;
 }
 
-.detail-status.normal { color: #8fe388; background: rgba(143, 227, 136, 0.12); }
-.detail-status.warning { color: #ffd04b; background: rgba(255, 208, 75, 0.14); }
-.detail-status.danger { color: #ff8c8c; background: rgba(255, 107, 107, 0.16); }
-.detail-status.offline { color: #b6c2cf; background: rgba(123, 135, 148, 0.18); }
-
-.mt-4 {
-  margin-top: 16px;
+.fault-item.active {
+  border-color: #ef4444;
+  background: #fff1f2;
 }
 
-/* Transition styles */
-.fade-panel-enter-active,
-.fade-panel-leave-active {
-  transition: opacity 0.22s ease, transform 0.22s ease;
+.scale-actions {
+  justify-content: flex-start;
 }
 
-.fade-panel-enter-from,
-.fade-panel-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
+.empty-state {
+  height: 100%;
+  display: grid;
+  place-items: center;
 }
 
-:deep(.el-form-item__label) {
-  color: #cbd5e1 !important;
+@keyframes earthSpin {
+  from {
+    background-position: 0 0, 0 0, 0 0;
+  }
+  to {
+    background-position: 230% 0, 0 0, 0 0;
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+}
+
+:global(.is-dark) .editor-page {
+  background:
+    radial-gradient(circle at 14% 10%, rgba(96, 165, 250, 0.22), transparent 26%),
+    radial-gradient(circle at 76% 18%, rgba(45, 212, 191, 0.1), transparent 24%),
+    linear-gradient(180deg, #07111f 0%, #0d1524 46%, #101827 100%);
+  color: #e5e7eb;
+}
+
+:global(.is-dark) .scene-panel,
+:global(.is-dark) .panel {
+  border-color: rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.78);
+  box-shadow: 0 16px 34px rgba(0, 0, 0, 0.34);
+}
+
+:global(.is-dark) .fault-item {
+  border-color: rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.74);
+}
+
+:global(.is-dark) .fault-item.active {
+  border-color: rgba(248, 113, 113, 0.72);
+  background: rgba(127, 29, 29, 0.38);
+}
+
+:global(.is-dark) .editor-head span,
+:global(.is-dark) .scene-summary span,
+:global(.is-dark) .selected-card span,
+:global(.is-dark) .fault-item span,
+:global(.is-dark) .empty-state {
+  color: #a9b6c8;
 }
 </style>

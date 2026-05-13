@@ -1,10 +1,15 @@
 ﻿<template>
   <div id="satmap-container" ref="containerRef">
+    <div
+      ref="cesiumContainer"
+      class="cesium-imagery-layer"
+      :class="{ active: earthStyle === 'real' }"
+    ></div>
     <iframe
       ref="iframeRef"
       :key="iframeSrc"
       class="satmap-iframe"
-      :class="{ ready: iframeReady }"
+      :class="{ ready: earthStyle === 'classic' && iframeReady }"
       :src="iframeSrc"
       frameborder="0"
       allowfullscreen
@@ -12,6 +17,9 @@
     />
 
     <div class="action-btns">
+      <el-button class="earth-style-btn" plain @click="toggleEarthStyle">
+        地球风格：{{ currentEarthStyle.label }}
+      </el-button>
       <el-button
         :type="showAllStatus ? 'primary' : 'default'"
         plain
@@ -27,49 +35,6 @@
         编辑卫星
       </el-button>
     </div>
-
-    <transition name="side-panel">
-      <div v-if="selectedSatellite" class="satellite-side-panel">
-        <div class="side-panel-head">
-          <div>
-            <strong>{{ selectedSatellite.name }}</strong>
-            <span>NORAD {{ selectedSatellite.id }} · {{ selectedSatellite.instanceId }}</span>
-          </div>
-          <span class="detail-status" :class="selectedSatellite.status">
-            {{ getStatusLabel(selectedSatellite.status) }}
-          </span>
-        </div>
-        <div class="side-panel-subtitle">
-          已选中卫星，轨迹正在地图上高亮显示
-        </div>
-        <div class="side-panel-list">
-          <div class="info-row">
-            <label>轨道类型</label>
-            <strong>{{ getOrbitClass(selectedSatellite.alt) }}</strong>
-          </div>
-          <div class="info-row">
-            <label>轨道高度</label>
-            <strong>{{ Math.round((selectedSatellite.alt || 0) / 1000) }} km</strong>
-          </div>
-          <div class="info-row">
-            <label>轨道速度</label>
-            <strong>{{ selectedOrbitMetrics.speedKps.toFixed(2) }} km/s</strong>
-          </div>
-          <div class="info-row">
-            <label>轨道周期</label>
-            <strong>{{ selectedOrbitMetrics.periodMinutes.toFixed(1) }} min</strong>
-          </div>
-        </div>
-        <div class="side-panel-actions">
-          <el-button type="primary" plain @click="showInfoDialog = true">
-            查看卫星信息
-          </el-button>
-          <el-button plain @click="clearIframeOrbit">
-            关闭轨迹
-          </el-button>
-        </div>
-      </div>
-    </transition>
 
     <el-dialog v-model="showAllStatus" title="卫星状态" width="420px" append-to-body>
       <div class="status-dialog-list">
@@ -158,76 +123,13 @@
       </template>
     </el-dialog>
 
-    <el-dialog
-      v-model="showInfoDialog"
-      title="卫星信息"
-      width="640px"
-      append-to-body
-    >
-      <div v-if="selectedSatellite" class="satellite-info-dialog">
-        <div class="info-hero">
-          <div>
-            <strong>{{ selectedSatellite.name }}</strong>
-            <span>NORAD {{ selectedSatellite.id }} · {{ selectedSatellite.instanceId }}</span>
-          </div>
-          <span class="detail-status" :class="selectedSatellite.status">
-            {{ getStatusLabel(selectedSatellite.status) }}
-          </span>
-        </div>
-
-        <div class="info-section">
-          <div class="section-title">轨道与运行信息</div>
-        </div>
-
-        <div class="info-grid">
-          <div class="info-card emphasis">
-            <label>卫星编号</label>
-            <strong>#{{ selectedSatellite.id }}</strong>
-          </div>
-          <div class="info-card emphasis">
-            <label>卫星类型</label>
-            <strong>{{ getOrbitClass(selectedSatellite.alt) }}</strong>
-          </div>
-          <div class="info-card">
-            <label>轨道高度</label>
-            <strong>{{ Math.round((selectedSatellite.alt || 0) / 1000) }} km</strong>
-          </div>
-          <div class="info-card">
-            <label>轨道倾角</label>
-            <strong>{{ Number(selectedSatellite.inclination || 0).toFixed(1) }}°</strong>
-          </div>
-          <div class="info-card">
-            <label>基准经度</label>
-            <strong>{{ Number(selectedSatellite.baseLon || 0).toFixed(1) }}°</strong>
-          </div>
-          <div class="info-card">
-            <label>轨道周期</label>
-            <strong>{{ selectedOrbitMetrics.periodMinutes.toFixed(1) }} 分钟</strong>
-          </div>
-          <div class="info-card">
-            <label>轨道速度</label>
-            <strong>{{ selectedOrbitMetrics.speedKps.toFixed(2) }} km/s</strong>
-          </div>
-          <div class="info-card emphasis">
-            <label>运行状态</label>
-            <strong>{{ getStatusLabel(selectedSatellite.status) }}</strong>
-          </div>
-          <div class="info-card">
-            <label>CPU</label>
-            <strong>{{ selectedSatellite.cpu.toFixed(1) }}%</strong>
-          </div>
-          <div class="info-card">
-            <label>温度</label>
-            <strong>{{ selectedSatellite.temp.toFixed(1) }}°C</strong>
-          </div>
-        </div>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import * as Cesium from 'cesium'
+import 'cesium/Build/Cesium/Widgets/widgets.css'
 import { useSatelliteStore } from '../../stores/satellite'
 
 const props = withDefaults(
@@ -241,20 +143,60 @@ const props = withDefaults(
 
 const satelliteStore = useSatelliteStore()
 const containerRef = ref<HTMLElement | null>(null)
+const cesiumContainer = ref<HTMLElement | null>(null)
 const iframeRef = ref<HTMLIFrameElement | null>(null)
 const iframeReady = ref(false)
-const iframeSrc = './satellitemap/index.html?embed=c4&v=21'
+const iframeSrc = './satellitemap/index.html?embed=c4&v=32'
 const showAllStatus = ref(props.showAllStatus)
 const isEditMode = ref(false)
 const showEditDialog = ref(false)
-const showInfoDialog = ref(false)
 const iframeSetupRuns = ref(0)
-const targetEyeDistance = 3.4
+const targetEyeDistance = 3.65
+const earthStyle = ref<'real' | 'classic'>('classic')
+let bordersKeepAliveTimer: ReturnType<typeof setInterval> | null = null
+let lastVisualSignature = ''
+let cesiumViewer: Cesium.Viewer | null = null
+let cesiumStartTime: Cesium.JulianDate | null = null
+let cesiumClickHandler: Cesium.ScreenSpaceEventHandler | null = null
+let realEarthLayer: Cesium.ImageryLayer | null = null
+let classicEarthLayer: Cesium.ImageryLayer | null = null
+let classicSunEntity: Cesium.Entity | null = null
+let satelliteSpriteImage = ''
+const cesiumSatelliteEntities = new Map<number, Cesium.Entity>()
+const cesiumOrbitEntities = new Map<number, Cesium.Entity>()
+const cesiumLinkEntities = new Map<string, Cesium.Entity>()
 const EARTH_RADIUS_METERS = 6378137
 const EARTH_MU = 3.986004418e14
-let bordersKeepAliveTimer: ReturnType<typeof setInterval> | null = null
-const selectedSatellite = computed(() => satelliteStore.selectedSatellite)
-const selectedOrbitMetrics = computed(() => getOrbitMetrics(selectedSatellite.value?.alt || 500000))
+const EARTH_ROTATION_RAD_PER_SEC = (2 * Math.PI) / 86164.0905
+const NORMAL_SATELLITE_COLOR = '#bff3ff'
+const SATELLITE_SCALE_BY_DISTANCE = new Cesium.NearFarScalar(7000000, 1.9, 90000000, 0.82)
+const CLASSIC_OCEAN = [4, 19, 31]
+const CLASSIC_LAND = [19, 37, 66]
+const CLASSIC_COAST = [41, 105, 132]
+const CLASSIC_GRID = [26, 72, 96]
+const earthStyles = {
+  real: {
+    label: '影像',
+    background: '#020713',
+    texstyle: 0,
+    borders: 0,
+    clouds: 1,
+    skybox: 2,
+    dotlighting: 1,
+    sun: 1
+  },
+  classic: {
+    label: '经典',
+    background: '#01040c',
+    texstyle: 1,
+    borders: 1,
+    clouds: 0,
+    skybox: 1,
+    dotlighting: 1,
+    sun: 1
+  }
+}
+const currentEarthStyle = computed(() => earthStyles[earthStyle.value])
 const editForm = ref({
   id: 0,
   name: '',
@@ -275,25 +217,6 @@ function focusSatellite(sat: any) {
   satelliteStore.selectedSatelliteId = sat.id
   showAllStatus.value = true
   sendToIframe({ type: 'focus-satellite', norad_id: sat.id })
-}
-
-function getOrbitClass(altitudeMeters: number) {
-  const altitudeKm = Number(altitudeMeters || 0) / 1000
-  if (altitudeKm >= 30000) return 'GEO'
-  if (altitudeKm >= 10000) return 'MEO'
-  return 'LEO'
-}
-
-function getOrbitMetrics(altitudeMeters: number) {
-  const altitude = Math.max(Number(altitudeMeters || 0), 0)
-  const orbitalRadius = EARTH_RADIUS_METERS + altitude
-  const speedMps = Math.sqrt(EARTH_MU / orbitalRadius)
-  const periodSeconds = 2 * Math.PI * Math.sqrt((orbitalRadius ** 3) / EARTH_MU)
-
-  return {
-    speedKps: speedMps / 1000,
-    periodMinutes: periodSeconds / 60
-  }
 }
 
 function resetEditForm() {
@@ -362,17 +285,911 @@ function deleteSat(id: number) {
   }
 }
 
-function clearIframeOrbit() {
-  sendToIframe({ type: 'clear-orbit' })
-  satelliteStore.selectedSatelliteId = null
-  showInfoDialog.value = false
+function statusColor(status: string) {
+  if (status === 'warning') return Cesium.Color.fromCssColorString('#ffd04b')
+  if (status === 'danger') return Cesium.Color.fromCssColorString('#ff6b6b')
+  if (status === 'offline') return Cesium.Color.fromCssColorString('#7b8794')
+  return Cesium.Color.fromCssColorString(NORMAL_SATELLITE_COLOR).withAlpha(0.96)
+}
+
+function getSatelliteLayer(altitudeMeters: number) {
+  if (altitudeMeters >= 30000000) return 'GEO'
+  if (altitudeMeters >= 20000000) return 'MEO'
+  return 'LEO'
+}
+
+function orbitEntityId(sat: any) {
+  return Number(sat.id)
+}
+
+function getOrbitMetrics(altitudeMeters: number) {
+  const altitude = Math.max(Number(altitudeMeters || 0), 0)
+  const orbitalRadius = EARTH_RADIUS_METERS + altitude
+  const speedMps = Math.sqrt(EARTH_MU / orbitalRadius)
+  const periodSeconds = 2 * Math.PI * Math.sqrt((orbitalRadius ** 3) / EARTH_MU)
+
+  return {
+    altitudeMeters: altitude,
+    orbitalRadius,
+    speedMps,
+    periodSeconds
+  }
+}
+
+function getVisualAltitude(sat: any) {
+  const altitude = Math.max(Number(sat.alt || 500000), 0)
+  if (altitude >= 30000000) return altitude
+  if (altitude >= 20000000) return altitude + 280000
+  return altitude + 900000
+}
+
+function getSatellitePosition(sat: any, time: Cesium.JulianDate, startTime: Cesium.JulianDate) {
+  const seconds = Cesium.JulianDate.secondsDifference(time, startTime)
+  const orbit = getOrbitMetrics(sat.alt || 500000)
+  const phase0 = Cesium.Math.toRadians(sat.phase || 0)
+  const inclination = Cesium.Math.toRadians(sat.inclination || 0)
+  const raan = Cesium.Math.toRadians(sat.baseLon || 0)
+  const trueAnomaly = phase0 + (seconds / orbit.periodSeconds) * 2 * Math.PI
+
+  const xOrbital = orbit.orbitalRadius * Math.cos(trueAnomaly)
+  const yOrbital = orbit.orbitalRadius * Math.sin(trueAnomaly)
+
+  const cosRaan = Math.cos(raan)
+  const sinRaan = Math.sin(raan)
+  const cosInclination = Math.cos(inclination)
+  const sinInclination = Math.sin(inclination)
+
+  const xEci = cosRaan * xOrbital - sinRaan * cosInclination * yOrbital
+  const yEci = sinRaan * xOrbital + cosRaan * cosInclination * yOrbital
+  const zEci = sinInclination * yOrbital
+
+  const earthRotation = EARTH_ROTATION_RAD_PER_SEC * seconds
+  const cosEarthRotation = Math.cos(earthRotation)
+  const sinEarthRotation = Math.sin(earthRotation)
+
+  const xEcef = cosEarthRotation * xEci + sinEarthRotation * yEci
+  const yEcef = -sinEarthRotation * xEci + cosEarthRotation * yEci
+  const zEcef = zEci
+
+  const longitude = Math.atan2(yEcef, xEcef)
+  const latitude = Math.atan2(zEcef, Math.sqrt(xEcef ** 2 + yEcef ** 2))
+
+  return Cesium.Cartesian3.fromRadians(longitude, latitude, getVisualAltitude(sat))
+}
+
+function makeOrbitPositions(inclination: number, baseLon: number, altitude: number) {
+  const points: Cesium.Cartesian3[] = []
+  const visualAltitude = altitude >= 30000000 ? altitude : altitude >= 20000000 ? altitude + 280000 : altitude + 900000
+  const orbit = getOrbitMetrics(visualAltitude || 500000)
+  const inclRad = Cesium.Math.toRadians(inclination || 0)
+  const raan = Cesium.Math.toRadians(baseLon || 0)
+  const cosRaan = Math.cos(raan)
+  const sinRaan = Math.sin(raan)
+  const cosInclination = Math.cos(inclRad)
+  const sinInclination = Math.sin(inclRad)
+
+  for (let i = 0; i <= 360; i += 6) {
+    const trueAnomaly = Cesium.Math.toRadians(i)
+    const xOrbital = orbit.orbitalRadius * Math.cos(trueAnomaly)
+    const yOrbital = orbit.orbitalRadius * Math.sin(trueAnomaly)
+    const xEcef = cosRaan * xOrbital - sinRaan * cosInclination * yOrbital
+    const yEcef = sinRaan * xOrbital + cosRaan * cosInclination * yOrbital
+    const zEcef = sinInclination * yOrbital
+    const longitude = Math.atan2(yEcef, xEcef)
+    const latitude = Math.atan2(zEcef, Math.sqrt(xEcef ** 2 + yEcef ** 2))
+
+    points.push(Cesium.Cartesian3.fromRadians(longitude, latitude, visualAltitude))
+  }
+
+  return points
+}
+
+function satelliteSpriteSize(sat: any, selected = false) {
+  const layer = getSatelliteLayer(sat.alt || 0)
+  const isAbnormal = sat.status === 'warning' || sat.status === 'danger' || sat.status === 'offline'
+  if (selected) return layer === 'GEO' ? 64 : 56
+  if (isAbnormal) return layer === 'GEO' ? 54 : 48
+  if (layer === 'GEO') return 48
+  if (layer === 'MEO') return 44
+  return 38
+}
+
+function satelliteSpriteColor(sat: any, selected = false) {
+  if (selected) return Cesium.Color.fromCssColorString('#eefbff').withAlpha(0.8)
+  if (sat.status === 'warning') return Cesium.Color.fromCssColorString('#ffd36f').withAlpha(0.72)
+  if (sat.status === 'danger') return Cesium.Color.fromCssColorString('#ff8f8f').withAlpha(0.72)
+  if (sat.status === 'offline') return Cesium.Color.fromCssColorString('#8a97a3').withAlpha(0.52)
+  const layer = getSatelliteLayer(sat.alt || 0)
+  if (layer === 'GEO') return Cesium.Color.fromCssColorString('#f2dda0').withAlpha(0.66)
+  if (layer === 'MEO') return Cesium.Color.fromCssColorString('#86d2ef').withAlpha(0.7)
+  return Cesium.Color.fromCssColorString('#aee8f4').withAlpha(0.68)
+}
+
+function getLinkShellKey(sat: any) {
+  const layer = getSatelliteLayer(sat.alt || 0)
+  const altitudeBucket = Math.round((sat.alt || 0) / 50000) * 50000
+  const inclinationBucket = Math.round((sat.inclination || 0) * 10) / 10
+  return `${layer}|${altitudeBucket}|${inclinationBucket}`
+}
+
+function getLinkPlaneKey(sat: any) {
+  const shellKey = getLinkShellKey(sat)
+  const normalizedLon = ((sat.baseLon || 0) % 360 + 360) % 360
+  const baseBucket = Math.round(normalizedLon / 5) * 5
+  return `${shellKey}|${baseBucket}`
+}
+
+function getLinkPairKey(a: any, b: any) {
+  return Number(a.id) < Number(b.id) ? `link-${a.id}-${b.id}` : `link-${b.id}-${a.id}`
+}
+
+function buildLinkArcPositions(
+  fromSat: any,
+  toSat: any,
+  time: Cesium.JulianDate,
+  startTime: Cesium.JulianDate
+) {
+  const start = getSatellitePosition(fromSat, time, startTime)
+  const end = getSatellitePosition(toSat, time, startTime)
+  const midpointVector = Cesium.Cartesian3.add(start, end, new Cesium.Cartesian3())
+  if (Cesium.Cartesian3.magnitude(midpointVector) < 1) {
+    return [start, end]
+  }
+
+  const direction = Cesium.Cartesian3.normalize(midpointVector, new Cesium.Cartesian3())
+  const shellRadius = Math.max(
+    EARTH_RADIUS_METERS + Math.max(fromSat.alt || 0, toSat.alt || 0) + 850000,
+    EARTH_RADIUS_METERS + 1400000
+  )
+  const midpoint = Cesium.Cartesian3.multiplyByScalar(direction, shellRadius, new Cesium.Cartesian3())
+  return [start, midpoint, end]
+}
+
+function buildCommunicationLinks(v: Cesium.Viewer) {
+  const activeLinkIds = new Set<string>()
+  if (!cesiumStartTime) return activeLinkIds
+
+  const shellGroups = new Map<string, any[]>()
+  satelliteStore.satellites.forEach((sat) => {
+    const key = getLinkShellKey(sat)
+    const list = shellGroups.get(key) || []
+    list.push(sat)
+    shellGroups.set(key, list)
+  })
+
+  const upsertLink = (fromSat: any, toSat: any) => {
+    if (!fromSat || !toSat || fromSat.id === toSat.id) return
+    const linkKey = getLinkPairKey(fromSat, toSat)
+    activeLinkIds.add(linkKey)
+
+    const isSelected =
+      satelliteStore.selectedSatelliteId === fromSat.id || satelliteStore.selectedSatelliteId === toSat.id
+    const isAbnormal =
+      fromSat.status !== 'normal' || toSat.status !== 'normal' || fromSat.status === 'offline' || toSat.status === 'offline'
+    const layer = getSatelliteLayer(Math.max(fromSat.alt || 0, toSat.alt || 0))
+    const linkColor =
+      isSelected
+        ? Cesium.Color.fromCssColorString('#ffffff')
+        : isAbnormal
+          ? Cesium.Color.fromCssColorString('#ffb6b6')
+          : layer === 'GEO'
+            ? Cesium.Color.fromCssColorString('#ffb45c')
+            : layer === 'MEO'
+              ? Cesium.Color.fromCssColorString('#7cd0ff')
+              : Cesium.Color.fromCssColorString('#4ce9ff')
+    const positions = new Cesium.CallbackProperty((time) => {
+      return buildLinkArcPositions(
+        fromSat,
+        toSat,
+        time || v.clock.currentTime,
+        cesiumStartTime as Cesium.JulianDate
+      )
+    }, false)
+
+    let entity = cesiumLinkEntities.get(linkKey)
+    if (!entity) {
+      entity = v.entities.add({
+        id: linkKey,
+        polyline: {
+          positions,
+          width: isSelected ? 2.2 : isAbnormal ? 1.55 : 1.15,
+          material: new Cesium.PolylineGlowMaterialProperty({
+            glowPower: isSelected ? 0.13 : isAbnormal ? 0.08 : 0.045,
+            color: linkColor.withAlpha(isSelected ? 0.58 : isAbnormal ? 0.36 : 0.18)
+          }),
+          arcType: Cesium.ArcType.NONE
+        }
+      })
+      cesiumLinkEntities.set(linkKey, entity)
+    } else if (entity.polyline) {
+      entity.polyline.positions = positions
+      entity.polyline.width = new Cesium.ConstantProperty(isSelected ? 2.2 : isAbnormal ? 1.55 : 1.15)
+      entity.polyline.material = new Cesium.PolylineGlowMaterialProperty({
+        glowPower: isSelected ? 0.13 : isAbnormal ? 0.08 : 0.045,
+        color: linkColor.withAlpha(isSelected ? 0.58 : isAbnormal ? 0.36 : 0.18)
+      })
+      entity.polyline.depthFailMaterial = new Cesium.ColorMaterialProperty(Cesium.Color.TRANSPARENT)
+    }
+  }
+
+  shellGroups.forEach((shellSats) => {
+    const planeGroups = new Map<string, any[]>()
+    shellSats.forEach((sat) => {
+      const key = getLinkPlaneKey(sat)
+      const list = planeGroups.get(key) || []
+      list.push(sat)
+      planeGroups.set(key, list)
+    })
+
+    const planes = [...planeGroups.entries()].sort((a, b) => {
+      const aKey = Number(a[0].split('|').pop() || 0)
+      const bKey = Number(b[0].split('|').pop() || 0)
+      return aKey - bKey
+    })
+
+    planes.forEach(([, planeSats]) => {
+      planeSats.sort((a, b) => ((a.phase || 0) - (b.phase || 0)) || Number(a.id) - Number(b.id))
+      if (planeSats.length < 2) return
+      for (let i = 0; i < planeSats.length; i++) {
+        upsertLink(planeSats[i], planeSats[(i + 1) % planeSats.length])
+      }
+    })
+
+    if (planes.length > 1) {
+      for (let i = 0; i < planes.length; i++) {
+        const left = planes[i][1]
+        const right = planes[(i + 1) % planes.length][1]
+        if (!left.length || !right.length) continue
+        const leftSat = left[Math.min(Math.floor(left.length / 2), left.length - 1)]
+        const rightSat = right[Math.min(Math.floor(right.length / 2), right.length - 1)]
+        upsertLink(leftSat, rightSat)
+      }
+    }
+  })
+
+  cesiumLinkEntities.forEach((entity, id) => {
+    if (!activeLinkIds.has(id)) {
+      v.entities.remove(entity)
+      cesiumLinkEntities.delete(id)
+    }
+  })
+
+  return activeLinkIds
+}
+
+function buildCesiumSatellites() {
+  const v = cesiumViewer
+  if (!v || v.isDestroyed() || !cesiumStartTime) return
+  const activeIds = new Set<number>()
+  const activeOrbitIds = new Set<number>()
+
+  if (!satelliteSpriteImage) {
+    satelliteSpriteImage = createSatelliteSprite()
+  }
+
+  satelliteStore.satellites.forEach((sat) => {
+    const color = satelliteSpriteColor(sat, satelliteStore.selectedSatelliteId === sat.id)
+    const orbitColor = statusColor(sat.status)
+    const isAbnormal = sat.status === 'warning' || sat.status === 'danger' || sat.status === 'offline'
+    const selected = satelliteStore.selectedSatelliteId === sat.id
+    const satId = Number(sat.id)
+    const orbitId = orbitEntityId(sat)
+    const spriteSize = satelliteSpriteSize(sat, selected)
+    activeIds.add(satId)
+
+    let entity = cesiumSatelliteEntities.get(satId)
+    if (!entity) {
+      entity = v.entities.add({
+        id: String(satId),
+        name: sat.name,
+        position: new Cesium.CallbackPositionProperty((time) => {
+          return getSatellitePosition(sat, time || v.clock.currentTime, cesiumStartTime as Cesium.JulianDate)
+        }, false),
+        billboard: {
+          image: satelliteSpriteImage,
+          width: spriteSize,
+          height: Math.round(spriteSize * 0.56),
+          color,
+          scaleByDistance: SATELLITE_SCALE_BY_DISTANCE,
+          disableDepthTestDistance: 0,
+          horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+          verticalOrigin: Cesium.VerticalOrigin.CENTER
+        },
+        label: {
+          text: sat.name,
+          font: '600 11px "Microsoft YaHei", sans-serif',
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          fillColor: Cesium.Color.WHITE.withAlpha(0.94),
+          outlineColor: Cesium.Color.fromCssColorString('#020713').withAlpha(0.75),
+          outlineWidth: 2,
+          pixelOffset: new Cesium.Cartesian2(0, -Math.round(spriteSize * 0.9)),
+          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+          horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+          disableDepthTestDistance: 0,
+          show: selected || isAbnormal
+        }
+      })
+      cesiumSatelliteEntities.set(satId, entity)
+    } else {
+      entity.name = sat.name
+      entity.position = new Cesium.CallbackPositionProperty((time) => {
+        return getSatellitePosition(sat, time || v.clock.currentTime, cesiumStartTime as Cesium.JulianDate)
+      }, false)
+      if (entity.billboard) {
+        entity.billboard.image = new Cesium.ConstantProperty(satelliteSpriteImage)
+        entity.billboard.width = new Cesium.ConstantProperty(spriteSize)
+        entity.billboard.height = new Cesium.ConstantProperty(Math.round(spriteSize * 0.56))
+        entity.billboard.color = new Cesium.ConstantProperty(color)
+        entity.billboard.scaleByDistance = new Cesium.ConstantProperty(SATELLITE_SCALE_BY_DISTANCE)
+        entity.billboard.disableDepthTestDistance = new Cesium.ConstantProperty(0)
+      }
+      if (entity.label) {
+        entity.label.text = new Cesium.ConstantProperty(sat.name)
+        entity.label.fillColor = new Cesium.ConstantProperty(Cesium.Color.WHITE.withAlpha(0.94))
+        entity.label.outlineColor = new Cesium.ConstantProperty(Cesium.Color.fromCssColorString('#020713').withAlpha(0.75))
+        entity.label.pixelOffset = new Cesium.ConstantProperty(new Cesium.Cartesian2(0, -Math.round(spriteSize * 0.9)))
+        entity.label.disableDepthTestDistance = new Cesium.ConstantProperty(0)
+        entity.label.show = new Cesium.ConstantProperty(selected || isAbnormal)
+      }
+    }
+
+    if (selected || isAbnormal) {
+      activeOrbitIds.add(orbitId)
+      let orbit = cesiumOrbitEntities.get(orbitId)
+      const positions = makeOrbitPositions(sat.inclination || 0, sat.baseLon || 0, sat.alt || 500000)
+      if (!orbit) {
+        orbit = v.entities.add({
+          id: `orbit-${satId}`,
+          polyline: {
+            positions,
+            width: selected ? 1.4 : 0.9,
+            material: orbitColor.withAlpha(selected ? 0.34 : 0.18)
+          }
+        })
+        cesiumOrbitEntities.set(orbitId, orbit)
+      } else if (orbit.polyline) {
+        orbit.polyline.positions = new Cesium.ConstantProperty(positions)
+        orbit.polyline.width = new Cesium.ConstantProperty(selected ? 1.4 : 0.9)
+        orbit.polyline.material = new Cesium.ColorMaterialProperty(orbitColor.withAlpha(selected ? 0.34 : 0.18))
+      }
+    }
+  })
+
+  buildCommunicationLinks(v)
+
+  cesiumSatelliteEntities.forEach((entity, id) => {
+    if (!activeIds.has(id)) {
+      v.entities.remove(entity)
+      cesiumSatelliteEntities.delete(id)
+    }
+  })
+  cesiumOrbitEntities.forEach((entity, id) => {
+    if (!activeOrbitIds.has(id)) {
+      v.entities.remove(entity)
+      cesiumOrbitEntities.delete(id)
+    }
+  })
+}
+
+function loadImage(src: string) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image()
+    image.onload = () => resolve(image)
+    image.onerror = () => reject(new Error(`Failed to load image: ${src}`))
+    image.src = src
+  })
+}
+
+function clampColor(value: number) {
+  return Math.max(0, Math.min(255, Math.round(value)))
+}
+
+function smoothstep(edge0: number, edge1: number, value: number) {
+  const x = Math.max(0, Math.min(1, (value - edge0) / (edge1 - edge0)))
+  return x * x * (3 - 2 * x)
+}
+
+async function createClassicEarthTextureUrl() {
+  const [mask, marble] = await Promise.all([
+    loadImage('/satellitemap/images/globe-mask.png'),
+    loadImage('/satellitemap/images/bluemarble-4k.webp')
+  ])
+  const canvas = document.createElement('canvas')
+  canvas.width = mask.naturalWidth || mask.width
+  canvas.height = mask.naturalHeight || mask.height
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return '/satellitemap/images/bluemarble-4k.webp'
+
+  ctx.drawImage(mask, 0, 0, canvas.width, canvas.height)
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+  const data = imageData.data
+  const alpha = new Uint8Array(canvas.width * canvas.height)
+  const detailCanvas = document.createElement('canvas')
+  detailCanvas.width = canvas.width
+  detailCanvas.height = canvas.height
+  const detailCtx = detailCanvas.getContext('2d')
+  let detailData: Uint8ClampedArray | null = null
+  if (detailCtx) {
+    detailCtx.drawImage(marble, 0, 0, canvas.width, canvas.height)
+    detailData = detailCtx.getImageData(0, 0, canvas.width, canvas.height).data
+  }
+
+  for (let i = 0; i < data.length; i += 4) {
+    const idx = i / 4
+    const maskValue = data[i]
+    const t = maskValue / 255
+    alpha[idx] = data[i]
+    const latRow = Math.floor(idx / canvas.width)
+    const lonCol = idx % canvas.width
+    const grain = ((lonCol * 17 + latRow * 31) % 19) / 255
+    const landMix = smoothstep(0.25, 0.62, t)
+    const detailLum = detailData
+      ? (detailData[i] * 0.299 + detailData[i + 1] * 0.587 + detailData[i + 2] * 0.114) / 255
+      : 0.5
+    const detailShade = 0.74 + detailLum * 0.42 + grain
+    const ridge = detailData && landMix > 0.35
+      ? Math.max(0, (detailLum - 0.44) * 0.28)
+      : 0
+    data[i] = clampColor((CLASSIC_OCEAN[0] + (CLASSIC_LAND[0] - CLASSIC_OCEAN[0]) * landMix) * detailShade + ridge * 255)
+    data[i + 1] = clampColor((CLASSIC_OCEAN[1] + (CLASSIC_LAND[1] - CLASSIC_OCEAN[1]) * landMix) * detailShade + ridge * 180)
+    data[i + 2] = clampColor((CLASSIC_OCEAN[2] + (CLASSIC_LAND[2] - CLASSIC_OCEAN[2]) * landMix) * detailShade + ridge * 120)
+    data[i + 3] = 255
+  }
+
+  for (let y = 1; y < canvas.height - 1; y++) {
+    for (let x = 1; x < canvas.width - 1; x++) {
+      const idx = y * canvas.width + x
+      const v = alpha[idx]
+      const edge =
+        Math.abs(v - alpha[idx - 1]) +
+        Math.abs(v - alpha[idx + 1]) +
+        Math.abs(v - alpha[idx - canvas.width]) +
+        Math.abs(v - alpha[idx + canvas.width])
+      const offset = idx * 4
+      if (edge > 42) {
+        data[offset] = CLASSIC_COAST[0]
+        data[offset + 1] = CLASSIC_COAST[1]
+        data[offset + 2] = CLASSIC_COAST[2]
+      }
+    }
+  }
+
+  const drawGrid = (step: number, alphaValue: number) => {
+    for (let x = 0; x < canvas.width; x += step) {
+      for (let y = 0; y < canvas.height; y++) {
+        const offset = (y * canvas.width + x) * 4
+        data[offset] = Math.round(data[offset] * (1 - alphaValue) + CLASSIC_GRID[0] * alphaValue)
+        data[offset + 1] = Math.round(data[offset + 1] * (1 - alphaValue) + CLASSIC_GRID[1] * alphaValue)
+        data[offset + 2] = Math.round(data[offset + 2] * (1 - alphaValue) + CLASSIC_GRID[2] * alphaValue)
+      }
+    }
+    for (let y = 0; y < canvas.height; y += step) {
+      for (let x = 0; x < canvas.width; x++) {
+        const offset = (y * canvas.width + x) * 4
+        data[offset] = Math.round(data[offset] * (1 - alphaValue) + CLASSIC_GRID[0] * alphaValue)
+        data[offset + 1] = Math.round(data[offset + 1] * (1 - alphaValue) + CLASSIC_GRID[1] * alphaValue)
+        data[offset + 2] = Math.round(data[offset + 2] * (1 - alphaValue) + CLASSIC_GRID[2] * alphaValue)
+      }
+    }
+  }
+  drawGrid(Math.max(24, Math.round(canvas.width / 24)), 0.28)
+  drawGrid(Math.max(48, Math.round(canvas.width / 12)), 0.18)
+
+  ctx.putImageData(imageData, 0, 0)
+  return canvas.toDataURL('image/png')
+}
+
+function createClassicSunImage() {
+  const canvas = document.createElement('canvas')
+  canvas.width = 192
+  canvas.height = 192
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return ''
+  const gradient = ctx.createRadialGradient(96, 96, 5, 96, 96, 92)
+  gradient.addColorStop(0, 'rgba(255,255,255,1)')
+  gradient.addColorStop(0.18, 'rgba(255,238,170,0.96)')
+  gradient.addColorStop(0.42, 'rgba(255,180,82,0.42)')
+  gradient.addColorStop(1, 'rgba(255,150,42,0)')
+  ctx.fillStyle = gradient
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  ctx.strokeStyle = 'rgba(255,230,160,0.36)'
+  ctx.lineWidth = 1
+  for (let i = 0; i < 12; i++) {
+    const angle = (Math.PI * 2 * i) / 12
+    ctx.beginPath()
+    ctx.moveTo(96 + Math.cos(angle) * 28, 96 + Math.sin(angle) * 28)
+    ctx.lineTo(96 + Math.cos(angle) * 88, 96 + Math.sin(angle) * 88)
+    ctx.stroke()
+  }
+  return canvas.toDataURL('image/png')
+}
+
+function createSatelliteSprite() {
+  const canvas = document.createElement('canvas')
+  canvas.width = 320
+  canvas.height = 200
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return ''
+
+  const cx = canvas.width / 2
+  const cy = canvas.height / 2
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+  const halo = ctx.createRadialGradient(cx, cy, 8, cx, cy, 96)
+  halo.addColorStop(0, 'rgba(70, 220, 255, 0.24)')
+  halo.addColorStop(0.35, 'rgba(48, 120, 255, 0.08)')
+  halo.addColorStop(0.68, 'rgba(124, 92, 255, 0.045)')
+  halo.addColorStop(1, 'rgba(48, 120, 255, 0)')
+  ctx.fillStyle = halo
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  const leftPanel = { x: 28, y: 74, w: 96, h: 48 }
+  const rightPanel = { x: 196, y: 74, w: 96, h: 48 }
+  const panelGradient = ctx.createLinearGradient(28, 74, 124, 122)
+  panelGradient.addColorStop(0, 'rgba(8, 18, 39, 0.98)')
+  panelGradient.addColorStop(0.46, 'rgba(28, 70, 118, 0.94)')
+  panelGradient.addColorStop(1, 'rgba(6, 12, 24, 0.98)')
+  ctx.fillStyle = panelGradient
+  ctx.beginPath()
+  ctx.roundRect(leftPanel.x, leftPanel.y, leftPanel.w, leftPanel.h, 7)
+  ctx.fill()
+  const rightGradient = ctx.createLinearGradient(196, 74, 292, 122)
+  rightGradient.addColorStop(0, 'rgba(6, 12, 24, 0.98)')
+  rightGradient.addColorStop(0.54, 'rgba(28, 70, 118, 0.94)')
+  rightGradient.addColorStop(1, 'rgba(8, 18, 39, 0.98)')
+  ctx.fillStyle = rightGradient
+  ctx.beginPath()
+  ctx.roundRect(rightPanel.x, rightPanel.y, rightPanel.w, rightPanel.h, 7)
+  ctx.fill()
+
+  ctx.strokeStyle = 'rgba(92, 235, 255, 0.32)'
+  ctx.lineWidth = 1.4
+  ctx.beginPath()
+  ctx.roundRect(leftPanel.x + 1, leftPanel.y + 1, leftPanel.w - 2, leftPanel.h - 2, 7)
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.roundRect(rightPanel.x + 1, rightPanel.y + 1, rightPanel.w - 2, rightPanel.h - 2, 7)
+  ctx.stroke()
+
+  ctx.strokeStyle = 'rgba(130, 205, 255, 0.22)'
+  ctx.lineWidth = 1
+  for (let x = leftPanel.x + 12; x < leftPanel.x + leftPanel.w; x += 14) {
+    ctx.beginPath()
+    ctx.moveTo(x, leftPanel.y + 4)
+    ctx.lineTo(x, leftPanel.y + leftPanel.h - 4)
+    ctx.stroke()
+  }
+  for (let x = rightPanel.x + 12; x < rightPanel.x + rightPanel.w; x += 14) {
+    ctx.beginPath()
+    ctx.moveTo(x, rightPanel.y + 4)
+    ctx.lineTo(x, rightPanel.y + rightPanel.h - 4)
+    ctx.stroke()
+  }
+  for (let y = leftPanel.y + 12; y < leftPanel.y + leftPanel.h; y += 12) {
+    ctx.beginPath()
+    ctx.moveTo(leftPanel.x + 4, y)
+    ctx.lineTo(leftPanel.x + leftPanel.w - 4, y)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(rightPanel.x + 4, y)
+    ctx.lineTo(rightPanel.x + rightPanel.w - 4, y)
+    ctx.stroke()
+  }
+
+  ctx.strokeStyle = 'rgba(198, 218, 234, 0.72)'
+  ctx.lineWidth = 4
+  ctx.lineCap = 'round'
+  ctx.beginPath()
+  ctx.moveTo(124, 98)
+  ctx.lineTo(143, 98)
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.moveTo(177, 98)
+  ctx.lineTo(196, 98)
+  ctx.stroke()
+
+  const bodyGradient = ctx.createLinearGradient(132, 52, 188, 146)
+  bodyGradient.addColorStop(0, 'rgba(220, 232, 244, 0.96)')
+  bodyGradient.addColorStop(0.28, 'rgba(78, 96, 118, 0.98)')
+  bodyGradient.addColorStop(0.7, 'rgba(21, 30, 46, 0.98)')
+  bodyGradient.addColorStop(1, 'rgba(180, 194, 208, 0.92)')
+  ctx.fillStyle = bodyGradient
+  ctx.beginPath()
+  ctx.moveTo(160, 46)
+  ctx.lineTo(184, 62)
+  ctx.lineTo(190, 101)
+  ctx.lineTo(176, 143)
+  ctx.lineTo(144, 143)
+  ctx.lineTo(130, 101)
+  ctx.lineTo(136, 62)
+  ctx.closePath()
+  ctx.fill()
+
+  ctx.strokeStyle = 'rgba(227, 246, 255, 0.7)'
+  ctx.lineWidth = 1.8
+  ctx.beginPath()
+  ctx.moveTo(160, 49)
+  ctx.lineTo(181, 64)
+  ctx.lineTo(186, 100)
+  ctx.lineTo(173, 139)
+  ctx.lineTo(147, 139)
+  ctx.lineTo(134, 100)
+  ctx.lineTo(139, 64)
+  ctx.closePath()
+  ctx.stroke()
+
+  const bodyGlow = ctx.createRadialGradient(160, 94, 4, 160, 94, 44)
+  bodyGlow.addColorStop(0, 'rgba(100, 232, 255, 0.46)')
+  bodyGlow.addColorStop(0.34, 'rgba(84, 170, 255, 0.14)')
+  bodyGlow.addColorStop(1, 'rgba(84, 170, 255, 0)')
+  ctx.fillStyle = bodyGlow
+  ctx.beginPath()
+  ctx.roundRect(139, 58, 42, 76, 12)
+  ctx.fill()
+
+  ctx.fillStyle = 'rgba(220, 248, 255, 0.72)'
+  ctx.beginPath()
+  ctx.arc(160, 86, 12, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.fillStyle = 'rgba(28, 80, 122, 0.94)'
+  ctx.beginPath()
+  ctx.arc(160, 86, 5, 0, Math.PI * 2)
+  ctx.fill()
+
+  ctx.strokeStyle = 'rgba(170, 236, 255, 0.72)'
+  ctx.lineWidth = 2
+  ctx.beginPath()
+  ctx.moveTo(160, 46)
+  ctx.lineTo(160, 25)
+  ctx.stroke()
+  ctx.fillStyle = 'rgba(150, 236, 255, 0.6)'
+  ctx.beginPath()
+  ctx.arc(160, 22, 4.5, 0, Math.PI * 2)
+  ctx.fill()
+
+  ctx.strokeStyle = 'rgba(130, 218, 255, 0.55)'
+  ctx.lineWidth = 1.4
+  ctx.beginPath()
+  ctx.moveTo(147, 128)
+  ctx.lineTo(132, 154)
+  ctx.moveTo(173, 128)
+  ctx.lineTo(188, 154)
+  ctx.stroke()
+
+  const engineGlow = ctx.createRadialGradient(160, 142, 2, 160, 142, 34)
+  engineGlow.addColorStop(0, 'rgba(72, 226, 255, 0.48)')
+  engineGlow.addColorStop(0.45, 'rgba(58, 130, 255, 0.16)')
+  engineGlow.addColorStop(1, 'rgba(58, 130, 255, 0)')
+  ctx.fillStyle = engineGlow
+  ctx.fillRect(126, 126, 68, 48)
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.38)'
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(145, 67)
+  ctx.lineTo(175, 67)
+  ctx.moveTo(142, 116)
+  ctx.lineTo(178, 116)
+  ctx.stroke()
+
+  return canvas.toDataURL('image/png')
+}
+
+async function createClassicSkyboxSources() {
+  const starMap = await loadImage('/satellitemap/images/starmap-4k.jpg')
+  const size = Math.min(starMap.naturalWidth || starMap.width, starMap.naturalHeight || starMap.height)
+  const width = starMap.naturalWidth || starMap.width
+  const height = starMap.naturalHeight || starMap.height
+  const crops = [
+    [0.00, 0.00],
+    [0.25, 0.00],
+    [0.50, 0.00],
+    [0.75, 0.00],
+    [0.12, 0.00],
+    [0.62, 0.00]
+  ]
+
+  const makeFace = ([xRatio, yRatio]: number[]) => {
+    const canvas = document.createElement('canvas')
+    canvas.width = size
+    canvas.height = size
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return '/satellitemap/images/starmap-4k.jpg'
+    const sx = Math.min(Math.max(0, Math.round((width - size) * xRatio)), width - size)
+    const sy = Math.min(Math.max(0, Math.round((height - size) * yRatio)), height - size)
+    ctx.drawImage(starMap, sx, sy, size, size, 0, 0, size, size)
+    return canvas.toDataURL('image/jpeg', 0.9)
+  }
+
+  const faces = crops.map(makeFace)
+  return {
+    positiveX: faces[0],
+    negativeX: faces[1],
+    positiveY: faces[2],
+    negativeY: faces[3],
+    positiveZ: faces[4],
+    negativeZ: faces[5]
+  }
+}
+
+function applyCesiumEarthStyle() {
+  const v = cesiumViewer
+  if (!v || v.isDestroyed()) return
+
+  if (realEarthLayer) {
+    realEarthLayer.show = earthStyle.value === 'real'
+  }
+  if (classicEarthLayer) {
+    classicEarthLayer.show = earthStyle.value === 'classic'
+  }
+
+  v.scene.globe.depthTestAgainstTerrain = true
+  if (v.scene.globe.translucency) {
+    v.scene.globe.translucency.enabled = false
+  }
+  v.scene.globe.baseColor = Cesium.Color.fromCssColorString(
+    earthStyle.value === 'classic' ? '#04131f' : '#102643'
+  )
+  v.scene.globe.enableLighting = false
+  v.scene.backgroundColor = Cesium.Color.fromCssColorString('#020713')
+  if (v.scene.sun) v.scene.sun.show = earthStyle.value === 'classic'
+  if (v.scene.moon) v.scene.moon.show = false
+  if (classicSunEntity) {
+    classicSunEntity.show = earthStyle.value === 'classic'
+  }
+  v.resize()
+}
+
+async function initCesiumImagery() {
+  if (!cesiumContainer.value || cesiumViewer) return
+
+  const classicTextureUrl = await createClassicEarthTextureUrl()
+  const classicSunImage = createClassicSunImage()
+  const classicSkyboxSources = await createClassicSkyboxSources()
+  const v = new Cesium.Viewer(cesiumContainer.value, {
+    animation: false,
+    baseLayer: Cesium.ImageryLayer.fromProviderAsync(
+      Cesium.SingleTileImageryProvider.fromUrl('/satellitemap/images/bluemarble-4k.webp', {
+        rectangle: Cesium.Rectangle.MAX_VALUE
+      }),
+      {
+        brightness: 0.9,
+        contrast: 1.2,
+        saturation: 1.12,
+        gamma: 0.92
+      }
+    ),
+    baseLayerPicker: false,
+    fullscreenButton: false,
+    vrButton: false,
+    geocoder: false,
+    homeButton: false,
+    infoBox: false,
+    sceneModePicker: false,
+    selectionIndicator: false,
+    timeline: false,
+    navigationHelpButton: false
+  } as any)
+
+  cesiumViewer = v
+  cesiumStartTime = Cesium.JulianDate.now()
+  satelliteSpriteImage = createSatelliteSprite()
+  v.clock.startTime = cesiumStartTime.clone()
+  v.clock.currentTime = cesiumStartTime.clone()
+  v.clock.shouldAnimate = true
+  v.clock.multiplier = 1
+  v.resolutionScale = Math.min(window.devicePixelRatio || 1, 2)
+
+  const creditContainer = (v as any)._cesiumWidget?._creditContainer
+  if (creditContainer) creditContainer.style.display = 'none'
+
+  v.scene.globe.show = true
+  v.scene.globe.enableLighting = false
+  v.scene.globe.showGroundAtmosphere = true
+  v.scene.globe.atmosphereLightIntensity = 18
+  v.scene.globe.depthTestAgainstTerrain = true
+  if (v.scene.globe.translucency) {
+    v.scene.globe.translucency.enabled = false
+  }
+  v.scene.globe.baseColor = Cesium.Color.fromCssColorString('#102643')
+  v.scene.backgroundColor = Cesium.Color.fromCssColorString('#020713')
+  v.scene.fog.enabled = false
+  v.scene.postProcessStages.fxaa.enabled = true
+  if (v.scene.postProcessStages.bloom) {
+    v.scene.postProcessStages.bloom.enabled = true
+  }
+  if (v.scene.sun) v.scene.sun.show = false
+  if (v.scene.moon) v.scene.moon.show = false
+  if (v.scene.skyBox) v.scene.skyBox.show = true
+  try {
+    v.scene.skyBox = new Cesium.SkyBox({
+      sources: classicSkyboxSources
+    })
+  } catch (error) {
+    console.warn('[Cesium] Classic skybox unavailable.', error)
+  }
+
+  const controller = v.scene.screenSpaceCameraController
+  controller.minimumZoomDistance = 3800000
+  controller.maximumZoomDistance = 86000000
+  controller.enableCollisionDetection = false
+
+  try {
+    const imagery = await Cesium.ArcGisMapServerImageryProvider.fromUrl(
+      'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer',
+      { enablePickFeatures: false }
+    )
+    realEarthLayer = v.imageryLayers.addImageryProvider(imagery)
+    realEarthLayer.brightness = 0.96
+    realEarthLayer.contrast = 1.22
+    realEarthLayer.saturation = 1.18
+    realEarthLayer.gamma = 0.92
+  } catch (error) {
+    console.warn('[Cesium] ArcGIS imagery unavailable.', error)
+  }
+
+  const classicProvider = await Cesium.SingleTileImageryProvider.fromUrl(classicTextureUrl, {
+    rectangle: Cesium.Rectangle.MAX_VALUE
+  })
+  classicEarthLayer = v.imageryLayers.addImageryProvider(classicProvider)
+  classicEarthLayer.brightness = 1
+  classicEarthLayer.contrast = 1
+  classicEarthLayer.saturation = 1
+  classicEarthLayer.gamma = 1
+  classicEarthLayer.show = false
+
+  classicSunEntity = v.entities.add({
+    id: 'classic-sun',
+    position: Cesium.Cartesian3.fromDegrees(138, 12, 145000000),
+    billboard: {
+      image: classicSunImage,
+      width: 132,
+      height: 132,
+      color: Cesium.Color.WHITE.withAlpha(0.92),
+      disableDepthTestDistance: Number.POSITIVE_INFINITY
+    },
+    show: false
+  })
+
+  v.camera.flyTo({
+    destination: Cesium.Cartesian3.fromDegrees(108, 24, 18500000),
+    orientation: {
+      heading: Cesium.Math.toRadians(0),
+      pitch: Cesium.Math.toRadians(-90),
+      roll: 0
+    },
+    duration: 0
+  })
+
+  cesiumClickHandler = new Cesium.ScreenSpaceEventHandler(v.scene.canvas)
+  cesiumClickHandler.setInputAction((movement: any) => {
+    const pickedObject = v.scene.pick(movement.position)
+    if (!Cesium.defined(pickedObject) || !pickedObject.id) return
+    const entity = pickedObject.id
+    if (entity instanceof Cesium.Entity && entity.id && /^\d+$/.test(entity.id)) {
+      satelliteStore.selectedSatelliteId = Number(entity.id)
+      buildCesiumSatellites()
+    }
+  }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
+
+  window.setTimeout(() => {
+    v.resize()
+    applyCesiumEarthStyle()
+    buildCesiumSatellites()
+  }, 100)
+}
+
+function toggleEarthStyle() {
+  earthStyle.value = earthStyle.value === 'real' ? 'classic' : 'real'
+  applyCesiumEarthStyle()
+  forceReferenceEarthVisuals(true)
 }
 
 function sendToIframe(msg: Record<string, unknown>) {
   try {
     iframeRef.value?.contentWindow?.postMessage({ source: 'c4-parent', ...msg }, '*')
   } catch {
-    // Ignore cross-frame timing issues while the embed boots.
   }
 }
 
@@ -380,13 +1197,13 @@ function hideIframeChrome() {
   const win = iframeRef.value?.contentWindow
   const doc = iframeRef.value?.contentDocument
   if (!win || !doc) return false
+  const style = currentEarthStyle.value
 
   doc.documentElement.style.overflow = 'hidden'
-  doc.documentElement.style.background = '#020811'
   doc.documentElement.classList.remove('preload')
   doc.body.style.margin = '0'
   doc.body.style.overflow = 'hidden'
-  doc.body.style.background = '#020811'
+  doc.body.dataset.earthStyle = earthStyle.value
   doc.body.style.opacity = '1'
   doc.body.classList.remove('splash-active')
   doc.body.classList.add('css-loaded')
@@ -399,9 +1216,24 @@ function hideIframeChrome() {
     doc.head.appendChild(styleEl)
   }
 
-  styleEl.textContent = `
-    html, body { width: 100%; height: 100%; overflow: hidden !important; margin: 0; padding: 0; }
+  const chromeCss = `
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden !important;
+      margin: 0;
+      padding: 0;
+      background: ${style.background} !important;
+    }
     #glCanvas { position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important; display: block !important; z-index: 0; }
+    body[data-earth-style="classic"] [id*="inclination"],
+    body[data-earth-style="classic"] [class*="inclination"],
+    body[data-earth-style="classic"] [id*="Inclination"],
+    body[data-earth-style="classic"] [class*="Inclination"] {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
     #navbar-desktop,
     #mobile-menu-overlay,
     #mobile-menu,
@@ -427,6 +1259,20 @@ function hideIframeChrome() {
     #dropdownSettings,
     #dropdownInfo,
     #dropdownConstellationData,
+    #dropdownNews,
+    #dropdownNavbar,
+    #dropdownNewsLink,
+    #dropdownNavbarLink,
+    #dropdownTypesLink,
+    #dropdownFunctionsLink,
+    #dropdownMoreLink,
+    #mobile-menu-toggle,
+    #time_rewind,
+    #time_pause,
+    #time_fastforward,
+    #time_reset,
+    #fps_telltale,
+    #warning_flag,
     #types_menu_items,
     #constellation_menu_items,
     #mobile-constellation-menu,
@@ -438,9 +1284,47 @@ function hideIframeChrome() {
     #launches-panel,
     #decays-panel,
     #events-panel,
+    #orbits-panel,
+    #ground-stations-panel,
+    #timeline_chart_modal,
+    #credits_modal,
+    #feedback_modal,
+    #satellite_info_panel,
+    #satellite-info-panel,
+    #desktopHelpTab,
+    #touchHelpTab,
     #bottom-bar,
     #controls,
     #control-panel,
+    #toolbar,
+    [id^="btn"],
+    button,
+    a,
+    [role="button"],
+    nav,
+    .modal,
+    .navbar,
+    .dropdown,
+    .dropdown-menu,
+    .toolbar,
+    .btn,
+    .menu,
+    .controls,
+    .time-control,
+    .time-controls,
+    .fps-control,
+    .fps-telltale,
+    .fixed.bottom-0,
+    .fixed.bottom-2,
+    .fixed.bottom-4,
+    [id*="time"],
+    [class*="time"],
+    [id*="fps"],
+    [class*="fps"],
+    .control-table,
+    .control-spacer,
+    .help-tab,
+    .help-panel,
     .navbar-dropdown-menu,
     .navbar-dropdown-list,
     .navbar-desktop-dropdown-item,
@@ -458,52 +1342,7 @@ function hideIframeChrome() {
       pointer-events: none !important;
     }
   `
-
-  const removeSelectors = [
-    'nav',
-    '#navbar-desktop',
-    '#mobile-menu-overlay',
-    '#mobile-menu',
-    '#timeline_chart_modal',
-    '#credits_modal',
-    '#about_modal',
-    '#starlink-welcome',
-    '#splash-screen',
-    '#dropdownNews',
-    '#dropdownNavbar',
-    '#dropdownTypes',
-    '#dropdownFunctions',
-    '#dropdownMore',
-    '#timeline-tab-content',
-    '#timeline-tab-list',
-    '#growth-panel',
-    '#launches-panel',
-    '#decays-panel',
-    '#orbits-panel',
-    '#ground-stations-panel',
-    '#events-panel',
-    '#desktop-constellation-data-item',
-    '.navbar-dropdown-menu',
-    '.navbar-dropdown-list',
-    '.navbar-mobile-menu',
-    '.bottom-panel',
-    '.right-panel',
-    '.side-panel',
-    '.overlay-panel',
-    '.draggable-window',
-    '.lv-info-window',
-    '.sat-info-panel',
-    '.info-panel'
-  ]
-  removeSelectors.forEach((selector) => {
-    doc.querySelectorAll(selector).forEach((node) => node.remove())
-  })
-  Array.from(doc.body.children).forEach((node) => {
-    const el = node as HTMLElement
-    const id = el.id || ''
-    if (id === 'glCanvas' || id === 'c4-link-overlay') return
-    el.remove()
-  })
+  if (styleEl.textContent !== chromeCss) styleEl.textContent = chromeCss
 
   const canvas = doc.getElementById('glCanvas') as HTMLCanvasElement | null
   if (canvas) {
@@ -516,14 +1355,7 @@ function hideIframeChrome() {
 
   const globe = (win as any).globe
   if (globe) {
-    if ('show_borders' in globe) globe.show_borders = 2
-    if ('show_texstyle' in globe) globe.show_texstyle = 2
-    if ('show_dotlighting' in globe) globe.show_dotlighting = 1
-    if ('show_skybox' in globe) globe.show_skybox = 2
-    if ('show_sun' in globe) globe.show_sun = 1
-    if ('show_clouds' in globe) globe.show_clouds = 0
-    if ('show_rotating' in globe) globe.show_rotating = 1
-    if ('show_labels' in globe) globe.show_labels = 1
+    applyGlobeVisuals(globe, true)
     if ('requestOptimalZoom' in globe) globe.requestOptimalZoom = false
     if (typeof (globe as any).calculateOptimalZoom === 'function') {
       ;(globe as any).calculateOptimalZoom = () => null
@@ -536,42 +1368,63 @@ function hideIframeChrome() {
   return true
 }
 
-function forceReferenceEarthVisuals() {
-  const win = iframeRef.value?.contentWindow as any
-  if (!win) return
-  const g = win.globe || win.blueGlobe
-  if (!g) return
-  if ('show_borders' in g) g.show_borders = 2
-  if ('show_texstyle' in g) g.show_texstyle = 2
-  if ('show_dotlighting' in g) g.show_dotlighting = 1
-    if ('show_skybox' in g) g.show_skybox = 2
-  if ('show_sun' in g) g.show_sun = 1
-  if ('show_clouds' in g) g.show_clouds = 0
+function applyGlobeVisuals(g: any, force = false) {
+  const style = currentEarthStyle.value
+  const signature = [
+    earthStyle.value,
+    style.texstyle ?? 'inherit',
+    style.clouds ?? 'inherit',
+    style.skybox ?? 'inherit',
+    style.dotlighting ?? 'inherit'
+  ].join(':')
+  if (!force && lastVisualSignature === signature) return
+  lastVisualSignature = signature
+
+  if (style.borders != null && 'show_borders' in g) g.show_borders = style.borders
+  if (style.texstyle != null && 'show_texstyle' in g) g.show_texstyle = style.texstyle
+  if (style.dotlighting != null && 'show_dotlighting' in g) g.show_dotlighting = style.dotlighting
+  if (style.skybox != null && 'show_skybox' in g) g.show_skybox = style.skybox
+  if ('show_sun' in g) g.show_sun = style.sun
+  if (style.clouds != null && 'show_clouds' in g) g.show_clouds = style.clouds
   if ('show_rotating' in g) g.show_rotating = 1
   if ('show_labels' in g) g.show_labels = 1
+}
+
+function forceReferenceEarthVisuals(force = false) {
+  const win = iframeRef.value?.contentWindow as any
+  if (!win) return
+  const doc = iframeRef.value?.contentDocument
+  if (doc?.body) {
+    doc.body.dataset.earthStyle = earthStyle.value
+  }
+  const g = win.globe || win.blueGlobe
+  if (!g) return
+  applyGlobeVisuals(g, force)
 }
 
 function scheduleIframeSetup() {
   const ok = hideIframeChrome()
   forceReferenceEarthVisuals()
   iframeSetupRuns.value += 1
-  if (iframeSetupRuns.value < 40) {
-    window.setTimeout(scheduleIframeSetup, 300)
-  } else {
-    if (ok) iframeReady.value = true
-    // Keep the reference globe styling alive in case the underlying map resets it later.
+  const hasGlobe = Boolean(iframeRef.value?.contentWindow && (iframeRef.value.contentWindow as any).globe)
+  if (ok && hasGlobe) {
+    iframeReady.value = true
     if (!bordersKeepAliveTimer) {
       bordersKeepAliveTimer = setInterval(() => {
         forceReferenceEarthVisuals()
-      }, 250)
+      }, 1200)
     }
+    return
   }
-  if (ok && iframeSetupRuns.value === 5) iframeReady.value = true
+  if (iframeSetupRuns.value < 40) {
+    window.setTimeout(scheduleIframeSetup, 300)
+  }
 }
 
 function onIframeLoad() {
   iframeReady.value = false
   iframeSetupRuns.value = 0
+  lastVisualSignature = ''
   if (bordersKeepAliveTimer) {
     clearInterval(bordersKeepAliveTimer)
     bordersKeepAliveTimer = null
@@ -600,13 +1453,24 @@ function onMessage(event: MessageEvent) {
 
   if (data.type === 'satellite-deselected') {
     satelliteStore.selectedSatelliteId = null
-    showInfoDialog.value = false
   }
 }
 
 onMounted(() => {
   window.addEventListener('message', onMessage)
+  initCesiumImagery()
 })
+
+watch(
+  () => satelliteStore.satellites,
+  () => buildCesiumSatellites(),
+  { deep: true }
+)
+
+watch(
+  () => satelliteStore.selectedSatelliteId,
+  () => buildCesiumSatellites()
+)
 
 onBeforeUnmount(() => {
   window.removeEventListener('message', onMessage)
@@ -614,6 +1478,21 @@ onBeforeUnmount(() => {
     clearInterval(bordersKeepAliveTimer)
     bordersKeepAliveTimer = null
   }
+  if (cesiumClickHandler) {
+    cesiumClickHandler.destroy()
+    cesiumClickHandler = null
+  }
+  if (cesiumViewer && !cesiumViewer.isDestroyed()) {
+    cesiumViewer.destroy()
+  }
+  cesiumViewer = null
+  cesiumStartTime = null
+  realEarthLayer = null
+  classicEarthLayer = null
+  classicSunEntity = null
+  cesiumSatelliteEntities.clear()
+  cesiumOrbitEntities.clear()
+  cesiumLinkEntities.clear()
 })
 </script>
 
@@ -661,11 +1540,47 @@ onBeforeUnmount(() => {
   border: none;
   background: #020811;
   opacity: 0;
+  pointer-events: none;
   transition: opacity 0.2s ease;
+  z-index: 1;
 }
 
 .satmap-iframe.ready {
   opacity: 1;
+  pointer-events: auto;
+}
+
+.cesium-imagery-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    radial-gradient(circle at 48% 48%, rgba(48, 150, 255, 0.14), transparent 31%),
+    radial-gradient(circle at 50% 50%, rgba(4, 13, 27, 0), rgba(2, 7, 19, 0.76) 72%),
+    #020713;
+  transition: opacity 0.2s ease;
+}
+
+.cesium-imagery-layer.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.cesium-imagery-layer :deep(.cesium-widget),
+.cesium-imagery-layer :deep(.cesium-widget canvas) {
+  width: 100%;
+  height: 100%;
+}
+
+.cesium-imagery-layer :deep(.cesium-viewer-bottom),
+.cesium-imagery-layer :deep(.cesium-viewer-toolbar),
+.cesium-imagery-layer :deep(.cesium-viewer-animationContainer),
+.cesium-imagery-layer :deep(.cesium-viewer-timelineContainer) {
+  display: none !important;
 }
 
 .action-btns {
@@ -674,6 +1589,7 @@ onBeforeUnmount(() => {
   right: 24px;
   z-index: 12;
   display: flex;
+  align-items: center;
   gap: 8px;
   pointer-events: auto;
 }
@@ -757,190 +1673,6 @@ onBeforeUnmount(() => {
 .status-badge.danger, .detail-status.danger { color: #ff8c8c; background: rgba(255, 107, 107, 0.16); }
 .status-badge.offline, .detail-status.offline { color: #b6c2cf; background: rgba(123, 135, 148, 0.18); }
 
-.satellite-side-panel {
-  position: absolute;
-  top: 86px;
-  right: 24px;
-  z-index: 12;
-  width: min(340px, calc(100% - 32px));
-  border: 1px solid rgba(136, 170, 208, 0.18);
-  border-radius: 16px;
-  padding: 12px;
-  background: rgba(9, 16, 26, 0.88);
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.42);
-  backdrop-filter: blur(12px);
-  pointer-events: auto;
-}
-
-.side-panel-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.side-panel-head > div,
-.info-hero > div {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.side-panel-subtitle {
-  color: var(--sat-panel-soft);
-  font-size: 12px;
-  line-height: 1.5;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.collapse-btn {
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
-  color: #eaf3fb;
-}
-
-.side-panel-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  margin-top: 8px;
-}
-
-.float-item {
-  padding: 14px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.float-item label,
-.float-item strong {
-  display: block;
-}
-
-.float-item strong {
-  margin-top: 6px;
-}
-
-.anomaly-box {
-  margin-top: 10px;
-  background: rgba(255, 107, 107, 0.1);
-  border: 1px solid rgba(255, 107, 107, 0.2);
-}
-
-.float-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.float-actions .el-button {
-  flex: 1;
-}
-
-.side-panel-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.side-panel-actions .el-button {
-  flex: 1;
-  min-height: 34px;
-  border-radius: 10px;
-}
-
-.satellite-info-dialog {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.info-hero {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  border: 1px solid var(--sat-dialog-hero-border);
-  background: var(--sat-dialog-hero-bg);
-}
-
-.info-hero strong,
-.info-card strong {
-  color: var(--sat-dialog-text);
-}
-
-.info-hero span,
-.info-card label {
-  color: var(--sat-dialog-muted);
-}
-
-.info-section {
-  display: flex;
-  align-items: center;
-}
-
-.section-title {
-  color: var(--sat-dialog-title);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-
-.info-card {
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: var(--sat-dialog-card-bg);
-  border: 1px solid var(--sat-dialog-card-border);
-}
-
-.info-card label,
-.info-card strong {
-  display: block;
-}
-
-.info-card strong {
-  margin-top: 5px;
-}
-
-.info-card.emphasis {
-  background: var(--sat-dialog-emphasis-bg);
-  border-color: var(--sat-dialog-emphasis-border);
-}
-
-.info-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 2px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.info-row:last-child {
-  border-bottom: none;
-}
-
-.info-row label {
-  color: var(--sat-dialog-muted);
-  font-size: 12px;
-}
-
-.info-row strong {
-  color: var(--sat-dialog-text);
-  font-size: 13px;
-  font-weight: 600;
-}
-
 .edit-dialog {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
@@ -1001,35 +1733,12 @@ onBeforeUnmount(() => {
   transform: translate(-50%, 10px);
 }
 
-.side-panel-enter-active,
-.side-panel-leave-active {
-  transition: opacity 0.22s ease, transform 0.22s ease;
-}
-
-.side-panel-enter-from,
-.side-panel-leave-to {
-  opacity: 0;
-  transform: translateX(18px);
-}
-
 @media (max-width: 960px) {
   .action-btns {
     top: 16px;
     right: 16px;
     left: 16px;
     justify-content: flex-end;
-  }
-
-  .satellite-side-panel {
-    top: auto;
-    right: 16px;
-    left: 16px;
-    bottom: 16px;
-    width: auto;
-  }
-
-  .info-grid {
-    grid-template-columns: 1fr;
   }
 
   .edit-dialog {

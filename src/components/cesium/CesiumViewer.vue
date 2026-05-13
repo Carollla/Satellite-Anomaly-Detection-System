@@ -96,11 +96,11 @@
             <strong>{{ Math.round((selectedSatelliteCard.alt || 0) / 1000) }} km</strong>
           </div>
           <div v-if="selectedOrbitMetrics" class="float-item">
-            <label>閫熷害</label>
+            <label>速度</label>
             <strong>{{ selectedOrbitMetrics.speedKps.toFixed(2) }} km/s</strong>
           </div>
           <div v-if="selectedOrbitMetrics" class="float-item">
-            <label>鍛ㄦ湡</label>
+            <label>周期</label>
             <strong>{{ selectedOrbitMetrics.periodMinutes.toFixed(1) }} min</strong>
           </div>
         </div>
@@ -226,10 +226,12 @@ const webglUnavailable = ref(false)
 const sceneMode = ref('自动巡航')
 let interactionTimeout: number | null = null
 let selectionHandler: Cesium.ScreenSpaceEventHandler | null = null
+let satelliteSpriteImage = ''
 
 const EARTH_RADIUS_METERS = 6378137
 const EARTH_MU = 3.986004418e14
 const EARTH_ROTATION_RAD_PER_SEC = (2 * Math.PI) / 86164.0905
+const SATELLITE_SCALE_BY_DISTANCE = new Cesium.NearFarScalar(9000000, 1.05, 90000000, 0.42)
 
 const satelliteCount = computed(() => satelliteStore.satellites.length)
 const focusedSatelliteName = computed(() => satelliteStore.selectedSatellite?.name || '未选择')
@@ -264,6 +266,204 @@ function statusColor(status: string) {
   if (status === 'danger') return Cesium.Color.fromCssColorString('#ff6b6b')
   if (status === 'offline') return Cesium.Color.fromCssColorString('#7b8794')
   return Cesium.Color.fromCssColorString('#00d2ff')
+}
+
+function getSatelliteLayer(altitudeMeters: number) {
+  if (altitudeMeters >= 30000000) return 'GEO'
+  if (altitudeMeters >= 20000000) return 'MEO'
+  return 'LEO'
+}
+
+function satelliteSpriteSize(sat: any, selected = false) {
+  const layer = getSatelliteLayer(sat.alt || 0)
+  const isAbnormal = sat.status === 'warning' || sat.status === 'danger' || sat.status === 'offline'
+  if (selected) return layer === 'GEO' ? 52 : 46
+  if (isAbnormal) return layer === 'GEO' ? 44 : 40
+  if (layer === 'GEO') return 36
+  if (layer === 'MEO') return 34
+  return 30
+}
+
+function satelliteSpriteColor(sat: any, selected = false) {
+  if (selected) return Cesium.Color.fromCssColorString('#ffffff').withAlpha(0.96)
+  if (sat.status === 'warning') return Cesium.Color.fromCssColorString('#ffd36f').withAlpha(0.82)
+  if (sat.status === 'danger') return Cesium.Color.fromCssColorString('#ff8a8a').withAlpha(0.82)
+  if (sat.status === 'offline') return Cesium.Color.fromCssColorString('#7f8b96').withAlpha(0.68)
+  const layer = getSatelliteLayer(sat.alt || 0)
+  if (layer === 'GEO') return Cesium.Color.fromCssColorString('#f1dc93').withAlpha(0.8)
+  if (layer === 'MEO') return Cesium.Color.fromCssColorString('#8ddff5').withAlpha(0.84)
+  return Cesium.Color.fromCssColorString('#b8f0ff').withAlpha(0.78)
+}
+
+function createSatelliteSprite() {
+  const canvas = document.createElement('canvas')
+  canvas.width = 320
+  canvas.height = 200
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return ''
+
+  const cx = canvas.width / 2
+  const cy = canvas.height / 2
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+  const halo = ctx.createRadialGradient(cx, cy, 8, cx, cy, 96)
+  halo.addColorStop(0, 'rgba(70, 220, 255, 0.38)')
+  halo.addColorStop(0.35, 'rgba(48, 120, 255, 0.13)')
+  halo.addColorStop(0.68, 'rgba(124, 92, 255, 0.08)')
+  halo.addColorStop(1, 'rgba(48, 120, 255, 0)')
+  ctx.fillStyle = halo
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  const leftPanel = { x: 28, y: 74, w: 96, h: 48 }
+  const rightPanel = { x: 196, y: 74, w: 96, h: 48 }
+  const panelGradient = ctx.createLinearGradient(28, 74, 124, 122)
+  panelGradient.addColorStop(0, 'rgba(8, 18, 39, 0.98)')
+  panelGradient.addColorStop(0.46, 'rgba(28, 70, 118, 0.94)')
+  panelGradient.addColorStop(1, 'rgba(6, 12, 24, 0.98)')
+  ctx.fillStyle = panelGradient
+  ctx.beginPath()
+  ctx.roundRect(leftPanel.x, leftPanel.y, leftPanel.w, leftPanel.h, 7)
+  ctx.fill()
+  const rightGradient = ctx.createLinearGradient(196, 74, 292, 122)
+  rightGradient.addColorStop(0, 'rgba(6, 12, 24, 0.98)')
+  rightGradient.addColorStop(0.54, 'rgba(28, 70, 118, 0.94)')
+  rightGradient.addColorStop(1, 'rgba(8, 18, 39, 0.98)')
+  ctx.fillStyle = rightGradient
+  ctx.beginPath()
+  ctx.roundRect(rightPanel.x, rightPanel.y, rightPanel.w, rightPanel.h, 7)
+  ctx.fill()
+
+  ctx.strokeStyle = 'rgba(92, 235, 255, 0.42)'
+  ctx.lineWidth = 1.4
+  ctx.beginPath()
+  ctx.roundRect(leftPanel.x + 1, leftPanel.y + 1, leftPanel.w - 2, leftPanel.h - 2, 7)
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.roundRect(rightPanel.x + 1, rightPanel.y + 1, rightPanel.w - 2, rightPanel.h - 2, 7)
+  ctx.stroke()
+
+  ctx.strokeStyle = 'rgba(130, 205, 255, 0.22)'
+  ctx.lineWidth = 1
+  for (let x = leftPanel.x + 12; x < leftPanel.x + leftPanel.w; x += 14) {
+    ctx.beginPath()
+    ctx.moveTo(x, leftPanel.y + 4)
+    ctx.lineTo(x, leftPanel.y + leftPanel.h - 4)
+    ctx.stroke()
+  }
+  for (let x = rightPanel.x + 12; x < rightPanel.x + rightPanel.w; x += 14) {
+    ctx.beginPath()
+    ctx.moveTo(x, rightPanel.y + 4)
+    ctx.lineTo(x, rightPanel.y + rightPanel.h - 4)
+    ctx.stroke()
+  }
+  for (let y = leftPanel.y + 12; y < leftPanel.y + leftPanel.h; y += 12) {
+    ctx.beginPath()
+    ctx.moveTo(leftPanel.x + 4, y)
+    ctx.lineTo(leftPanel.x + leftPanel.w - 4, y)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(rightPanel.x + 4, y)
+    ctx.lineTo(rightPanel.x + rightPanel.w - 4, y)
+    ctx.stroke()
+  }
+
+  ctx.strokeStyle = 'rgba(198, 218, 234, 0.72)'
+  ctx.lineWidth = 4
+  ctx.lineCap = 'round'
+  ctx.beginPath()
+  ctx.moveTo(124, 98)
+  ctx.lineTo(143, 98)
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.moveTo(177, 98)
+  ctx.lineTo(196, 98)
+  ctx.stroke()
+
+  const bodyGradient = ctx.createLinearGradient(132, 52, 188, 146)
+  bodyGradient.addColorStop(0, 'rgba(220, 232, 244, 0.96)')
+  bodyGradient.addColorStop(0.28, 'rgba(78, 96, 118, 0.98)')
+  bodyGradient.addColorStop(0.7, 'rgba(21, 30, 46, 0.98)')
+  bodyGradient.addColorStop(1, 'rgba(180, 194, 208, 0.92)')
+  ctx.fillStyle = bodyGradient
+  ctx.beginPath()
+  ctx.moveTo(160, 46)
+  ctx.lineTo(184, 62)
+  ctx.lineTo(190, 101)
+  ctx.lineTo(176, 143)
+  ctx.lineTo(144, 143)
+  ctx.lineTo(130, 101)
+  ctx.lineTo(136, 62)
+  ctx.closePath()
+  ctx.fill()
+
+  ctx.strokeStyle = 'rgba(227, 246, 255, 0.7)'
+  ctx.lineWidth = 1.8
+  ctx.beginPath()
+  ctx.moveTo(160, 49)
+  ctx.lineTo(181, 64)
+  ctx.lineTo(186, 100)
+  ctx.lineTo(173, 139)
+  ctx.lineTo(147, 139)
+  ctx.lineTo(134, 100)
+  ctx.lineTo(139, 64)
+  ctx.closePath()
+  ctx.stroke()
+
+  const bodyGlow = ctx.createRadialGradient(160, 94, 4, 160, 94, 44)
+  bodyGlow.addColorStop(0, 'rgba(100, 232, 255, 0.68)')
+  bodyGlow.addColorStop(0.34, 'rgba(84, 170, 255, 0.2)')
+  bodyGlow.addColorStop(1, 'rgba(84, 170, 255, 0)')
+  ctx.fillStyle = bodyGlow
+  ctx.beginPath()
+  ctx.roundRect(139, 58, 42, 76, 12)
+  ctx.fill()
+
+  ctx.fillStyle = 'rgba(220, 248, 255, 0.88)'
+  ctx.beginPath()
+  ctx.arc(160, 86, 12, 0, Math.PI * 2)
+  ctx.fill()
+  ctx.fillStyle = 'rgba(28, 80, 122, 0.94)'
+  ctx.beginPath()
+  ctx.arc(160, 86, 5, 0, Math.PI * 2)
+  ctx.fill()
+
+  ctx.strokeStyle = 'rgba(170, 236, 255, 0.72)'
+  ctx.lineWidth = 2
+  ctx.beginPath()
+  ctx.moveTo(160, 46)
+  ctx.lineTo(160, 25)
+  ctx.stroke()
+  ctx.fillStyle = 'rgba(150, 236, 255, 0.82)'
+  ctx.beginPath()
+  ctx.arc(160, 22, 4.5, 0, Math.PI * 2)
+  ctx.fill()
+
+  ctx.strokeStyle = 'rgba(130, 218, 255, 0.55)'
+  ctx.lineWidth = 1.4
+  ctx.beginPath()
+  ctx.moveTo(147, 128)
+  ctx.lineTo(132, 154)
+  ctx.moveTo(173, 128)
+  ctx.lineTo(188, 154)
+  ctx.stroke()
+
+  const engineGlow = ctx.createRadialGradient(160, 142, 2, 160, 142, 34)
+  engineGlow.addColorStop(0, 'rgba(72, 226, 255, 0.72)')
+  engineGlow.addColorStop(0.45, 'rgba(58, 130, 255, 0.24)')
+  engineGlow.addColorStop(1, 'rgba(58, 130, 255, 0)')
+  ctx.fillStyle = engineGlow
+  ctx.fillRect(126, 126, 68, 48)
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.52)'
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(145, 67)
+  ctx.lineTo(175, 67)
+  ctx.moveTo(142, 116)
+  ctx.lineTo(178, 116)
+  ctx.stroke()
+
+  return canvas.toDataURL('image/png')
 }
 
 function clearSelection() {
@@ -455,6 +655,9 @@ function buildScene(v: Cesium.Viewer) {
   if (!v || !v.entities || v.isDestroyed()) return
 
   v.entities.removeAll()
+  if (!satelliteSpriteImage) {
+    satelliteSpriteImage = createSatelliteSprite()
+  }
 
   const startTime = v.clock.startTime
   const positionMap = satelliteStore.positions
@@ -475,12 +678,15 @@ function buildScene(v: Cesium.Viewer) {
         () => getSatellitePosition(sat, v.clock.currentTime, startTime),
         false
       ),
-      point: {
-        pixelSize: isAbnormal ? (isGeo ? 12 : 9) : isGeo ? 5 : 3.5,
-        color: isAbnormal ? color : Cesium.Color.WHITE,
-        outlineColor: isAbnormal ? color.withAlpha(0.95) : color.withAlpha(0.6),
-        outlineWidth: isAbnormal ? 2 : 1,
-        disableDepthTestDistance: Number.POSITIVE_INFINITY
+      billboard: {
+        image: satelliteSpriteImage,
+        width: satelliteSpriteSize(sat, satelliteStore.selectedSatelliteId === sat.id),
+        height: Math.round(satelliteSpriteSize(sat, satelliteStore.selectedSatelliteId === sat.id) * 0.62),
+        color: satelliteSpriteColor(sat, satelliteStore.selectedSatelliteId === sat.id),
+        scaleByDistance: SATELLITE_SCALE_BY_DISTANCE,
+        disableDepthTestDistance: Number.POSITIVE_INFINITY,
+        horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+        verticalOrigin: Cesium.VerticalOrigin.CENTER
       },
       path: {
         show: isAbnormal || satelliteStore.selectedSatelliteId === sat.id,
@@ -492,11 +698,13 @@ function buildScene(v: Cesium.Viewer) {
       label: {
         text: `${isAbnormal ? '异常 · ' : ''}${sat.name}`,
         font: '600 11px "Microsoft YaHei", sans-serif',
-        style: Cesium.LabelStyle.FILL,
+        style: Cesium.LabelStyle.FILL_AND_OUTLINE,
         verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
         horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
         pixelOffset: new Cesium.Cartesian2(0, -10),
         fillColor: isAbnormal ? color.withAlpha(0.98) : Cesium.Color.WHITE.withAlpha(0.85),
+        outlineColor: Cesium.Color.fromCssColorString('#020713').withAlpha(0.72),
+        outlineWidth: 2,
         disableDepthTestDistance: Number.POSITIVE_INFINITY,
         show: isAbnormal || satelliteStore.selectedSatelliteId === sat.id
       }
