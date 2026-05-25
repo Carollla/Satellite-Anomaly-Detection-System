@@ -528,6 +528,47 @@ button {
   overflow: hidden;
 }
 
+.workspace-content .metric-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.workspace-content .metric-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: #2563eb;
+}
+
+.workspace-content .metric-card:nth-child(1) {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.14), var(--vscode-sidebar-bg) 54%);
+}
+
+.workspace-content .metric-card:nth-child(2) {
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.14), var(--vscode-sidebar-bg) 54%);
+}
+
+.workspace-content .metric-card:nth-child(2)::before {
+  background: #16a34a;
+}
+
+.workspace-content .metric-card:nth-child(3) {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), var(--vscode-sidebar-bg) 54%);
+}
+
+.workspace-content .metric-card:nth-child(3)::before {
+  background: #f59e0b;
+}
+
+.workspace-content .metric-card:nth-child(4) {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.14), var(--vscode-sidebar-bg) 54%);
+}
+
+.workspace-content .metric-card:nth-child(4)::before {
+  background: #0ea5e9;
+}
+
 .agent-panel {
   width: 0;
   flex-shrink: 0;
