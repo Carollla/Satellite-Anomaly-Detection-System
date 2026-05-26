@@ -1,12 +1,20 @@
 <template>
   <div class="agent-page">
     <header class="agent-head">
-      <div>
-        <span>Anomaly Monitoring Agent</span>
+      <div class="agent-title-block">
         <h1>异常监测 Agent</h1>
+        <div class="agent-flow" aria-label="异常监测流程">
+          <b>告警检测</b>
+          <i />
+          <b>根因定位</b>
+          <i />
+          <b>恢复建议</b>
+          <i />
+          <b>审批执行</b>
+        </div>
       </div>
       <div class="head-actions">
-        <el-tag :type="status?.coordinator.status === 'online' ? 'success' : 'warning'">
+        <el-tag class="status-tag" :type="status?.coordinator.status === 'online' ? 'success' : 'warning'">
           {{ status?.coordinator.status === 'online' ? '在线' : '未连接' }}
         </el-tag>
         <el-button size="small" :loading="loading" @click="refreshAll">刷新</el-button>
@@ -15,17 +23,17 @@
     </header>
 
     <section class="top-grid">
-      <article v-for="item in summaryCards" :key="item.label" class="summary-item">
+      <article v-for="item in summaryCards" :key="item.label" class="summary-item" :class="item.tone">
+        <i />
         <span>{{ item.label }}</span>
         <strong>{{ item.value }}</strong>
-        <em>{{ item.desc }}</em>
       </article>
     </section>
 
     <section class="agent-grid">
       <main class="work-panel panel">
         <div class="panel-head">
-          <h3>诊断任务</h3>
+          <h3>1. 发起诊断</h3>
           <el-select v-model="agentType" size="small" class="agent-select">
             <el-option label="协调器" value="coordinator" />
             <el-option label="网络专家" value="network" />
@@ -34,55 +42,71 @@
             <el-option label="安全专家" value="security" />
           </el-select>
         </div>
+
         <div class="quick-actions">
           <el-button v-for="item in quickPrompts" :key="item" size="small" plain @click="message = item">
             {{ item }}
           </el-button>
         </div>
+
         <el-input
           v-model="message"
           type="textarea"
-          :rows="4"
+          :rows="5"
           resize="none"
           placeholder="输入真实排障问题，例如：分析当前离线卫星和链路影响范围"
         />
+
         <div class="run-row">
           <el-checkbox v-model="continueTrace" :disabled="!currentTraceId">续接 Trace</el-checkbox>
           <el-button size="small" @click="message = ''">清空</el-button>
         </div>
 
-        <div class="result-grid">
-          <section class="result-box">
-            <div class="mini-head">
-              <strong>诊断结果</strong>
-              <span>{{ messages[0]?.time || '-' }}</span>
-            </div>
-            <div class="answer-text">{{ latestAnswer }}</div>
-            <div class="suggestions">
-              <el-tag v-for="item in latestSuggestions" :key="item" size="small">{{ item }}</el-tag>
-            </div>
-          </section>
-          <section class="result-box">
-            <div class="mini-head">
-              <strong>执行 Trace</strong>
-              <span>{{ trace?.current_phase || 'idle' }}</span>
-            </div>
-            <div class="trace-list">
-              <div v-for="item in traceRows" :key="`${item.assignee}-${item.task}`" class="trace-row">
-                <span>{{ item.task }}</span>
-                <el-tag size="small" :type="statusTagType(item.status)">{{ item.status }}</el-tag>
-              </div>
-              <div v-if="!traceRows.length" class="empty-state">等待任务</div>
-            </div>
-          </section>
-        </div>
+        <section class="result-box">
+          <div class="mini-head">
+            <strong>诊断结论</strong>
+            <span>{{ messages[0]?.time || '-' }}</span>
+          </div>
+          <div class="answer-text">{{ latestAnswer }}</div>
+          <div class="suggestions">
+            <el-tag v-for="item in latestSuggestions" :key="item" size="small">{{ item }}</el-tag>
+          </div>
+        </section>
       </main>
 
-      <aside class="config-stack">
+      <section class="trace-panel panel">
+        <div class="panel-head">
+          <h3>2. Trace 执行链路</h3>
+          <el-tag size="small" :type="trace?.current_phase === 'completed' ? 'success' : 'info'">
+            {{ trace?.current_phase || 'idle' }}
+          </el-tag>
+        </div>
+        <div class="stage-strip">
+          <div v-for="stage in pipelineStages" :key="stage.label" class="stage-item" :class="stage.state">
+            <span>{{ stage.order }}</span>
+            <strong>{{ stage.label }}</strong>
+          </div>
+        </div>
+        <div class="trace-list">
+          <div v-for="item in traceRows" :key="`${item.assignee}-${item.task}`" class="trace-row">
+            <div>
+              <strong>{{ item.task }}</strong>
+              <span>{{ item.assignee }}</span>
+            </div>
+            <el-tag size="small" :type="statusTagType(item.status)">{{ item.status }}</el-tag>
+          </div>
+          <div v-if="!traceRows.length" class="empty-state">等待任务</div>
+        </div>
+      </section>
+
+      <aside class="insight-stack">
         <section class="panel config-panel">
           <div class="panel-head">
-            <h3>大模型 API</h3>
-            <el-button size="small" text type="primary" :loading="testing" @click="testLlm">测试</el-button>
+            <h3>3. 运行配置</h3>
+            <div class="panel-actions">
+              <el-button size="small" text type="primary" :loading="testing" @click="testLlm">测试</el-button>
+              <el-button size="small" text type="primary" :loading="savingConfig" @click="saveLlmConfig">保存</el-button>
+            </div>
           </div>
           <div class="config-grid">
             <label>
@@ -103,16 +127,14 @@
             </label>
           </div>
           <div class="model-row">
-            <el-input-number v-model="llmForm.temperature" size="small" :min="0" :max="2" :step="0.1" />
-            <el-input-number v-model="llmForm.maxTokens" size="small" :min="128" :max="8192" :step="128" />
-            <el-button size="small" type="primary" :loading="savingConfig" @click="saveLlmConfig">保存</el-button>
-          </div>
-        </section>
-
-        <section class="panel feature-panel">
-          <div class="panel-head">
-            <h3>Agent 功能</h3>
-            <el-button size="small" text type="primary" :loading="savingConfig" @click="saveAgentConfig">保存</el-button>
+            <label>
+              <span>温度</span>
+              <el-input-number v-model="llmForm.temperature" size="small" :min="0" :max="2" :step="0.1" />
+            </label>
+            <label>
+              <span>步数</span>
+              <el-input-number v-model="agentConfig.max_steps" size="small" :min="1" :max="20" />
+            </label>
           </div>
           <div class="feature-grid">
             <label v-for="item in featureOptions" :key="item.key" class="feature-item">
@@ -127,13 +149,13 @@
               <el-option label="健康专家" value="health" />
               <el-option label="安全专家" value="security" />
             </el-select>
-            <el-input-number v-model="agentConfig.max_steps" size="small" :min="1" :max="20" />
+            <el-button size="small" type="primary" plain :loading="savingConfig" @click="saveAgentConfig">保存 Agent</el-button>
           </div>
         </section>
 
         <section class="panel anomaly-panel">
           <div class="panel-head">
-            <h3>当前异常</h3>
+            <h3>关键状态</h3>
             <el-tag size="small" type="warning">{{ anomalyCards.length }}</el-tag>
           </div>
           <div class="anomaly-list">
@@ -146,7 +168,7 @@
 
         <section class="panel approval-panel">
           <div class="panel-head">
-            <h3>审批</h3>
+            <h3>待审批动作</h3>
             <el-button size="small" text @click="refreshApprovals">刷新</el-button>
           </div>
           <div class="approval-list">
@@ -238,14 +260,26 @@ const messages = ref<ChatMessage[]>([
 ])
 
 const summaryCards = computed(() => [
-  { label: '协调器', value: status.value?.coordinator.status || 'unknown', desc: status.value?.coordinator.model || '-' },
-  { label: '专家 Agent', value: status.value?.specialists.length ?? 0, desc: '后端返回' },
-  { label: '星上 Agent', value: status.value?.edge_agents.length ?? 0, desc: '后端返回' },
-  { label: '待审批', value: approvals.value.length, desc: '真实审批队列' }
+  { label: '协调器', value: status.value?.coordinator.status || 'unknown', tone: 'blue' },
+  { label: '专家 Agent', value: status.value?.specialists.length ?? 0, tone: 'cyan' },
+  { label: '星上 Agent', value: status.value?.edge_agents.length ?? 0, tone: 'violet' },
+  { label: '待审批', value: approvals.value.length, tone: 'amber' }
 ])
 const latestAnswer = computed(() => messages.value.find((item) => item.role === 'assistant')?.content || '等待诊断结果')
 const latestSuggestions = computed(() => messages.value.find((item) => item.role === 'assistant')?.suggestions || [])
 const traceRows = computed(() => trace.value?.plan?.slice(0, 4) || [])
+const pipelineStages = computed(() => {
+  const rows = trace.value?.plan || []
+  const completed = rows.filter((item) => item.status === 'completed').length
+  const running = rows.some((item) => item.status === 'running')
+  const currentPhase = trace.value?.current_phase
+  return [
+    { order: '01', label: '检测', state: rows.length ? 'completed' : 'pending' },
+    { order: '02', label: '定位', state: completed >= 1 ? 'completed' : running ? 'running' : 'pending' },
+    { order: '03', label: '处置', state: completed >= 2 ? 'completed' : running ? 'running' : 'pending' },
+    { order: '04', label: '审批', state: approvals.value.length ? 'running' : currentPhase === 'completed' ? 'completed' : 'pending' }
+  ]
+})
 const anomalyCards = computed(() => {
   const coordinatorOffline = status.value?.coordinator.status && status.value.coordinator.status !== 'online'
   const pendingApprovals = approvals.value.length > 0
@@ -453,11 +487,13 @@ usePolling(refreshAll, 20000, true)
   min-height: 0;
   padding: 12px;
   display: grid;
-  grid-template-rows: 38px 72px minmax(0, 1fr);
+  grid-template-rows: 70px 82px minmax(0, 1fr);
   gap: 10px;
   overflow: hidden;
   background:
-    radial-gradient(circle at 12% 10%, rgba(37, 99, 235, 0.14), transparent 24%),
+    radial-gradient(circle at 10% 8%, rgba(37, 99, 235, 0.16), transparent 26%),
+    radial-gradient(circle at 72% 0%, rgba(14, 165, 233, 0.12), transparent 22%),
+    radial-gradient(circle at 94% 82%, rgba(245, 158, 11, 0.1), transparent 22%),
     linear-gradient(180deg, var(--vscode-bg), color-mix(in srgb, var(--vscode-bg) 88%, #ffffff));
   color: var(--vscode-text);
 }
@@ -469,16 +505,15 @@ usePolling(refreshAll, 20000, true)
 .trace-row,
 .approval-row,
 .model-row,
-.agent-settings {
+.agent-settings,
+.panel-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
 }
 
-.agent-head span,
 .summary-item span,
-.summary-item em,
 .config-grid span,
 .feature-item span,
 .mini-head span,
@@ -488,9 +523,68 @@ usePolling(refreshAll, 20000, true)
   font-size: 12px;
 }
 
+.agent-head {
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--vscode-border) 76%, #2563eb);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.18), transparent 42%),
+    linear-gradient(90deg, color-mix(in srgb, var(--vscode-sidebar-bg) 92%, transparent), color-mix(in srgb, var(--vscode-sidebar-bg) 72%, transparent));
+  box-shadow: 0 14px 30px var(--vscode-shadow);
+}
+
+.agent-title-block {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
 .agent-head h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: 26px;
+  line-height: 1.15;
+  letter-spacing: 0;
+}
+
+.agent-flow {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agent-flow b {
+  min-width: 72px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1d4ed8;
+  background: rgba(37, 99, 235, 0.12);
+  border: 1px solid rgba(37, 99, 235, 0.22);
+  white-space: nowrap;
+}
+
+.agent-flow i {
+  width: 32px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563eb, #0ea5e9);
+  opacity: 0.72;
+}
+
+.head-actions {
+  flex-shrink: 0;
+}
+
+.status-tag {
+  min-width: 62px;
+  justify-content: center;
 }
 
 .top-grid {
@@ -502,25 +596,67 @@ usePolling(refreshAll, 20000, true)
 .summary-item,
 .panel {
   border: 1px solid var(--vscode-border);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--vscode-sidebar-bg) 88%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--vscode-sidebar-bg) 90%, transparent);
   box-shadow: 0 12px 28px var(--vscode-shadow);
 }
 
 .summary-item {
+  position: relative;
   min-width: 0;
+  height: 82px;
   display: grid;
-  gap: 3px;
-  padding: 9px 11px;
+  grid-template-columns: 42px minmax(0, 1fr);
+  grid-template-rows: 1fr 1fr;
+  column-gap: 10px;
+  padding: 12px 14px;
+  overflow: hidden;
+}
+
+.summary-item > i {
+  grid-row: 1 / 3;
+  align-self: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(14, 165, 233, 0.75));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+.summary-item::after {
+  content: '';
+  position: absolute;
+  right: -18px;
+  top: -18px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.summary-item.cyan > i {
+  background: linear-gradient(135deg, #06b6d4, #2563eb);
+}
+
+.summary-item.violet > i {
+  background: linear-gradient(135deg, #7c3aed, #2563eb);
+}
+
+.summary-item.amber > i {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+}
+
+.summary-item span {
+  align-self: end;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .summary-item strong {
-  font-size: 20px;
+  min-width: 0;
+  align-self: start;
+  font-size: 24px;
   line-height: 1;
-}
-
-.summary-item em {
-  font-style: normal;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -529,12 +665,13 @@ usePolling(refreshAll, 20000, true)
 .agent-grid {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(350px, 0.78fr);
+  grid-template-columns: minmax(320px, 0.88fr) minmax(380px, 1.04fr) minmax(332px, 0.82fr);
   gap: 10px;
 }
 
 .work-panel,
-.config-stack {
+.trace-panel,
+.insight-stack {
   min-height: 0;
   min-width: 0;
   display: grid;
@@ -543,33 +680,81 @@ usePolling(refreshAll, 20000, true)
 
 .work-panel {
   padding: 10px;
-  grid-template-rows: 28px 28px 96px 26px minmax(0, 1fr);
+  grid-template-rows: 30px 64px 122px 28px minmax(0, 1fr);
+  border-top: 3px solid #2563eb;
 }
 
-.config-stack {
-  grid-template-rows: 198px 148px minmax(0, 0.72fr) minmax(0, 0.58fr);
+.trace-panel {
+  grid-template-rows: 30px 108px minmax(0, 1fr);
+  border-top: 3px solid #0ea5e9;
+}
+
+.insight-stack {
+  grid-template-rows: minmax(230px, 1.05fr) minmax(112px, 0.52fr) minmax(104px, 0.45fr);
+}
+
+.config-panel {
+  border-top: 3px solid #7c3aed;
+}
+
+.anomaly-panel {
+  border-top: 3px solid #f59e0b;
+}
+
+.approval-panel {
+  border-top: 3px solid #16a34a;
 }
 
 .panel {
   min-height: 0;
-  padding: 10px;
+  padding: 11px;
   overflow: hidden;
 }
 
 .panel-head h3 {
   margin: 0;
-  font-size: 15px;
+  font-size: 16px;
+  line-height: 1.2;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .agent-select {
-  width: 126px;
+  width: 132px;
+  flex-shrink: 0;
 }
 
 .quick-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
-  flex-wrap: wrap;
   overflow: hidden;
+}
+
+.quick-actions .el-button {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.quick-actions :deep(.el-button > span) {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.work-panel > :deep(.el-textarea) {
+  height: 100%;
+}
+
+.work-panel > :deep(.el-textarea .el-textarea__inner) {
+  height: 100%;
+  line-height: 1.55;
 }
 
 .run-row {
@@ -578,19 +763,14 @@ usePolling(refreshAll, 20000, true)
   justify-content: space-between;
 }
 
-.result-grid {
-  min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.75fr);
-  gap: 10px;
-}
-
 .result-box {
   min-height: 0;
   padding: 10px;
   border: 1px solid var(--vscode-border);
   border-radius: 10px;
-  background: color-mix(in srgb, var(--vscode-bg) 78%, transparent);
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.08), transparent 46%),
+    color-mix(in srgb, var(--vscode-bg) 78%, transparent);
   display: grid;
   grid-template-rows: 22px minmax(0, 1fr) 28px;
   gap: 8px;
@@ -601,6 +781,7 @@ usePolling(refreshAll, 20000, true)
   line-height: 1.55;
   white-space: pre-wrap;
   overflow: hidden;
+  font-size: 14px;
 }
 
 .suggestions {
@@ -614,22 +795,85 @@ usePolling(refreshAll, 20000, true)
 .anomaly-list,
 .approval-list,
 .config-grid,
-.feature-grid {
+.feature-grid,
+.stage-strip {
   min-height: 0;
   display: grid;
   gap: 7px;
+}
+
+.stage-strip {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.stage-item {
+  position: relative;
+  min-width: 0;
+  height: 108px;
+  padding: 12px 10px;
+  border: 1px solid var(--vscode-border);
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, rgba(37, 99, 235, 0.08), transparent),
+    color-mix(in srgb, var(--vscode-bg) 72%, transparent);
+  overflow: hidden;
+}
+
+.stage-item::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 11px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.28);
+}
+
+.stage-item span {
+  display: block;
+  color: color-mix(in srgb, var(--vscode-text-muted) 82%, #2563eb);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.stage-item strong {
+  display: block;
+  margin-top: 12px;
+  font-size: 22px;
+  letter-spacing: 0;
+}
+
+.stage-item.completed {
+  border-color: rgba(34, 197, 94, 0.45);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.stage-item.completed::after {
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+}
+
+.stage-item.running {
+  border-color: rgba(245, 158, 11, 0.55);
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.stage-item.running::after {
+  background: linear-gradient(90deg, #f59e0b, #f97316);
 }
 
 .trace-row,
 .anomaly-row,
 .approval-row {
   min-width: 0;
-  padding: 7px 8px;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--vscode-hover) 70%, transparent);
+  padding: 9px 10px;
+  border-radius: 10px;
+  background:
+    linear-gradient(90deg, rgba(37, 99, 235, 0.08), transparent 70%),
+    color-mix(in srgb, var(--vscode-hover) 70%, transparent);
 }
 
-.trace-row span,
+.trace-row div,
 .anomaly-row strong,
 .anomaly-row span,
 .approval-row strong {
@@ -637,6 +881,28 @@ usePolling(refreshAll, 20000, true)
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.trace-row strong,
+.trace-row span {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trace-row strong,
+.anomaly-row strong,
+.approval-row strong {
+  font-size: 14px;
+}
+
+.trace-row span,
+.anomaly-row span {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .config-grid {
@@ -649,13 +915,33 @@ usePolling(refreshAll, 20000, true)
   gap: 4px;
 }
 
+.config-grid :deep(.el-input),
+.model-row :deep(.el-input-number),
+.agent-settings :deep(.el-select) {
+  min-width: 0;
+}
+
 .model-row,
 .agent-settings {
+  min-width: 0;
   margin-top: 8px;
+  align-items: end;
+}
+
+.model-row label {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.model-row .el-input-number,
+.agent-settings .el-select {
+  width: 100%;
 }
 
 .feature-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 8px;
 }
 
 .feature-item {
@@ -668,9 +954,33 @@ usePolling(refreshAll, 20000, true)
   background: color-mix(in srgb, var(--vscode-hover) 64%, transparent);
 }
 
+.feature-item span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
 .empty-state {
   height: 100%;
   display: grid;
   place-items: center;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--vscode-hover) 42%, transparent);
+}
+
+@media (max-width: 1280px) {
+  .agent-grid {
+    grid-template-columns: minmax(300px, 0.9fr) minmax(330px, 1fr) minmax(300px, 0.76fr);
+  }
+
+  .feature-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .agent-flow i {
+    width: 18px;
+  }
 }
 </style>

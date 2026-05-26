@@ -4,6 +4,7 @@
       <div>
         <span>DAG Pipeline</span>
         <h1>执行流图</h1>
+        <p>把 Agent 诊断拆成可追踪、可审批、可重试的标准执行流程。</p>
       </div>
       <div class="head-actions">
         <el-tag :type="backendOnline ? 'success' : 'warning'">{{ backendOnline ? '后端数据' : '本地编排' }}</el-tag>
@@ -23,97 +24,104 @@
     <section class="workflow-workspace">
       <aside class="left-stack">
         <section class="panel list-panel">
-        <div class="panel-head">
-          <h3>流程列表</h3>
-          <el-select v-model="statusFilter" size="small" class="filter">
-            <el-option label="全部状态" value="all" />
-            <el-option label="ready" value="ready" />
-            <el-option label="running" value="running" />
-            <el-option label="completed" value="completed" />
-            <el-option label="failed" value="failed" />
-          </el-select>
-        </div>
-        <div class="workflow-list">
-          <button
-            v-for="workflow in filteredWorkflows"
-            :key="workflow.workflow_id"
-            class="workflow-row"
-            :class="{ active: selectedWorkflow?.workflow_id === workflow.workflow_id }"
-            @click="selectWorkflow(workflow)"
-          >
-            <div>
-              <strong>{{ workflow.name }}</strong>
-              <span>{{ workflow.workflow_id }} · {{ workflow.steps_count }} 步 · {{ formatTime(workflow.created_at) }}</span>
-            </div>
-            <el-tag size="small" :type="statusType(workflow.status)">{{ workflow.status }}</el-tag>
-          </button>
-        </div>
+          <div class="panel-head">
+            <h3>流程列表</h3>
+            <el-select v-model="statusFilter" size="small" class="filter">
+              <el-option label="全部状态" value="all" />
+              <el-option label="ready" value="ready" />
+              <el-option label="running" value="running" />
+              <el-option label="completed" value="completed" />
+              <el-option label="failed" value="failed" />
+            </el-select>
+          </div>
+          <div class="workflow-list">
+            <button
+              v-for="workflow in filteredWorkflows"
+              :key="workflow.workflow_id"
+              class="workflow-row"
+              :class="{ active: selectedWorkflow?.workflow_id === workflow.workflow_id }"
+              @click="selectWorkflow(workflow)"
+            >
+              <div>
+                <strong>{{ workflow.name }}</strong>
+                <span>{{ workflow.workflow_id }} · {{ workflow.steps_count }} 步 · {{ formatTime(workflow.created_at) }}</span>
+              </div>
+              <el-tag size="small" :type="statusType(workflow.status)">{{ workflow.status }}</el-tag>
+            </button>
+          </div>
         </section>
 
         <section class="panel template-panel">
-        <div class="panel-head">
-          <h3>模板库</h3>
-          <el-tag size="small" type="info">{{ templates.length }}</el-tag>
-        </div>
-        <div class="template-list">
-          <button
-            v-for="template in templates"
-            :key="template.template_id"
-            class="template-row"
-            :class="{ active: selectedTemplateId === template.template_id }"
-            @click="selectedTemplateId = template.template_id"
-          >
-            <strong>{{ template.name }}</strong>
-            <span>{{ template.category }} · {{ template.description }}</span>
-          </button>
-        </div>
+          <div class="panel-head">
+            <h3>模板库</h3>
+            <el-tag size="small" type="info">{{ templates.length }}</el-tag>
+          </div>
+          <div class="template-list">
+            <button
+              v-for="template in templates"
+              :key="template.template_id"
+              class="template-row"
+              :class="{ active: selectedTemplateId === template.template_id }"
+              @click="selectedTemplateId = template.template_id"
+            >
+              <strong>{{ template.name }}</strong>
+              <span>{{ template.category }} · {{ template.description }}</span>
+            </button>
+          </div>
         </section>
       </aside>
 
       <main class="panel dag-panel">
-      <div class="panel-head">
-        <h3>{{ detail?.name || selectedWorkflow?.name || '流程详情' }}</h3>
-        <div class="head-actions">
-          <el-tag size="small" :type="statusType(detail?.status || selectedWorkflow?.status || 'ready')">
-            {{ detail?.status || selectedWorkflow?.status || 'ready' }}
-          </el-tag>
-          <el-button size="small" type="primary" :disabled="!selectedWorkflow" :loading="executing" @click="executeWorkflow">
-            执行
-          </el-button>
+        <div class="panel-head">
+          <h3>{{ detail?.name || selectedWorkflow?.name || '流程详情' }}</h3>
+          <div class="head-actions">
+            <el-tag size="small" :type="statusType(detail?.status || selectedWorkflow?.status || 'ready')">
+              {{ detail?.status || selectedWorkflow?.status || 'ready' }}
+            </el-tag>
+            <el-button size="small" type="primary" :disabled="!selectedWorkflow" :loading="executing" @click="executeWorkflow">
+              执行
+            </el-button>
+          </div>
         </div>
+
+      <div class="pipeline-summary">
+        <article v-for="item in pipelineSummary" :key="item.label" :class="item.type">
+          <span>{{ item.label }}</span>
+          <strong>{{ item.value }}</strong>
+        </article>
       </div>
 
-      <div class="dag-canvas">
-        <div v-for="(step, index) in dagSteps" :key="step.id" class="dag-node" :class="step.status">
-          <span>{{ index + 1 }}</span>
-          <strong>{{ step.name }}</strong>
-          <em>{{ step.tool }}</em>
+        <div class="dag-canvas">
+          <div v-for="(step, index) in dagSteps" :key="step.id" class="dag-node" :class="step.status">
+            <span>{{ index + 1 }}</span>
+            <strong>{{ step.name }}</strong>
+            <em>{{ step.tool }}</em>
+          </div>
+          <div v-if="!dagSteps.length" class="empty-state">选择一个流程查看 DAG 节点</div>
         </div>
-        <div v-if="!dagSteps.length" class="empty-state">选择一个流程查看 DAG 节点</div>
-      </div>
       </main>
 
       <aside class="panel execution-panel">
-      <div class="panel-head">
-        <h3>执行记录</h3>
-        <el-tag size="small" type="info">{{ executions.length }}</el-tag>
-      </div>
-      <el-table :data="executions" height="100%" size="small" border>
-        <el-table-column prop="execution_id" label="执行 ID" min-width="160" />
-        <el-table-column label="状态" width="120">
-          <template #default="{ row }">
-            <el-tag size="small" :type="statusType(row.status)">{{ row.status }}</el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="进度" width="180">
-          <template #default="{ row }">
-            <el-progress :percentage="row.progress ?? 0" :stroke-width="8" />
-          </template>
-        </el-table-column>
-        <el-table-column label="开始时间" width="170">
-          <template #default="{ row }">{{ formatTime(row.started_at) }}</template>
-        </el-table-column>
-      </el-table>
+        <div class="panel-head">
+          <h3>执行记录</h3>
+          <el-tag size="small" type="info">{{ executions.length }}</el-tag>
+        </div>
+        <el-table :data="executions" height="100%" size="small" border>
+          <el-table-column prop="execution_id" label="执行 ID" min-width="160" />
+          <el-table-column label="状态" width="120">
+            <template #default="{ row }">
+              <el-tag size="small" :type="statusType(row.status)">{{ row.status }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="进度" width="180">
+            <template #default="{ row }">
+              <el-progress :percentage="row.progress ?? 0" :stroke-width="8" />
+            </template>
+          </el-table-column>
+          <el-table-column label="开始时间" width="170">
+            <template #default="{ row }">{{ formatTime(row.started_at) }}</template>
+          </el-table-column>
+        </el-table>
       </aside>
     </section>
   </div>
@@ -166,6 +174,14 @@ const dagSteps = computed(() => {
       status: progress >= threshold ? 'completed' : progress > (index / detail.value!.steps.length) * 100 ? 'running' : 'pending'
     }
   })
+})
+const pipelineSummary = computed(() => {
+  const steps = dagSteps.value
+  return [
+    { label: '当前流程', value: selectedWorkflow.value?.name || '未选择', type: 'primary' },
+    { label: '执行阶段', value: detail.value?.status || selectedWorkflow.value?.status || 'ready', type: 'info' },
+    { label: '完成节点', value: `${steps.filter((item) => item.status === 'completed').length}/${steps.length || 0}`, type: 'success' }
+  ]
 })
 
 onMounted(refresh)
@@ -328,6 +344,12 @@ function formatTime(value?: string) {
   text-transform: uppercase;
 }
 
+.page-head p {
+  margin: 4px 0 0;
+  color: var(--vscode-text-muted);
+  font-size: 13px;
+}
+
 .page-head h1 {
   margin: 4px 0 0;
   font-size: 24px;
@@ -463,12 +485,41 @@ function formatTime(value?: string) {
   overflow-x: auto;
 }
 
+.pipeline-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.pipeline-summary article {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--vscode-border);
+  border-radius: 8px;
+  background: var(--vscode-bg);
+}
+
+.pipeline-summary span {
+  color: var(--vscode-text-muted);
+  font-size: 12px;
+}
+
+.pipeline-summary strong {
+  display: block;
+  margin-top: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .dag-node {
   position: relative;
   padding: 16px;
   border: 1px solid var(--vscode-border);
   border-radius: 8px;
   background: var(--vscode-bg);
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.04);
 }
 
 .dag-node:not(:last-child)::after {

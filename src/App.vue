@@ -528,9 +528,54 @@ button {
   overflow: hidden;
 }
 
+.workspace-content .ops-page {
+  background:
+    linear-gradient(180deg, rgba(37, 99, 235, 0.05), transparent 24%),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+    linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+    var(--vscode-bg);
+  background-size: auto, 28px 28px, 28px 28px, auto;
+}
+
+.workspace-content .page-head {
+  position: relative;
+  padding: 14px 16px;
+  border: 1px solid var(--vscode-border);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgba(37, 99, 235, 0.11), transparent 42%),
+    var(--vscode-sidebar-bg);
+  box-shadow: 0 10px 24px var(--vscode-shadow);
+}
+
+.workspace-content .page-head::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  border-radius: 8px 0 0 8px;
+  background: linear-gradient(180deg, #2563eb, #0ea5e9);
+}
+
+.workspace-content .page-head h1 {
+  letter-spacing: 0;
+}
+
+.workspace-content .page-head > div:first-child span {
+  color: var(--vscode-primary);
+  letter-spacing: 0.04em;
+}
+
 .workspace-content .metric-card {
   position: relative;
   overflow: hidden;
+  box-shadow: 0 8px 20px var(--vscode-shadow);
+  transition: transform 0.16s ease, border-color 0.16s ease;
+}
+
+.workspace-content .metric-card:hover {
+  transform: translateY(-1px);
+  border-color: rgba(37, 99, 235, 0.34);
 }
 
 .workspace-content .metric-card::before {
@@ -567,6 +612,87 @@ button {
 
 .workspace-content .metric-card:nth-child(4)::before {
   background: #0ea5e9;
+}
+
+.workspace-content .metric-card strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-content .panel {
+  border-color: rgba(148, 163, 184, 0.35);
+  box-shadow: 0 10px 26px var(--vscode-shadow);
+}
+
+.workspace-content .panel-head {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--vscode-border);
+}
+
+.workspace-content .panel-head h3 {
+  position: relative;
+  padding-left: 10px;
+}
+
+.workspace-content .panel-head h3::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 3px;
+  bottom: 3px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--vscode-primary);
+}
+
+.workspace-content .el-table {
+  --el-table-header-bg-color: rgba(37, 99, 235, 0.08);
+  --el-table-row-hover-bg-color: rgba(37, 99, 235, 0.06);
+  border-radius: 8px;
+}
+
+.workspace-content .el-table th.el-table__cell {
+  color: var(--vscode-text);
+  font-weight: 700;
+}
+
+.workspace-content .el-tag {
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.workspace-content .el-button {
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.workspace-content .topology-canvas,
+.workspace-content .dag-canvas,
+.workspace-content .evidence-box,
+.workspace-content .output-box {
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.05);
+}
+
+.workspace-content .topology-node,
+.workspace-content .dag-node,
+.workspace-content .finding-card,
+.workspace-content .engine-card,
+.workspace-content .action-card,
+.workspace-content .detail-card {
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06);
+}
+
+.workspace-content .workflow-row.active,
+.workspace-content .template-row.active {
+  box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.2);
+}
+
+html.dark .workspace-content .ops-page {
+  background:
+    linear-gradient(180deg, rgba(96, 165, 250, 0.08), transparent 24%),
+    linear-gradient(90deg, rgba(226, 232, 240, 0.035) 1px, transparent 1px),
+    linear-gradient(rgba(226, 232, 240, 0.035) 1px, transparent 1px),
+    var(--vscode-bg);
+  background-size: auto, 28px 28px, 28px 28px, auto;
 }
 
 .agent-panel {

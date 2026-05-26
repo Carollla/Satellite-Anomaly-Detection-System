@@ -1,29 +1,34 @@
 <template>
   <div class="ops-page">
-    <header class="page-head">
-      <div>
+    <header class="llm-hero">
+      <div class="hero-copy">
         <span>LLM Operations</span>
         <h1>模型配置</h1>
+        <p>统一管理 Agent 的模型底座、连通性、生成参数和高危策略。</p>
       </div>
-      <div class="head-actions">
-        <el-tag :type="backendOnline ? 'success' : 'warning'">{{ backendOnline ? '后端数据' : '本地配置' }}</el-tag>
+      <div class="hero-actions">
+        <el-tag :type="backendOnline ? 'success' : 'warning'" effect="light">
+          {{ backendOnline ? '后端数据' : '本地配置' }}
+        </el-tag>
         <el-button size="small" :loading="loading" @click="refresh">刷新</el-button>
         <el-button size="small" type="primary" :loading="saving" @click="saveConfig">保存配置</el-button>
       </div>
+      <div class="hero-metrics">
+        <article v-for="item in metrics" :key="item.label" class="metric-card">
+          <span>{{ item.label }}</span>
+          <strong>{{ item.value }}</strong>
+          <em>{{ item.desc }}</em>
+        </article>
+      </div>
     </header>
 
-    <section class="metric-grid">
-      <article v-for="item in metrics" :key="item.label" class="metric-card">
-        <span>{{ item.label }}</span>
-        <strong>{{ item.value }}</strong>
-        <em>{{ item.desc }}</em>
-      </article>
-    </section>
-
     <section class="llm-workspace">
-      <main class="panel engine-panel">
+      <main class="panel service-panel">
         <div class="panel-head">
-          <h3>模型服务</h3>
+          <div>
+            <span>Model Runtime</span>
+            <h3>模型服务矩阵</h3>
+          </div>
           <el-button size="small" text type="primary" :loading="testing" @click="testConnection">连通性测试</el-button>
         </div>
         <div class="engine-grid">
@@ -36,56 +41,56 @@
             <em>{{ engine.provider || 'custom provider' }}</em>
           </article>
         </div>
+        <div class="test-result">
+          <div>
+            <span>最近测试</span>
+            <strong>{{ testResult?.model || form.model || '未测试' }}</strong>
+            <em>{{ testResult?.endpoint || form.endpoint }}</em>
+          </div>
+          <p>{{ testResult?.reply || '点击连通性测试验证协调器模型服务是否可用。' }}</p>
+        </div>
       </main>
 
-      <aside class="panel test-panel">
+      <aside class="panel config-panel">
         <div class="panel-head">
-          <h3>测试结果</h3>
-          <el-tag size="small" :type="testResult?.connected ? 'success' : 'info'">
-            {{ testResult?.connected ? 'connected' : 'idle' }}
-          </el-tag>
-        </div>
-        <div class="test-box">
-          <strong>{{ testResult?.model || form.model || '未测试' }}</strong>
-          <span>{{ testResult?.endpoint || form.endpoint }}</span>
-          <p>{{ testResult?.reply || '点击连通性测试验证模型服务是否可用。' }}</p>
-        </div>
-      </aside>
-
-      <main class="panel config-panel">
-        <div class="panel-head">
-          <h3>协调器模型</h3>
-          <el-tag size="small" type="info">coordinator</el-tag>
+          <div>
+            <span>Coordinator</span>
+            <h3>协调器模型</h3>
+          </div>
+          <el-tag size="small" type="info">主控模型</el-tag>
         </div>
         <el-form label-position="top" class="config-form">
-          <div class="form-grid">
+          <section class="form-section">
             <el-form-item label="Provider">
               <el-input v-model="form.provider" placeholder="openai / ollama / vllm / custom" />
             </el-form-item>
             <el-form-item label="Model">
               <el-input v-model="form.model" placeholder="model name" />
             </el-form-item>
-          </div>
-          <el-form-item label="Endpoint">
-            <el-input v-model="form.endpoint" placeholder="https://api.example.com/v1" />
-          </el-form-item>
-          <el-form-item label="API Key">
-            <el-input v-model="form.apiKey" type="password" show-password placeholder="真实密钥不会显示在状态卡片中" />
-          </el-form-item>
-          <div class="form-grid">
+            <el-form-item label="Endpoint" class="span-2">
+              <el-input v-model="form.endpoint" placeholder="https://api.example.com/v1" />
+            </el-form-item>
+            <el-form-item label="API Key" class="span-2">
+              <el-input v-model="form.apiKey" type="password" show-password placeholder="真实密钥不会显示在状态卡片中" />
+            </el-form-item>
+          </section>
+          <section class="tuning-section">
             <el-form-item label="Temperature">
               <el-slider v-model="form.temperature" :min="0" :max="2" :step="0.1" />
             </el-form-item>
             <el-form-item label="Max Tokens">
               <el-input-number v-model="form.maxTokens" :min="128" :max="32768" :step="128" class="full" />
             </el-form-item>
-          </div>
+          </section>
         </el-form>
-      </main>
+      </aside>
 
       <aside class="panel policy-panel">
         <div class="panel-head">
-          <h3>策略开关</h3>
+          <div>
+            <span>Safety Policy</span>
+            <h3>策略开关</h3>
+          </div>
           <el-button size="small" text @click="resetDefaults">默认值</el-button>
         </div>
         <div class="switch-list">
@@ -97,12 +102,15 @@
       </aside>
 
       <section class="panel generate-panel">
-      <div class="panel-head">
-        <h3>生成测试</h3>
-        <el-button size="small" type="primary" :loading="generating" @click="generateSample">生成</el-button>
-      </div>
-      <el-input v-model="prompt" type="textarea" :rows="2" resize="none" />
-      <pre class="output-box">{{ generatedText }}</pre>
+        <div class="panel-head">
+          <div>
+            <span>Prompt Test</span>
+            <h3>生成测试</h3>
+          </div>
+          <el-button size="small" type="primary" :loading="generating" @click="generateSample">生成</el-button>
+        </div>
+        <el-input v-model="prompt" type="textarea" :rows="2" resize="none" class="prompt-input" />
+        <pre class="output-box">{{ generatedText }}</pre>
       </section>
     </section>
   </div>
@@ -288,61 +296,86 @@ function seedStatus(): LlmStatus {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding: 18px;
-  background: var(--vscode-bg);
+  padding: 16px;
+  background:
+    radial-gradient(circle at 14% 0%, rgba(37, 99, 235, 0.12), transparent 28%),
+    radial-gradient(circle at 94% 18%, rgba(14, 165, 233, 0.1), transparent 24%),
+    var(--vscode-bg);
   color: var(--vscode-text);
 }
 
-.page-head,
+.llm-hero,
 .panel-head,
-.head-actions,
+.hero-actions,
 .engine-head {
   display: flex;
   align-items: center;
 }
 
-.page-head {
-  justify-content: space-between;
-  gap: 16px;
+.llm-hero {
+  min-height: 132px;
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) auto;
+  grid-template-rows: auto auto;
+  gap: 14px 18px;
+  padding: 18px;
   margin-bottom: 14px;
+  border: 1px solid var(--vscode-border);
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.14), transparent 48%),
+    var(--vscode-sidebar-bg);
+  box-shadow: 0 14px 32px var(--vscode-shadow);
 }
 
-.page-head span {
-  color: var(--vscode-text-muted);
+.hero-copy {
+  min-width: 0;
+}
+
+.hero-copy span,
+.panel-head span {
+  color: var(--vscode-primary);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-.page-head h1 {
+.hero-copy h1 {
   margin: 4px 0 0;
-  font-size: 24px;
+  font-size: 28px;
+  line-height: 1.1;
 }
 
-.head-actions {
+.hero-copy p {
+  margin: 8px 0 0;
+  color: var(--vscode-text-muted);
+  font-size: 13px;
+}
+
+.hero-actions {
+  justify-content: space-between;
   gap: 8px;
+  align-self: start;
+  white-space: nowrap;
 }
 
-.metric-grid {
+.hero-metrics {
+  grid-column: 1 / -1;
   display: grid;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.metric-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .llm-workspace {
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
-  grid-template-rows: 0.75fr 1.1fr 0.8fr;
+  grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
+  grid-template-rows: minmax(0, 1fr) 210px;
   grid-template-areas:
-    "engines test"
-    "config policy"
-    "generate generate";
+    "services config"
+    "policy generate";
   gap: 12px;
 }
 
@@ -355,15 +388,20 @@ function seedStatus(): LlmStatus {
 }
 
 .metric-card {
-  padding: 12px 14px;
+  position: relative;
+  min-width: 0;
+  padding: 12px 14px 12px 16px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--vscode-sidebar-bg) 76%, var(--vscode-bg));
 }
 
 .metric-card span,
 .metric-card em,
 .engine-card span,
 .engine-card em,
-.test-box span,
-.test-box p,
+.test-result span,
+.test-result em,
+.test-result p,
 .switch-row span {
   color: var(--vscode-text-muted);
   font-size: 12px;
@@ -373,12 +411,19 @@ function seedStatus(): LlmStatus {
   display: block;
   margin-top: 6px;
   font-size: 22px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .metric-card em {
   display: block;
   margin-top: 6px;
   font-style: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .panel {
@@ -386,6 +431,7 @@ function seedStatus(): LlmStatus {
   display: flex;
   flex-direction: column;
   padding: 14px;
+  box-shadow: 0 12px 28px var(--vscode-shadow);
 }
 
 .panel-head {
@@ -394,12 +440,8 @@ function seedStatus(): LlmStatus {
   margin-bottom: 10px;
 }
 
-.engine-panel {
-  grid-area: engines;
-}
-
-.test-panel {
-  grid-area: test;
+.service-panel {
+  grid-area: services;
 }
 
 .config-panel {
@@ -415,20 +457,36 @@ function seedStatus(): LlmStatus {
 }
 
 .panel-head h3 {
-  margin: 0;
+  margin: 2px 0 0;
   font-size: 16px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .engine-grid {
-  flex: 1;
-  min-height: 0;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
+  margin-bottom: 12px;
 }
 
 .engine-card {
+  position: relative;
   padding: 12px;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(14, 165, 233, 0.1), transparent 60%),
+    var(--vscode-bg);
+}
+
+.engine-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: #0ea5e9;
 }
 
 .engine-head {
@@ -437,23 +495,110 @@ function seedStatus(): LlmStatus {
   margin-bottom: 10px;
 }
 
+.engine-head strong,
+.test-box strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .engine-card span,
 .engine-card em,
-.test-box span,
-.test-box p {
+.test-result span,
+.test-result em,
+.test-result p {
   display: block;
   margin-top: 6px;
   font-style: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.test-result {
+  min-height: 116px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--vscode-border);
+  border-radius: 8px;
+  background: var(--vscode-bg);
+}
+
+.test-result strong {
+  display: block;
+  margin-top: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.test-result p {
+  align-self: center;
+  margin: 0;
+  line-height: 1.6;
+  white-space: normal;
 }
 
 .config-form {
+  display: grid;
+  flex: 1;
   min-height: 0;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 12px;
 }
 
-.form-grid {
+.config-form :deep(.el-form-item) {
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.config-form :deep(.el-form-item__label) {
+  display: block;
+  height: 18px;
+  line-height: 18px;
+  margin-bottom: 4px;
+  padding: 0;
+  color: var(--vscode-text-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.config-form :deep(.el-form-item__content) {
+  min-width: 0;
+  line-height: 32px;
+}
+
+.config-form :deep(.el-input),
+.config-form :deep(.el-input-number) {
+  width: 100%;
+}
+
+.config-form :deep(.el-slider) {
+  min-width: 0;
+  padding: 0 8px;
+}
+
+.form-section {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
+}
+
+.span-2 {
+  grid-column: span 2;
+}
+
+.tuning-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 180px;
   gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--vscode-border);
+  border-radius: 8px;
+  background: var(--vscode-bg);
 }
 
 .switch-list {
@@ -472,6 +617,27 @@ function seedStatus(): LlmStatus {
   padding: 10px;
   border: 1px solid var(--vscode-border);
   border-radius: 8px;
+  background: color-mix(in srgb, var(--vscode-bg) 82%, transparent);
+}
+
+.switch-row span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.switch-row .el-switch {
+  flex-shrink: 0;
+}
+
+.prompt-input {
+  flex-shrink: 0;
+}
+
+.prompt-input :deep(.el-textarea__inner) {
+  min-height: 54px !important;
+  line-height: 1.45;
 }
 
 .output-box {
@@ -484,6 +650,8 @@ function seedStatus(): LlmStatus {
   background: var(--vscode-bg);
   color: var(--vscode-text);
   white-space: pre-wrap;
+  line-height: 1.6;
+  overflow: hidden;
 }
 
 .full {
@@ -491,15 +659,20 @@ function seedStatus(): LlmStatus {
 }
 
 @media (max-width: 1100px) {
-  .metric-grid,
+  .hero-metrics,
   .llm-workspace,
   .engine-grid,
-  .form-grid {
+  .form-section,
+  .tuning-section {
     grid-template-columns: 1fr;
   }
 
   .llm-workspace {
     grid-template-areas: none;
+  }
+
+  .span-2 {
+    grid-column: auto;
   }
 }
 </style>

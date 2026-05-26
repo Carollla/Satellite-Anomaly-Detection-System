@@ -4,6 +4,7 @@
       <div>
         <span>Agent Blackboard</span>
         <h1>黑板状态</h1>
+        <p>集中展示 Agent 推理过程中的事实、证据文件、计划状态和最终复核。</p>
       </div>
       <div class="head-actions">
         <el-tag :type="backendOnline ? 'success' : 'warning'">{{ backendOnline ? '后端数据' : '本地快照' }}</el-tag>
@@ -28,7 +29,7 @@
         </div>
         <div class="finding-grid">
           <article v-for="item in findingRows" :key="item.key" class="finding-card">
-            <span>{{ item.key }}</span>
+            <span>{{ formatFindingKey(item.key) }}</span>
             <strong>{{ item.value }}</strong>
           </article>
         </div>
@@ -162,6 +163,16 @@ function statusType(status: string) {
   return 'info'
 }
 
+function formatFindingKey(key: string) {
+  const labels: Record<string, string> = {
+    network_status: '网络状态',
+    leo_constellation: 'LEO 星座',
+    geo_backbone: 'GEO 骨干',
+    log_pointer: '证据文件'
+  }
+  return labels[key] || key.replace(/_/g, ' ')
+}
+
 </script>
 
 <style scoped>
@@ -193,6 +204,12 @@ function statusType(status: string) {
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
+}
+
+.page-head p {
+  margin: 4px 0 0;
+  color: var(--vscode-text-muted);
+  font-size: 13px;
 }
 
 .page-head h1 {
@@ -307,7 +324,17 @@ function statusType(status: string) {
 }
 
 .finding-card {
+  position: relative;
   padding: 14px;
+  overflow: hidden;
+}
+
+.finding-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: #2563eb;
 }
 
 .finding-card strong {
