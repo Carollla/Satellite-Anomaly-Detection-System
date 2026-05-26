@@ -55,25 +55,16 @@
             </div>
           </template>
           <div class="constellation-body">
-            <div class="constellation-3d">
-              <div class="scene-depth">
-                <div class="orbit-ring leo-ring">
-                  <i v-for="dot in 18" :key="`leo-${dot}`" :style="ringDotStyle(dot, 18)"></i>
+            <div ref="constellationCanvas" class="constellation-3d">
+              <div class="scene-hud">
+                <div class="hud-main">
+                  <strong>{{ totalCount }}</strong>
+                  <span>三层星座</span>
                 </div>
-                <div class="orbit-ring meo-ring">
-                  <i v-for="dot in 10" :key="`meo-${dot}`" :style="ringDotStyle(dot, 10)"></i>
+                <div class="hud-status">
+                  <b :class="{ active: !alertCount }"></b>
+                  <span>{{ alertCount ? '告警监测' : '稳定运行' }}</span>
                 </div>
-                <div class="orbit-ring geo-ring">
-                  <i v-for="dot in 6" :key="`geo-${dot}`" :style="ringDotStyle(dot, 6)"></i>
-                </div>
-              </div>
-              <div class="earth-sphere">
-                <span></span>
-                <b></b>
-              </div>
-              <div class="model-label">
-                <strong>{{ totalCount }}</strong>
-                <span>三层星座</span>
               </div>
             </div>
             <div class="layer-stack">
@@ -186,14 +177,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import * as THREE from 'three'
 import { useRemoteSensingStore } from '../stores/remoteSensing'
-import { useSatelliteStore } from '../stores/satellite'
+import { useSatelliteStore, type Satellite } from '../stores/satellite'
 
 const router = useRouter()
 const satelliteStore = useSatelliteStore()
 const remoteStore = useRemoteSensingStore()
+const constellationCanvas = ref<HTMLElement | null>(null)
 
 const stars = Array.from({ length: 46 }, (_, index) => index)
 const nasaWorldviewImage =
@@ -290,6 +283,365 @@ const workloadMetrics = computed(() => {
   ]
 })
 
+let scene: THREE.Scene | null = null
+let camera: THREE.PerspectiveCamera | null = null
+let renderer: THREE.WebGLRenderer | null = null
+let earthGroup: THREE.Group | null = null
+let orbitGroup: THREE.Group | null = null
+let satellitePoints: THREE.Points<THREE.BufferGeometry, THREE.PointsMaterial> | null = null
+let alertPoints: THREE.Points<THREE.BufferGeometry, THREE.PointsMaterial> | null = null
+let resizeObserver: ResizeObserver | null = null
+let animationFrame = 0
+let satelliteCapacity = 0
+const sceneClock = new THREE.Clock()
+
+function createEarthTexture() {
+  const canvas = document.createElement('canvas')
+  canvas.width = 1024
+  canvas.height = 512
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return null
+
+  const ocean = ctx.createLinearGradient(0, 0, canvas.width, canvas.height)
+  ocean.addColorStop(0, '#0ea5e9')
+  ocean.addColorStop(0.45, '#1d4ed8')
+  ocean.addColorStop(1, '#082f49')
+  ctx.fillStyle = ocean
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  ctx.globalAlpha = 0.86
+  ctx.fillStyle = '#22c55e'
+  const lands = [
+    [145, 154, 120, 54],
+    [260, 228, 92, 48],
+    [430, 180, 118, 62],
+    [575, 268, 136, 58],
+    [760, 178, 120, 50],
+    [860, 304, 90, 44]
+  ]
+  lands.forEach(([x, y, w, h], index) => {
+    ctx.beginPath()
+    ctx.ellipse(x, y, w, h, index % 2 ? 0.28 : -0.36, 0, Math.PI * 2)
+    ctx.fill()
+  })
+
+  ctx.globalAlpha = 0.28
+  ctx.strokeStyle = '#bfdbfe'
+  ctx.lineWidth = 1
+  for (let y = 64; y < canvas.height; y += 64) {
+    ctx.beginPath()
+    ctx.moveTo(0, y)
+    ctx.bezierCurveTo(260, y - 18, 720, y + 18, canvas.width, y)
+    ctx.stroke()
+  }
+  for (let x = 80; x < canvas.width; x += 96) {
+    ctx.beginPath()
+    ctx.moveTo(x, 0)
+    ctx.bezierCurveTo(x + 22, 150, x - 22, 360, x, canvas.height)
+    ctx.stroke()
+  }
+
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  texture.anisotropy = 8
+  return texture
+}
+
+function createOrbitLine(radius: number, color: string, inclination: number, raan: number, opacity = 0.45) {
+  const points: number[] = []
+  for (let index = 0; index < 256; index += 1) {
+    const angle = (index / 256) * Math.PI * 2
+    points.push(Math.cos(angle) * radius, 0, Math.sin(angle) * radius)
+  }
+  const geometry = new THREE.BufferGeometry()
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3))
+  const material = new THREE.LineBasicMaterial({
+    color,
+    transparent: true,
+    opacity,
+    depthWrite: false
+  })
+  const line = new THREE.LineLoop(geometry, material)
+  line.rotation.x = THREE.MathUtils.degToRad(inclination)
+  line.rotation.y = THREE.MathUtils.degToRad(raan)
+  return line
+}
+
+function satelliteColor(status: Satellite['status']) {
+  if (status === 'danger') return new THREE.Color('#ef4444')
+  if (status === 'warning') return new THREE.Color('#f59e0b')
+  if (status === 'offline') return new THREE.Color('#94a3b8')
+  return new THREE.Color('#5eead4')
+}
+
+function orbitRadius(satellite: Satellite) {
+  if (satellite.alt >= 30000000) return 3.72
+  if (satellite.alt >= 20000000) return 2.82
+  return 1.78 + Math.min(0.28, satellite.alt / 3000000)
+}
+
+function orbitSpeed(satellite: Satellite) {
+  if (satellite.alt >= 30000000) return 0.1
+  if (satellite.alt >= 20000000) return 0.22
+  return 0.46
+}
+
+function satellitePosition(satellite: Satellite, elapsed: number) {
+  const angle =
+    THREE.MathUtils.degToRad(satellite.phase + satellite.id * 0.72) + elapsed * orbitSpeed(satellite)
+  const radius = orbitRadius(satellite)
+  const position = new THREE.Vector3(Math.cos(angle) * radius, 0, Math.sin(angle) * radius)
+  position.applyAxisAngle(new THREE.Vector3(1, 0, 0), THREE.MathUtils.degToRad(satellite.inclination))
+  position.applyAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(satellite.baseLon))
+  return position
+}
+
+function buildSatelliteCloud() {
+  if (!scene) return
+  if (satellitePoints) {
+    scene.remove(satellitePoints)
+    satellitePoints.geometry.dispose()
+    satellitePoints.material.dispose()
+  }
+  if (alertPoints) {
+    scene.remove(alertPoints)
+    alertPoints.geometry.dispose()
+    alertPoints.material.dispose()
+  }
+
+  satelliteCapacity = satelliteStore.satellites.length
+  const positions = new Float32Array(Math.max(satelliteCapacity, 1) * 3)
+  const colors = new Float32Array(Math.max(satelliteCapacity, 1) * 3)
+  const alertPositions = new Float32Array(Math.max(satelliteCapacity, 1) * 3)
+  const alertColors = new Float32Array(Math.max(satelliteCapacity, 1) * 3)
+
+  const geometry = new THREE.BufferGeometry()
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+  geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
+
+  const alertGeometry = new THREE.BufferGeometry()
+  alertGeometry.setAttribute('position', new THREE.BufferAttribute(alertPositions, 3))
+  alertGeometry.setAttribute('color', new THREE.BufferAttribute(alertColors, 3))
+
+  satellitePoints = new THREE.Points(
+    geometry,
+    new THREE.PointsMaterial({
+      size: 0.065,
+      sizeAttenuation: true,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.96,
+      depthWrite: false
+    })
+  )
+  alertPoints = new THREE.Points(
+    alertGeometry,
+    new THREE.PointsMaterial({
+      size: 0.16,
+      sizeAttenuation: true,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.42,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending
+    })
+  )
+
+  scene.add(satellitePoints)
+  scene.add(alertPoints)
+}
+
+function updateSatelliteCloud(elapsed: number) {
+  if (!satellitePoints || !alertPoints || satelliteCapacity !== satelliteStore.satellites.length) {
+    buildSatelliteCloud()
+  }
+  if (!satellitePoints || !alertPoints) return
+
+  const positionAttr = satellitePoints.geometry.getAttribute('position') as THREE.BufferAttribute
+  const colorAttr = satellitePoints.geometry.getAttribute('color') as THREE.BufferAttribute
+  const alertPositionAttr = alertPoints.geometry.getAttribute('position') as THREE.BufferAttribute
+  const alertColorAttr = alertPoints.geometry.getAttribute('color') as THREE.BufferAttribute
+
+  satelliteStore.satellites.forEach((satellite, index) => {
+    const position = satellitePosition(satellite, elapsed)
+    const color = satelliteColor(satellite.status)
+    positionAttr.setXYZ(index, position.x, position.y, position.z)
+    colorAttr.setXYZ(index, color.r, color.g, color.b)
+
+    if (satellite.status === 'normal') {
+      alertPositionAttr.setXYZ(index, 80, 80, 80)
+      alertColorAttr.setXYZ(index, 0, 0, 0)
+    } else {
+      alertPositionAttr.setXYZ(index, position.x, position.y, position.z)
+      alertColorAttr.setXYZ(index, color.r, color.g, color.b)
+    }
+  })
+
+  positionAttr.needsUpdate = true
+  colorAttr.needsUpdate = true
+  alertPositionAttr.needsUpdate = true
+  alertColorAttr.needsUpdate = true
+}
+
+function resizeConstellationScene() {
+  const host = constellationCanvas.value
+  if (!host || !renderer || !camera) return
+  const width = Math.max(host.clientWidth, 1)
+  const height = Math.max(host.clientHeight, 1)
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+  renderer.setSize(width, height, false)
+  camera.aspect = width / height
+  camera.updateProjectionMatrix()
+}
+
+function animateConstellationScene() {
+  if (!scene || !camera || !renderer) return
+  const elapsed = sceneClock.getElapsedTime()
+  if (earthGroup) {
+    earthGroup.rotation.y = elapsed * 0.08
+    earthGroup.position.y = Math.sin(elapsed * 0.8) * 0.035
+  }
+  if (orbitGroup) {
+    orbitGroup.rotation.y = elapsed * 0.035
+  }
+  updateSatelliteCloud(elapsed)
+  renderer.render(scene, camera)
+  animationFrame = requestAnimationFrame(animateConstellationScene)
+}
+
+function initConstellationScene() {
+  const host = constellationCanvas.value
+  if (!host) return
+
+  scene = new THREE.Scene()
+  camera = new THREE.PerspectiveCamera(42, 1, 0.1, 80)
+  camera.position.set(0, 2.95, 7.1)
+  camera.lookAt(0, 0, 0)
+
+  renderer = new THREE.WebGLRenderer({
+    alpha: true,
+    antialias: true,
+    preserveDrawingBuffer: true,
+    powerPreference: 'high-performance'
+  })
+  renderer.outputColorSpace = THREE.SRGBColorSpace
+  renderer.setClearColor(0x000000, 0)
+  host.appendChild(renderer.domElement)
+
+  scene.add(new THREE.AmbientLight(0x8fd3ff, 1.35))
+  const keyLight = new THREE.DirectionalLight(0xffffff, 2.2)
+  keyLight.position.set(-3.2, 4.2, 5.4)
+  scene.add(keyLight)
+  const rimLight = new THREE.DirectionalLight(0x38bdf8, 1.3)
+  rimLight.position.set(4, -1.5, -3)
+  scene.add(rimLight)
+
+  earthGroup = new THREE.Group()
+  const earthTexture = createEarthTexture()
+  const earth = new THREE.Mesh(
+    new THREE.SphereGeometry(1, 64, 64),
+    new THREE.MeshStandardMaterial({
+      map: earthTexture || undefined,
+      roughness: 0.62,
+      metalness: 0.05,
+      emissive: new THREE.Color('#082f49'),
+      emissiveIntensity: 0.12
+    })
+  )
+  const atmosphere = new THREE.Mesh(
+    new THREE.SphereGeometry(1.08, 64, 64),
+    new THREE.MeshBasicMaterial({
+      color: '#38bdf8',
+      transparent: true,
+      opacity: 0.16,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    })
+  )
+  earthGroup.add(earth)
+  earthGroup.add(atmosphere)
+  scene.add(earthGroup)
+
+  orbitGroup = new THREE.Group()
+  ;[0, 60, 120, 180, 240, 300].forEach((raan) => {
+    orbitGroup?.add(createOrbitLine(1.9, '#60a5fa', 53, raan, 0.38))
+  })
+  ;[30, 120, 210, 300].forEach((raan) => {
+    orbitGroup?.add(createOrbitLine(2.82, '#2dd4bf', 55, raan, 0.36))
+  })
+  orbitGroup.add(createOrbitLine(3.72, '#fbbf24', 0, 0, 0.42))
+  scene.add(orbitGroup)
+
+  const starPositions = new Float32Array(360)
+  for (let index = 0; index < 120; index += 1) {
+    const radius = 10 + (index % 9) * 0.36
+    const theta = (index * 2.3999632297) % (Math.PI * 2)
+    const phi = Math.acos(2 * ((index * 37) % 101) / 101 - 1)
+    starPositions[index * 3] = radius * Math.sin(phi) * Math.cos(theta)
+    starPositions[index * 3 + 1] = radius * Math.cos(phi)
+    starPositions[index * 3 + 2] = radius * Math.sin(phi) * Math.sin(theta)
+  }
+  const starGeometry = new THREE.BufferGeometry()
+  starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3))
+  scene.add(
+    new THREE.Points(
+      starGeometry,
+      new THREE.PointsMaterial({
+        color: '#bfdbfe',
+        size: 0.035,
+        transparent: true,
+        opacity: 0.58,
+        depthWrite: false
+      })
+    )
+  )
+
+  buildSatelliteCloud()
+  resizeConstellationScene()
+  resizeObserver = new ResizeObserver(resizeConstellationScene)
+  resizeObserver.observe(host)
+  sceneClock.start()
+  animateConstellationScene()
+}
+
+function disposeObject(object: THREE.Object3D) {
+  object.traverse((child) => {
+    const mesh = child as THREE.Mesh
+    if (mesh.geometry) mesh.geometry.dispose()
+    const material = mesh.material
+    if (Array.isArray(material)) {
+      material.forEach((item) => item.dispose())
+    } else if (material) {
+      material.dispose()
+    }
+  })
+}
+
+function disposeConstellationScene() {
+  cancelAnimationFrame(animationFrame)
+  resizeObserver?.disconnect()
+  resizeObserver = null
+  if (scene) disposeObject(scene)
+  renderer?.dispose()
+  renderer?.domElement.remove()
+  scene = null
+  camera = null
+  renderer = null
+  earthGroup = null
+  orbitGroup = null
+  satellitePoints = null
+  alertPoints = null
+  satelliteCapacity = 0
+}
+
+onMounted(initConstellationScene)
+onBeforeUnmount(disposeConstellationScene)
+
+watch(
+  () => satelliteStore.satellites.length,
+  () => buildSatelliteCloud()
+)
+
 function statusLabel(status: string) {
   if (status === 'warning') return '告警'
   if (status === 'danger') return '严重'
@@ -307,13 +659,6 @@ function starStyle(index: number) {
   }
 }
 
-function ringDotStyle(index: number, total: number) {
-  return {
-    '--angle': `${(index / total) * 360}deg`,
-    '--delay': `${index * 80}ms`,
-    '--sat-scale': `${0.84 + (index % 4) * 0.06}`
-  }
-}
 </script>
 
 <style scoped>
@@ -624,215 +969,87 @@ function ringDotStyle(index: number, total: number) {
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  display: grid;
-  place-items: center;
-  perspective: 1080px;
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.2), transparent 32%),
+    radial-gradient(circle at 70% 20%, rgba(139, 92, 246, 0.14), transparent 28%),
+    linear-gradient(145deg, rgba(2, 6, 23, 0.66), rgba(15, 23, 42, 0.1));
+  border: 1px solid rgba(125, 211, 252, 0.16);
   isolation: isolate;
 }
 
-.scene-depth {
+.constellation-3d :deep(canvas) {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: min(440px, 92%);
-  height: min(280px, 92%);
-  transform: translate(-50%, -50%) rotateX(64deg) rotateZ(-12deg);
-  transform-style: preserve-3d;
-  filter: drop-shadow(0 22px 28px rgba(0, 0, 0, 0.36));
-  animation: modelDrift 18s linear infinite;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
 }
 
-.earth-sphere {
+.scene-hud {
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: clamp(124px, 23vmin, 158px);
-  aspect-ratio: 1;
-  transform: translate(-50%, -50%) rotateX(4deg) rotateZ(-9deg);
-  transform-style: preserve-3d;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 31% 23%, rgba(255, 255, 255, 0.9), transparent 6%),
-    radial-gradient(ellipse at 63% 35%, rgba(74, 222, 128, 0.88) 0 8%, transparent 9%),
-    radial-gradient(ellipse at 42% 55%, rgba(21, 128, 61, 0.82) 0 13%, transparent 14%),
-    radial-gradient(ellipse at 58% 68%, rgba(180, 83, 9, 0.5) 0 8%, transparent 9%),
-    radial-gradient(circle at 37% 40%, #38bdf8 0 30%, #1d6fe5 48%, #0b357e 70%, #031337 100%);
-  box-shadow:
-    0 0 0 1px rgba(125, 211, 252, 0.32),
-    0 0 46px rgba(56, 189, 248, 0.42),
-    22px 28px 42px rgba(0, 0, 0, 0.38),
-    inset -34px -26px 38px rgba(2, 6, 23, 0.68),
-    inset 14px 12px 22px rgba(255, 255, 255, 0.26);
-  z-index: 5;
-  animation: earthFloat 7.5s ease-in-out infinite;
-}
-
-.earth-sphere::before,
-.earth-sphere::after {
-  content: '';
-  position: absolute;
-  border-radius: inherit;
+  inset: 12px;
+  z-index: 2;
   pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.earth-sphere::before {
-  inset: -12px;
-  background:
-    radial-gradient(circle at 42% 42%, rgba(125, 211, 252, 0.24), transparent 58%),
-    radial-gradient(circle at 50% 50%, transparent 57%, rgba(14, 165, 233, 0.32) 64%, transparent 72%);
-  filter: blur(0.2px);
+.hud-main,
+.hud-status {
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  background: rgba(2, 6, 23, 0.38);
+  box-shadow: 0 14px 28px rgba(2, 6, 23, 0.2);
+  backdrop-filter: blur(12px);
 }
 
-.earth-sphere::after {
-  inset: 0;
-  background:
-    radial-gradient(circle at 73% 76%, rgba(0, 0, 0, 0.54), transparent 48%),
-    linear-gradient(112deg, transparent 0 45%, rgba(2, 6, 23, 0.26) 62%, rgba(2, 6, 23, 0.58) 100%);
-  mix-blend-mode: multiply;
-}
-
-.earth-sphere span {
-  position: absolute;
-  inset: 7px;
-  border-radius: inherit;
-  border: 1px solid rgba(191, 219, 254, 0.22);
-  background:
-    repeating-linear-gradient(82deg, transparent 0 14px, rgba(255, 255, 255, 0.08) 15px 16px),
-    repeating-linear-gradient(3deg, transparent 0 20px, rgba(255, 255, 255, 0.07) 21px 22px);
-  opacity: 0.58;
-  transform: translateZ(6px) rotateZ(5deg);
-  z-index: 1;
-}
-
-.earth-sphere b {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    linear-gradient(96deg, transparent 18%, rgba(255, 255, 255, 0.3), transparent 64%),
-    radial-gradient(circle at 26% 24%, rgba(255, 255, 255, 0.2), transparent 19%);
-  animation: earthGlint 4.8s ease-in-out infinite;
-  z-index: 2;
-}
-
-.orbit-ring {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  border-radius: 50%;
-  border: 1px solid rgba(147, 197, 253, 0.34);
-  transform: translate(-50%, -50%);
-  transform-style: preserve-3d;
-  box-shadow:
-    0 0 26px rgba(59, 130, 246, 0.16),
-    inset 0 0 30px rgba(56, 189, 248, 0.04);
-  z-index: 2;
-}
-
-.orbit-ring::before {
-  content: '';
-  position: absolute;
-  inset: -3px;
-  border-radius: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transform: translateZ(-8px);
-}
-
-.leo-ring {
-  width: 260px;
-  height: 260px;
-}
-
-.meo-ring {
-  width: 360px;
-  height: 360px;
-  border-color: rgba(45, 212, 191, 0.32);
-}
-
-.geo-ring {
-  width: 470px;
-  height: 470px;
-  border-color: rgba(251, 191, 36, 0.34);
-}
-
-.orbit-ring i {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 14px;
-  height: 8px;
-  border-radius: 7px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(112, 132, 160, 0.82) 48%, rgba(18, 24, 38, 0.95));
-  transform:
-    rotate(var(--angle))
-    translateX(calc(var(--ring-radius, 130px)))
-    rotate(calc(var(--angle) * -1))
-    rotateX(-64deg)
-    scale(var(--sat-scale));
-  transform-style: preserve-3d;
-  box-shadow:
-    0 0 14px rgba(255, 255, 255, 0.72),
-    0 5px 12px rgba(0, 0, 0, 0.32);
-  animation: satelliteBlink 2s ease-in-out infinite;
-  animation-delay: var(--delay);
-}
-
-.orbit-ring i::before,
-.orbit-ring i::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  width: 12px;
-  height: 7px;
-  border-radius: 2px;
-  background:
-    linear-gradient(90deg, rgba(3, 7, 18, 0.96), rgba(14, 116, 144, 0.88)),
-    repeating-linear-gradient(90deg, transparent 0 4px, rgba(255, 255, 255, 0.18) 5px 6px);
-  border: 1px solid rgba(125, 211, 252, 0.35);
-}
-
-.orbit-ring i::before {
-  left: -14px;
-  transform: translateY(-50%) rotateY(-18deg);
-}
-
-.orbit-ring i::after {
-  right: -14px;
-  transform: translateY(-50%) rotateY(18deg);
-}
-
-.leo-ring i {
-  --ring-radius: 130px;
-  box-shadow: 0 0 16px rgba(96, 165, 250, 0.82);
-}
-
-.meo-ring i {
-  --ring-radius: 180px;
-  box-shadow: 0 0 17px rgba(45, 212, 191, 0.82);
-}
-
-.geo-ring i {
-  --ring-radius: 235px;
-  box-shadow: 0 0 18px rgba(251, 191, 36, 0.8);
-}
-
-.model-label {
-  position: absolute;
-  left: 14px;
-  bottom: 12px;
+.hud-main {
+  min-width: 112px;
+  padding: 10px 12px;
+  border-radius: 12px;
   display: grid;
   gap: 2px;
 }
 
-.model-label strong {
-  font-size: 28px;
+.hud-main strong {
+  font-size: 30px;
   line-height: 1;
+  color: #f8fafc;
 }
 
-.model-label span {
-  color: #cbd5e1;
+.hud-main span {
+  color: #bfdbfe;
   font-size: 12px;
+}
+
+.hud-status {
+  height: 34px;
+  padding: 0 11px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-status b {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.9);
+}
+
+.hud-status b.active {
+  background: #22c55e;
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.9);
+}
+
+.hud-status span {
+  color: #e0f2fe;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .layer-stack {
@@ -1070,37 +1287,6 @@ function ringDotStyle(index: number, total: number) {
   50% {
     opacity: 1;
     filter: brightness(1.3);
-  }
-}
-
-@keyframes modelDrift {
-  from {
-    transform: translate(-50%, -50%) rotateX(62deg) rotateZ(-12deg);
-  }
-  to {
-    transform: translate(-50%, -50%) rotateX(62deg) rotateZ(348deg);
-  }
-}
-
-@keyframes earthFloat {
-  0%,
-  100% {
-    transform: translate(-50%, -50%) rotateX(4deg) rotateZ(-9deg) translateY(0);
-  }
-  50% {
-    transform: translate(-50%, -50%) rotateX(4deg) rotateZ(-9deg) translateY(-3px);
-  }
-}
-
-@keyframes earthGlint {
-  0%,
-  100% {
-    opacity: 0.25;
-    transform: translateX(-28%);
-  }
-  50% {
-    opacity: 0.75;
-    transform: translateX(24%);
   }
 }
 
