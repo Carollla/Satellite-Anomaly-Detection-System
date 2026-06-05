@@ -264,6 +264,12 @@ export interface AgentChatResponse {
   actions_taken: any[]
   suggestions: string[]
   pending_approvals: PendingApproval[]
+  grounding?: {
+    llm_used?: boolean
+    tool_count?: number
+    generated_at?: string
+    [key: string]: any
+  }
 }
 
 export interface AgentTaskAction {

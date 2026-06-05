@@ -65,8 +65,31 @@
         <section class="result-box">
           <div class="mini-head">
             <strong>诊断结论</strong>
-            <span>{{ messages[0]?.time || '-' }}</span>
+            <span>{{ latestAssistantMessage?.time || '-' }}</span>
           </div>
+          <el-collapse v-if="latestReasoning.length" v-model="openReasoning" class="reasoning-collapse">
+            <el-collapse-item name="trace">
+              <template #title>
+                <div class="reasoning-title">
+                  <strong>思考过程与工具链</strong>
+                  <el-tag size="small" type="info">默认折叠</el-tag>
+                  <span>{{ latestTools.length }} 个工具</span>
+                </div>
+              </template>
+              <div class="reasoning-body">
+                <div v-for="step in latestReasoning" :key="step.label" class="reasoning-step" :class="step.tone">
+                  <span>{{ step.label }}</span>
+                  <p>{{ step.detail }}</p>
+                </div>
+                <div v-if="latestTools.length" class="tool-chain">
+                  <div v-for="tool in latestTools" :key="`${tool.tool}-${tool.result}`" class="tool-item">
+                    <strong>{{ tool.tool }}</strong>
+                    <span>{{ tool.result }}</span>
+                  </div>
+                </div>
+              </div>
+            </el-collapse-item>
+          </el-collapse>
           <div class="answer-text markdown-body" v-html="latestAnswerHtml"></div>
           <div class="suggestions">
             <el-tag v-for="item in latestSuggestions" :key="item" size="small">{{ item }}</el-tag>
@@ -203,6 +226,21 @@ interface ChatMessage {
   content: string
   time: string
   suggestions?: string[]
+  reasoning?: ReasoningStep[]
+  tools?: ToolStep[]
+  traceId?: string
+  grounding?: Record<string, any>
+}
+
+interface ReasoningStep {
+  label: string
+  detail: string
+  tone?: 'blue' | 'green' | 'amber' | 'violet'
+}
+
+interface ToolStep {
+  tool: string
+  result: string
 }
 
 const quickPrompts = ['分析当前卫星告警', '检查链路中断影响', '评估星上算力负载', '生成处置审批建议']
@@ -223,6 +261,7 @@ const continueTrace = ref(true)
 const agentType = ref('coordinator')
 const message = ref('')
 const currentTraceId = ref('')
+const openReasoning = ref<string[]>([])
 const status = ref<AgentStatus | null>(null)
 const trace = ref<TraceDetail | null>(null)
 const approvals = ref<ApprovalRequest[]>([])
@@ -266,9 +305,12 @@ const summaryCards = computed(() => [
   { label: '星上 Agent', value: status.value?.edge_agents.length ?? 0, tone: 'violet' },
   { label: '待审批', value: approvals.value.length, tone: 'amber' }
 ])
-const latestAnswer = computed(() => messages.value.find((item) => item.role === 'assistant')?.content || '等待诊断结果')
+const latestAssistantMessage = computed(() => messages.value.find((item) => item.role === 'assistant'))
+const latestAnswer = computed(() => latestAssistantMessage.value?.content || '等待诊断结果')
 const latestAnswerHtml = computed(() => renderMarkdown(latestAnswer.value))
-const latestSuggestions = computed(() => messages.value.find((item) => item.role === 'assistant')?.suggestions || [])
+const latestSuggestions = computed(() => latestAssistantMessage.value?.suggestions || [])
+const latestReasoning = computed(() => latestAssistantMessage.value?.reasoning || [])
+const latestTools = computed(() => latestAssistantMessage.value?.tools || [])
 const traceRows = computed(() => trace.value?.plan?.slice(0, 4) || [])
 const pipelineStages = computed(() => {
   const rows = trace.value?.plan || []
@@ -300,6 +342,57 @@ function statusTagType(status: string) {
   if (status === 'running') return 'primary'
   if (status === 'failed') return 'danger'
   return 'info'
+}
+
+function toOneLine(value: any) {
+  if (value === null || value === undefined) return '无返回摘要'
+  if (typeof value === 'string') return value.replace(/\s+/g, ' ').trim()
+  try {
+    return JSON.stringify(value).replace(/\s+/g, ' ').slice(0, 180)
+  } catch {
+    return String(value)
+  }
+}
+
+function normalizeTools(actions: any[] = []) {
+  return actions.map((action) => ({
+    tool: String(action?.tool || action?.name || 'tool'),
+    result: toOneLine(action?.result ?? action?.status ?? action)
+  }))
+}
+
+function buildReasoningSteps(
+  content: string,
+  reply: { grounding?: Record<string, any>; actions_taken?: any[] },
+  traceId?: string
+): ReasoningStep[] {
+  const grounding = reply.grounding || {}
+  const toolCount = Number(grounding.tool_count ?? reply.actions_taken?.length ?? 0)
+  const answerLength = content.replace(/\s+/g, '').length
+  return [
+    {
+      label: '任务识别',
+      detail: `本轮由 ${agentType.value} 处理用户输入，并按“问题理解、上下文检索、答案生成、结果回写”的顺序组织。`,
+      tone: 'blue'
+    },
+    {
+      label: '上下文利用',
+      detail: toolCount > 0
+        ? `已读取 ${toolCount} 类平台上下文或工具结果，用于约束实时状态、链路、审批、天气或模型配置类回答。`
+        : '本轮未命中实时工具，按通用大模型能力直接回答知识、代码、设计或解释类问题。',
+      tone: 'green'
+    },
+    {
+      label: '模型生成',
+      detail: grounding.llm_used ? '已调用已配置的大模型生成 Markdown 答案。' : '未使用外部大模型或大模型不可用，使用后端 Agent 规则与工具上下文生成答案。',
+      tone: grounding.llm_used ? 'violet' : 'amber'
+    },
+    {
+      label: '执行回写',
+      detail: traceId ? `已关联 Trace ${traceId}，右侧执行链路会同步展示任务阶段。答案正文长度约 ${answerLength} 字。` : `未生成 Trace 编号，答案正文长度约 ${answerLength} 字。`,
+      tone: 'blue'
+    }
+  ]
 }
 
 function applyLlmConfig(config: Record<string, any>) {
@@ -450,14 +543,20 @@ async function sendMessage() {
     if (traceAcceptance.trace_id) {
       await loadTraceArtifacts(traceAcceptance.trace_id)
     }
+    const toolSteps = normalizeTools(chatReply.actions_taken)
     messages.value.unshift({
       id: `assistant-${Date.now()}`,
       role: 'assistant',
       agentLabel: agentType.value,
       content: chatReply.response,
       time: dayjs().format('HH:mm:ss'),
-      suggestions: chatReply.suggestions
+      suggestions: chatReply.suggestions,
+      tools: toolSteps,
+      reasoning: buildReasoningSteps(chatReply.response, chatReply, traceAcceptance.trace_id),
+      traceId: traceAcceptance.trace_id,
+      grounding: chatReply.grounding
     })
+    openReasoning.value = []
     message.value = ''
     await loadApprovals()
   } catch (error: any) {
@@ -774,8 +873,107 @@ usePolling(refreshAll, 20000, true)
     linear-gradient(135deg, rgba(37, 99, 235, 0.08), transparent 46%),
     color-mix(in srgb, var(--vscode-bg) 78%, transparent);
   display: grid;
-  grid-template-rows: 22px minmax(0, 1fr) 28px;
+  grid-template-rows: 22px auto minmax(0, 1fr) 28px;
   gap: 8px;
+}
+
+.reasoning-collapse {
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--vscode-border) 76%, #2563eb);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--vscode-sidebar-bg) 86%, transparent);
+  overflow: hidden;
+}
+
+.reasoning-collapse :deep(.el-collapse-item__header) {
+  height: 34px;
+  padding: 0 10px;
+  border-bottom: 0;
+  background: transparent;
+}
+
+.reasoning-collapse :deep(.el-collapse-item__wrap) {
+  border-bottom: 0;
+  background: transparent;
+}
+
+.reasoning-collapse :deep(.el-collapse-item__content) {
+  padding: 0 10px 10px;
+}
+
+.reasoning-title {
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reasoning-title strong,
+.reasoning-title span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reasoning-title span {
+  margin-left: auto;
+  color: var(--vscode-text-muted);
+  font-size: 12px;
+}
+
+.reasoning-body {
+  max-height: 190px;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
+}
+
+.reasoning-step,
+.tool-item {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--vscode-border);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--vscode-bg) 76%, transparent);
+}
+
+.reasoning-step {
+  border-left: 3px solid #2563eb;
+}
+
+.reasoning-step.green {
+  border-left-color: #16a34a;
+}
+
+.reasoning-step.amber {
+  border-left-color: #f59e0b;
+}
+
+.reasoning-step.violet {
+  border-left-color: #7c3aed;
+}
+
+.reasoning-step span,
+.tool-item strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.reasoning-step p,
+.tool-item span {
+  margin: 0;
+  color: var(--vscode-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.tool-chain {
+  display: grid;
+  gap: 7px;
 }
 
 .answer-text {

@@ -20,9 +20,11 @@ function renderInline(value: string) {
   text = text
     .replace(/\\\[((?:.|\n)*?)\\\]/g, '<span class="math-block">$1</span>')
     .replace(/\\\((.*?)\\\)/g, '<span class="math-inline">$1</span>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/__([^_]+)__/g, '<strong>$1</strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/__(.+?)__/g, '<strong>$1</strong>')
+    .replace(/~~(.+?)~~/g, '<del>$1</del>')
     .replace(/\*([^*\n]+)\*/g, '<em>$1</em>')
+    .replace(/_([^_\n]+)_/g, '<em>$1</em>')
     .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
 
   placeholders.forEach((html, index) => {
@@ -86,14 +88,18 @@ function renderList(lines: string[], start: number, ordered: boolean) {
 }
 
 export function renderMarkdown(source: string) {
-  const lines = String(source || '').replace(/\r\n/g, '\n').split('\n')
+  const raw = String(source || '')
+  const normalized = (raw.includes('\n') ? raw : raw.replace(/\\n/g, '\n'))
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+  const lines = normalized.split('\n')
   const blocks: string[] = []
   let paragraph: string[] = []
   let index = 0
 
   function flushParagraph() {
     if (!paragraph.length) return
-    blocks.push(`<p>${renderInline(paragraph.join(' '))}</p>`)
+    blocks.push(`<p>${paragraph.map((line) => renderInline(line)).join('<br>')}</p>`)
     paragraph = []
   }
 
@@ -154,7 +160,7 @@ export function renderMarkdown(source: string) {
         quoteLines.push(lines[index].replace(/^\s*>\s+/, ''))
         index += 1
       }
-      blocks.push(`<blockquote>${renderInline(quoteLines.join(' '))}</blockquote>`)
+      blocks.push(`<blockquote>${quoteLines.map((quoteLine) => renderInline(quoteLine)).join('<br>')}</blockquote>`)
       continue
     }
 
