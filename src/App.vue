@@ -23,6 +23,7 @@ import { ElMessage } from 'element-plus'
 import { useAuthStore } from './stores/auth'
 import { agentApi } from './api'
 import logoUrl from './assets/logo.svg'
+import { renderMarkdown } from './utils/markdown'
 
 interface NavChild {
   path?: string
@@ -40,6 +41,14 @@ interface NavGroup {
 interface HelperMessage {
   role: 'user' | 'assistant'
   content: string
+  targetLabel?: string
+}
+
+interface HelperAgent {
+  id: string
+  label: string
+  group: 'command' | 'specialist'
+  status: string
 }
 
 const route = useRoute()
@@ -53,12 +62,30 @@ const loginVisible = ref(false)
 const loginForm = ref({ username: 'admin', password: 'admin' })
 const helperInput = ref('')
 const helperSending = ref(false)
+const selectedAgentGroup = ref<'command' | 'specialist'>('command')
+const selectedHelperAgent = ref('coordinator')
 const helperMessages = ref<HelperMessage[]>([
   {
     role: 'assistant',
-    content: '这里是 SpaceMAN 智能运维助手。你可以让我检查卫星告警、分析链路异常、生成遥感任务建议，或者给出下一步处置方案。'
+    content: '我是卫星智能运维助手。你可以选择上方任意 Agent 发起对话，当前所有 Agent 会先统一接入同一个后端智能体接口。',
+    targetLabel: 'L1 总指挥'
   }
 ])
+
+const helperAgents: HelperAgent[] = [
+  { id: 'coordinator', label: 'L1 总指挥', group: 'command', status: '统一入口' },
+  { id: 'planner', label: '任务规划', group: 'command', status: '统一入口' },
+  { id: 'reviewer', label: '结果复核', group: 'command', status: '统一入口' },
+  { id: 'network', label: '网络专家', group: 'specialist', status: '统一入口' },
+  { id: 'health', label: '健康专家', group: 'specialist', status: '统一入口' },
+  { id: 'security', label: '安全专家', group: 'specialist', status: '统一入口' },
+  { id: 'ops', label: '运维专家', group: 'specialist', status: '统一入口' }
+]
+
+const visibleHelperAgents = computed(() => helperAgents.filter((item) => item.group === selectedAgentGroup.value))
+const selectedHelperAgentMeta = computed(
+  () => helperAgents.find((item) => item.id === selectedHelperAgent.value) || helperAgents[0]
+)
 
 const groups: NavGroup[] = [
   {
@@ -145,6 +172,20 @@ function isActive(path: string | undefined) {
   return path && (route.path === path || (path !== '/' && route.path.startsWith(path)))
 }
 
+function selectAgentGroup(group: 'command' | 'specialist') {
+  selectedAgentGroup.value = group
+  const firstAgent = helperAgents.find((item) => item.group === group)
+  if (firstAgent) selectedHelperAgent.value = firstAgent.id
+}
+
+function selectHelperAgent(agentId: string) {
+  selectedHelperAgent.value = agentId
+}
+
+function renderMessage(content: string) {
+  return renderMarkdown(content)
+}
+
 async function sendHelper() {
   const question = helperInput.value.trim()
   if (!question || helperSending.value) return
@@ -155,8 +196,16 @@ async function sendHelper() {
 
   try {
     const response = await agentApi.chat({
+      // 当前所有前端 Agent 先统一接入同一个后端 Agent。
       agent_type: 'coordinator',
       message: question,
+      context: {
+        channel: 'frontend_sidebar',
+        human_facing: true,
+        selected_agent: selectedHelperAgent.value,
+        selected_agent_label: selectedHelperAgentMeta.value.label,
+        responder: selectedHelperAgentMeta.value.label
+      },
       history: helperMessages.value
         .slice(-8)
         .map((item) => ({ role: item.role, content: item.content }))
@@ -172,7 +221,8 @@ async function sendHelper() {
 
     helperMessages.value.push({
       role: 'assistant',
-      content: extras || '已收到请求，但当前没有可展示的结果。'
+      content: extras || '已收到请求，但当前没有可展示的结果。',
+      targetLabel: selectedHelperAgentMeta.value.label
     })
   } catch (error: any) {
     ElMessage.error(error?.message || '助手请求失败')
@@ -265,6 +315,39 @@ const currentTitle = computed(() => {
         <el-icon class="agent-close" @click="agentDrawerVisible = false"><Close /></el-icon>
       </div>
       <div class="drawer-chat">
+        <div class="chat-groups">
+          <div class="chat-group-tabs">
+            <button
+              class="chat-group-tab"
+              :class="{ active: selectedAgentGroup === 'command' }"
+              @click="selectAgentGroup('command')"
+            >
+              指挥链
+            </button>
+            <button
+              class="chat-group-tab"
+              :class="{ active: selectedAgentGroup === 'specialist' }"
+              @click="selectAgentGroup('specialist')"
+            >
+              专家组
+            </button>
+          </div>
+          <div class="chat-agent-list">
+            <button
+              v-for="agent in visibleHelperAgents"
+              :key="agent.id"
+              class="chat-agent-pill"
+              :class="{ active: selectedHelperAgent === agent.id }"
+              @click="selectHelperAgent(agent.id)"
+            >
+              <span>{{ agent.label }}</span>
+              <small>{{ agent.status }}</small>
+            </button>
+          </div>
+          <div class="chat-group-note">
+            当前选中：{{ selectedHelperAgentMeta.label }}。现阶段所有前端 Agent 统一接入同一个后端智能体。
+          </div>
+        </div>
         <div class="chat-messages">
           <div
             v-for="(msg, index) in helperMessages"
@@ -272,14 +355,14 @@ const currentTitle = computed(() => {
             class="msg-card"
             :class="msg.role === 'user' ? 'user-msg' : 'assistant-msg'"
           >
-            <div class="msg-role">{{ msg.role === 'user' ? '用户' : '助手' }}</div>
-            <div class="msg-content">{{ msg.content }}</div>
+            <div class="msg-role">{{ msg.role === 'user' ? '用户' : msg.targetLabel || '助手' }}</div>
+            <div class="msg-content markdown-body" v-html="renderMessage(msg.content)"></div>
           </div>
         </div>
         <div class="chat-input-area">
           <el-input
             v-model="helperInput"
-            placeholder="输入运维问题，例如：分析当前卫星告警"
+            placeholder="输入任意问题，例如：分析当前卫星告警、解释黑板状态或写代码"
             :disabled="helperSending"
             @keyup.enter="sendHelper"
           />
@@ -733,14 +816,92 @@ html.dark .workspace-content .ops-page {
 
 .drawer-chat {
   min-width: 360px;
+  min-height: 0;
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
+.chat-groups {
+  min-width: 360px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--vscode-border);
+  background: color-mix(in srgb, var(--vscode-sidebar-bg) 86%, var(--vscode-primary) 14%);
+}
+
+.chat-group-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.chat-group-tab {
+  height: 32px;
+  border: 1px solid var(--vscode-border);
+  border-radius: 6px;
+  background: var(--vscode-sidebar-bg);
+  color: var(--vscode-text-muted);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.chat-group-tab.active {
+  border-color: var(--vscode-primary);
+  background: var(--vscode-primary);
+  color: var(--vscode-primary-text);
+}
+
+.chat-agent-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.chat-agent-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--vscode-border);
+  border-radius: 6px;
+  background: var(--vscode-sidebar-bg);
+  color: var(--vscode-text);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.chat-agent-pill span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-agent-pill small {
+  flex-shrink: 0;
+  color: var(--vscode-text-muted);
+  font-size: 11px;
+}
+
+.chat-agent-pill.active {
+  border-color: var(--vscode-primary);
+  background: var(--vscode-active);
+}
+
+.chat-group-note {
+  margin-top: 8px;
+  color: var(--vscode-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .chat-messages {
+  min-height: 0;
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
   padding: 18px;
 }
 
@@ -761,6 +922,159 @@ html.dark .workspace-content .ops-page {
   border-radius: 12px;
   background: var(--vscode-bg);
   line-height: 1.7;
+}
+
+.markdown-body {
+  color: var(--vscode-text);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+  margin: 12px 0 8px;
+  line-height: 1.28;
+  letter-spacing: 0;
+}
+
+.markdown-body h1 {
+  font-size: 22px;
+}
+
+.markdown-body h2 {
+  font-size: 19px;
+}
+
+.markdown-body h3 {
+  font-size: 17px;
+}
+
+.markdown-body h4 {
+  font-size: 15px;
+}
+
+.markdown-body p {
+  margin: 8px 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.markdown-body li {
+  margin: 4px 0;
+}
+
+.markdown-body strong {
+  color: var(--vscode-text);
+  font-weight: 800;
+}
+
+.markdown-body a {
+  color: var(--vscode-primary);
+  text-decoration: none;
+}
+
+.markdown-body a:hover {
+  text-decoration: underline;
+}
+
+.markdown-body code {
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--vscode-hover) 82%, #2563eb);
+  color: var(--vscode-text);
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 0.92em;
+}
+
+.markdown-body pre {
+  margin: 10px 0;
+  padding: 12px;
+  border: 1px solid var(--vscode-border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--vscode-bg) 78%, #0f172a);
+  overflow: auto;
+}
+
+.markdown-body pre code {
+  display: block;
+  padding: 0;
+  background: transparent;
+  white-space: pre;
+}
+
+.markdown-body blockquote {
+  margin: 10px 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--vscode-primary);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--vscode-hover) 70%, transparent);
+  color: var(--vscode-text-muted);
+}
+
+.markdown-body hr {
+  margin: 12px 0;
+  border: 0;
+  border-top: 1px solid var(--vscode-border);
+}
+
+.markdown-body .md-table-wrap {
+  width: 100%;
+  margin: 10px 0;
+  overflow-x: auto;
+  border: 1px solid var(--vscode-border);
+  border-radius: 8px;
+}
+
+.markdown-body table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.markdown-body th,
+.markdown-body td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--vscode-border);
+  border-right: 1px solid var(--vscode-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown-body th {
+  background: color-mix(in srgb, var(--vscode-hover) 72%, #2563eb);
+  color: var(--vscode-text);
+  font-weight: 800;
+}
+
+.markdown-body tr:last-child td {
+  border-bottom: 0;
+}
+
+.markdown-body th:last-child,
+.markdown-body td:last-child {
+  border-right: 0;
+}
+
+.markdown-body .math-inline,
+.markdown-body .math-block {
+  font-family: 'Cambria Math', 'Times New Roman', serif;
+  color: color-mix(in srgb, var(--vscode-text) 86%, #2563eb);
+}
+
+.markdown-body .math-block {
+  display: block;
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--vscode-hover) 64%, transparent);
+  overflow-x: auto;
   white-space: pre-wrap;
 }
 
