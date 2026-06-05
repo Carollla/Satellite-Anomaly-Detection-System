@@ -16,6 +16,19 @@
       @load="onIframeLoad"
     />
 
+    <div class="ground-overlay" aria-label="地面站">
+      <div
+        v-for="station in groundStationMarkers"
+        :key="station.id"
+        class="ground-marker"
+        :class="[station.kind, { visible: station.visible }]"
+        :style="{ left: `${station.x}px`, top: `${station.y}px` }"
+      >
+        <span class="ground-dot" />
+        <b>{{ station.name }}</b>
+      </div>
+    </div>
+
     <div class="action-btns">
       <el-button class="earth-style-btn" plain @click="toggleEarthStyle">
         地球风格：{{ currentEarthStyle.label }}
@@ -158,16 +171,14 @@ let lastVisualSignature = ''
 let cesiumViewer: Cesium.Viewer | null = null
 let cesiumStartTime: Cesium.JulianDate | null = null
 let cesiumClickHandler: Cesium.ScreenSpaceEventHandler | null = null
+let removeGroundMarkerRenderHook: (() => void) | null = null
 let realEarthLayer: Cesium.ImageryLayer | null = null
 let classicEarthLayer: Cesium.ImageryLayer | null = null
 let classicSunEntity: Cesium.Entity | null = null
 let satelliteSpriteImage = ''
-let groundControlSpriteImage = ''
-let groundBoundarySpriteImage = ''
 const cesiumSatelliteEntities = new Map<number, Cesium.Entity>()
 const cesiumOrbitEntities = new Map<number, Cesium.Entity>()
 const cesiumLinkEntities = new Map<string, Cesium.Entity>()
-const cesiumGroundStationEntities = new Map<string, Cesium.Entity>()
 const cesiumGroundCableEntities = new Map<string, Cesium.Entity>()
 const cesiumGroundLinkEntities = new Map<string, Cesium.Entity>()
 const EARTH_RADIUS_METERS = 6378137
@@ -182,6 +193,14 @@ const GROUND_STATIONS = [
   { id: 'bnd-w', name: '西向边界站', lat: 40, lon: 73, kind: 'boundary' },
   { id: 'bnd-e', name: '东向边界站', lat: 48, lon: 134, kind: 'boundary' }
 ] as const
+const groundStationMarkers = ref(
+  GROUND_STATIONS.map((station) => ({
+    ...station,
+    x: -9999,
+    y: -9999,
+    visible: false
+  }))
+)
 const CLASSIC_OCEAN = [4, 19, 31]
 const CLASSIC_LAND = [19, 37, 66]
 const CLASSIC_COAST = [41, 105, 132]
@@ -461,53 +480,6 @@ function getGroundStationPosition(station: typeof GROUND_STATIONS[number], heigh
   return Cesium.Cartesian3.fromDegrees(station.lon, station.lat, height)
 }
 
-function createGroundStationSprite(isControl: boolean) {
-  const canvas = document.createElement('canvas')
-  canvas.width = 96
-  canvas.height = 96
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return ''
-
-  const color = isControl ? '#ffd84d' : '#2df6a3'
-  const glow = isControl ? 'rgba(255, 216, 77, 0.34)' : 'rgba(45, 246, 163, 0.32)'
-  const cx = 48
-  const cy = 48
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
-  const halo = ctx.createRadialGradient(cx, cy, 4, cx, cy, 45)
-  halo.addColorStop(0, glow)
-  halo.addColorStop(0.48, glow)
-  halo.addColorStop(1, 'rgba(0, 0, 0, 0)')
-  ctx.fillStyle = halo
-  ctx.beginPath()
-  ctx.arc(cx, cy, 45, 0, Math.PI * 2)
-  ctx.fill()
-
-  ctx.fillStyle = 'rgba(4, 17, 31, 0.94)'
-  ctx.beginPath()
-  ctx.arc(cx, cy, isControl ? 20 : 17, 0, Math.PI * 2)
-  ctx.fill()
-
-  ctx.lineWidth = isControl ? 7 : 6
-  ctx.strokeStyle = color
-  ctx.beginPath()
-  ctx.arc(cx, cy, isControl ? 19 : 16, 0, Math.PI * 2)
-  ctx.stroke()
-
-  ctx.fillStyle = color
-  ctx.beginPath()
-  ctx.arc(cx, cy, isControl ? 7 : 6, 0, Math.PI * 2)
-  ctx.fill()
-
-  ctx.lineWidth = 2
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.64)'
-  ctx.beginPath()
-  ctx.arc(cx, cy, isControl ? 28 : 24, 0, Math.PI * 2)
-  ctx.stroke()
-
-  return canvas.toDataURL('image/png')
-}
-
 function buildGroundLinkArcPositions(
   station: typeof GROUND_STATIONS[number],
   sat: any,
@@ -524,63 +496,44 @@ function buildGroundLinkArcPositions(
   return [start, midpoint, end]
 }
 
+function updateGroundStationMarkers() {
+  const v = cesiumViewer
+  if (!v || v.isDestroyed()) return
+
+  const canvas = v.scene.canvas
+  const cameraPosition = v.camera.positionWC
+  groundStationMarkers.value = GROUND_STATIONS.map((station) => {
+    const world = getGroundStationPosition(station, 180000)
+    const surface = getGroundStationPosition(station, 0)
+    const screen = Cesium.SceneTransforms.worldToWindowCoordinates(v.scene, world)
+    const normal = Cesium.Cartesian3.normalize(surface, new Cesium.Cartesian3())
+    const toCamera = Cesium.Cartesian3.normalize(
+      Cesium.Cartesian3.subtract(cameraPosition, surface, new Cesium.Cartesian3()),
+      new Cesium.Cartesian3()
+    )
+    const frontFacing = Cesium.Cartesian3.dot(normal, toCamera) > 0.02
+    const visible =
+      Boolean(screen) &&
+      frontFacing &&
+      screen!.x >= -80 &&
+      screen!.x <= canvas.clientWidth + 80 &&
+      screen!.y >= -80 &&
+      screen!.y <= canvas.clientHeight + 80
+
+    return {
+      ...station,
+      x: screen ? screen.x : -9999,
+      y: screen ? screen.y : -9999,
+      visible
+    }
+  })
+}
+
 function buildGroundNetwork(v: Cesium.Viewer) {
   if (!cesiumStartTime) return
 
-  if (!groundControlSpriteImage) groundControlSpriteImage = createGroundStationSprite(true)
-  if (!groundBoundarySpriteImage) groundBoundarySpriteImage = createGroundStationSprite(false)
-
-  const activeStations = new Set<string>()
   const activeCables = new Set<string>()
   const activeGroundLinks = new Set<string>()
-
-  GROUND_STATIONS.forEach((station) => {
-    activeStations.add(station.id)
-    const isControl = station.kind === 'control'
-    let entity = cesiumGroundStationEntities.get(station.id)
-    if (!entity) {
-      entity = v.entities.add({
-        id: `ground-${station.id}`,
-        name: station.name,
-        position: getGroundStationPosition(station),
-        billboard: {
-          image: isControl ? groundControlSpriteImage : groundBoundarySpriteImage,
-          width: isControl ? 34 : 28,
-          height: isControl ? 34 : 28,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,
-          horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-          verticalOrigin: Cesium.VerticalOrigin.CENTER,
-          scaleByDistance: new Cesium.NearFarScalar(5000000, 1.25, 90000000, 0.78)
-        },
-        label: {
-          text: station.name,
-          font: '700 12px "Microsoft YaHei", sans-serif',
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          fillColor: Cesium.Color.WHITE.withAlpha(0.96),
-          outlineColor: Cesium.Color.fromCssColorString('#020713').withAlpha(0.85),
-          outlineWidth: 3,
-          pixelOffset: new Cesium.Cartesian2(0, isControl ? -32 : -28),
-          horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          disableDepthTestDistance: Number.POSITIVE_INFINITY,
-          scaleByDistance: new Cesium.NearFarScalar(5000000, 1, 90000000, 0.58)
-        }
-      })
-      cesiumGroundStationEntities.set(station.id, entity)
-    } else {
-      entity.position = new Cesium.ConstantPositionProperty(getGroundStationPosition(station))
-      if (entity.billboard) {
-        entity.billboard.image = new Cesium.ConstantProperty(isControl ? groundControlSpriteImage : groundBoundarySpriteImage)
-        entity.billboard.width = new Cesium.ConstantProperty(isControl ? 34 : 28)
-        entity.billboard.height = new Cesium.ConstantProperty(isControl ? 34 : 28)
-        entity.billboard.disableDepthTestDistance = new Cesium.ConstantProperty(Number.POSITIVE_INFINITY)
-      }
-      if (entity.label) {
-        entity.label.text = new Cesium.ConstantProperty(station.name)
-        entity.label.pixelOffset = new Cesium.ConstantProperty(new Cesium.Cartesian2(0, isControl ? -32 : -28))
-      }
-    }
-  })
 
   const controlStation = GROUND_STATIONS[0]
   GROUND_STATIONS.slice(1).forEach((station) => {
@@ -681,12 +634,6 @@ function buildGroundNetwork(v: Cesium.Viewer) {
     })
   })
 
-  cesiumGroundStationEntities.forEach((entity, id) => {
-    if (!activeStations.has(id)) {
-      v.entities.remove(entity)
-      cesiumGroundStationEntities.delete(id)
-    }
-  })
   cesiumGroundCableEntities.forEach((entity, id) => {
     if (!activeCables.has(id)) {
       v.entities.remove(entity)
@@ -1430,10 +1377,18 @@ async function initCesiumImagery() {
     }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
 
+  v.scene.postRender.addEventListener(updateGroundStationMarkers)
+  removeGroundMarkerRenderHook = () => {
+    if (!v.isDestroyed()) {
+      v.scene.postRender.removeEventListener(updateGroundStationMarkers)
+    }
+  }
+
   window.setTimeout(() => {
     v.resize()
     applyCesiumEarthStyle()
     buildCesiumSatellites()
+    updateGroundStationMarkers()
   }, 100)
 }
 
@@ -1739,6 +1694,10 @@ onBeforeUnmount(() => {
     cesiumClickHandler.destroy()
     cesiumClickHandler = null
   }
+  if (removeGroundMarkerRenderHook) {
+    removeGroundMarkerRenderHook()
+    removeGroundMarkerRenderHook = null
+  }
   if (cesiumViewer && !cesiumViewer.isDestroyed()) {
     cesiumViewer.destroy()
   }
@@ -1750,7 +1709,6 @@ onBeforeUnmount(() => {
   cesiumSatelliteEntities.clear()
   cesiumOrbitEntities.clear()
   cesiumLinkEntities.clear()
-  cesiumGroundStationEntities.clear()
   cesiumGroundCableEntities.clear()
   cesiumGroundLinkEntities.clear()
 })
@@ -1841,6 +1799,73 @@ onBeforeUnmount(() => {
 .cesium-imagery-layer :deep(.cesium-viewer-animationContainer),
 .cesium-imagery-layer :deep(.cesium-viewer-timelineContainer) {
   display: none !important;
+}
+
+.ground-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.ground-marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.14s ease;
+  will-change: left, top, opacity;
+}
+
+.ground-marker.visible {
+  opacity: 1;
+}
+
+.ground-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: block;
+  background:
+    radial-gradient(circle at 50% 50%, #ffffff 0 15%, #ffd84d 17% 44%, rgba(255, 216, 77, 0.18) 46% 100%);
+  border: 3px solid rgba(5, 17, 31, 0.96);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.62),
+    0 0 18px rgba(255, 216, 77, 0.46),
+    0 8px 22px rgba(0, 0, 0, 0.36);
+}
+
+.ground-marker.boundary .ground-dot {
+  width: 24px;
+  height: 24px;
+  background:
+    radial-gradient(circle at 50% 50%, #ffffff 0 14%, #2df6a3 17% 46%, rgba(45, 246, 163, 0.18) 48% 100%);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.5),
+    0 0 16px rgba(45, 246, 163, 0.42),
+    0 8px 22px rgba(0, 0, 0, 0.34);
+}
+
+.ground-marker b {
+  max-width: 96px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(116, 186, 255, 0.24);
+  background: rgba(3, 11, 22, 0.72);
+  color: #eef8ff;
+  font-size: 11px;
+  line-height: 1.15;
+  font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
 }
 
 .action-btns {
