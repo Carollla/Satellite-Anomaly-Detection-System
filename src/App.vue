@@ -428,8 +428,8 @@ const currentTitle = computed(() => {
               <el-collapse-item name="trace">
                 <template #title>
                   <div class="helper-reasoning-title">
-                    <strong>思考过程与工具链</strong>
-                    <span>{{ msg.tools?.length || 0 }} 个工具</span>
+                    <strong>思考过程 / 工具利用链</strong>
+                    <span>点击展开 · {{ msg.tools?.length || 0 }} 个工具</span>
                   </div>
                 </template>
                 <div class="helper-reasoning-body">
@@ -442,6 +442,10 @@ const currentTitle = computed(() => {
                       <strong>{{ tool.tool }}</strong>
                       <span>{{ tool.result }}</span>
                     </div>
+                  </div>
+                  <div v-else class="helper-tool-item">
+                    <strong>未调用实时工具</strong>
+                    <span>本轮按通用模型能力或已有上下文直接生成回答。</span>
                   </div>
                 </div>
               </el-collapse-item>

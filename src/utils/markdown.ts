@@ -10,6 +10,12 @@ const md = new MarkdownIt({
 const defaultRender =
   md.renderer.rules.link_open ||
   ((tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options))
+const defaultTableOpen =
+  md.renderer.rules.table_open ||
+  ((tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options))
+const defaultTableClose =
+  md.renderer.rules.table_close ||
+  ((tokens, idx, options, _env, self) => self.renderToken(tokens, idx, options))
 
 md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
   const token = tokens[idx]
@@ -25,6 +31,14 @@ md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
   return defaultRender(tokens, idx, options, env, self)
 }
 
+md.renderer.rules.table_open = (tokens, idx, options, env, self) => {
+  return `<div class="md-table-wrap">${defaultTableOpen(tokens, idx, options, env, self)}`
+}
+
+md.renderer.rules.table_close = (tokens, idx, options, env, self) => {
+  return `${defaultTableClose(tokens, idx, options, env, self)}</div>`
+}
+
 function escapeHtml(value: string) {
   return value
     .replace(/&/g, '&amp;')
@@ -36,10 +50,14 @@ function escapeHtml(value: string) {
 
 function normalizeSource(source: string) {
   const raw = String(source || '')
-  const withLineBreaks = raw.includes('\n') ? raw : raw.replace(/\\n/g, '\n')
-  return withLineBreaks
+  return raw
+    .replace(/\\r\\n/g, '\n')
+    .replace(/\\n/g, '\n')
+    .replace(/\\t/g, '  ')
+    .replace(/\\u([0-9a-fA-F]{4})/g, (_match, hex) => String.fromCharCode(parseInt(hex, 16)))
     .replace(/\r\n/g, '\n')
     .replace(/\r/g, '\n')
+    .replace(/\\([`*_{}#+\-.!|>])/g, '$1')
 }
 
 export function renderMarkdown(source: string) {

@@ -71,8 +71,8 @@
             <el-collapse-item name="trace">
               <template #title>
                 <div class="reasoning-title">
-                  <strong>思考过程与工具链</strong>
-                  <el-tag size="small" type="info">默认折叠</el-tag>
+                  <strong>思考过程 / 工具利用链</strong>
+                  <el-tag size="small" type="info">点击展开</el-tag>
                   <span>{{ latestTools.length }} 个工具</span>
                 </div>
               </template>
@@ -86,6 +86,10 @@
                     <strong>{{ tool.tool }}</strong>
                     <span>{{ tool.result }}</span>
                   </div>
+                </div>
+                <div v-else class="tool-item empty-tool">
+                  <strong>未调用实时工具</strong>
+                  <span>本轮按通用模型能力或已有上下文直接生成回答。</span>
                 </div>
               </div>
             </el-collapse-item>

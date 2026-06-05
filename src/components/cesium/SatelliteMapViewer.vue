@@ -515,10 +515,10 @@ function updateGroundStationMarkers() {
     const visible =
       Boolean(screen) &&
       frontFacing &&
-      screen!.x >= -80 &&
-      screen!.x <= canvas.clientWidth + 80 &&
-      screen!.y >= -80 &&
-      screen!.y <= canvas.clientHeight + 80
+      screen!.x >= 18 &&
+      screen!.x <= canvas.clientWidth - 18 &&
+      screen!.y >= 18 &&
+      screen!.y <= canvas.clientHeight - 18
 
     return {
       ...station,
@@ -1818,7 +1818,8 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 5px;
   opacity: 0;
-  transform: translate(-50%, -50%);
+  width: 116px;
+  transform: translate(-50%, -14px);
   transition: opacity 0.14s ease;
   will-change: left, top, opacity;
 }
@@ -1828,6 +1829,7 @@ onBeforeUnmount(() => {
 }
 
 .ground-dot {
+  flex: 0 0 auto;
   width: 28px;
   height: 28px;
   border-radius: 50%;
