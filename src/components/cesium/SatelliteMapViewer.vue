@@ -511,14 +511,14 @@ function updateGroundStationMarkers() {
       Cesium.Cartesian3.subtract(cameraPosition, surface, new Cesium.Cartesian3()),
       new Cesium.Cartesian3()
     )
-    const frontFacing = Cesium.Cartesian3.dot(normal, toCamera) > 0.02
+    const frontFacing = Cesium.Cartesian3.dot(normal, toCamera) > 0.18
     const visible =
       Boolean(screen) &&
       frontFacing &&
-      screen!.x >= 18 &&
-      screen!.x <= canvas.clientWidth - 18 &&
-      screen!.y >= 18 &&
-      screen!.y <= canvas.clientHeight - 18
+      screen!.x >= 42 &&
+      screen!.x <= canvas.clientWidth - 42 &&
+      screen!.y >= 42 &&
+      screen!.y <= canvas.clientHeight - 42
 
     return {
       ...station,
@@ -1813,13 +1813,17 @@ onBeforeUnmount(() => {
   position: absolute;
   left: 0;
   top: 0;
+  --ground-size: 34px;
+  --ground-color: #ffd84d;
+  --ground-glow: rgba(255, 216, 77, 0.42);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 5px;
   opacity: 0;
-  width: 116px;
-  transform: translate(-50%, -14px);
+  width: 132px;
+  overflow: visible;
+  transform: translate(-50%, calc(var(--ground-size) / -2));
   transition: opacity 0.14s ease;
   will-change: left, top, opacity;
 }
@@ -1830,28 +1834,33 @@ onBeforeUnmount(() => {
 
 .ground-dot {
   flex: 0 0 auto;
-  width: 28px;
-  height: 28px;
+  position: relative;
+  width: var(--ground-size);
+  height: var(--ground-size);
+  box-sizing: border-box;
   border-radius: 50%;
   display: block;
+  overflow: visible;
   background:
-    radial-gradient(circle at 50% 50%, #ffffff 0 15%, #ffd84d 17% 44%, rgba(255, 216, 77, 0.18) 46% 100%);
-  border: 3px solid rgba(5, 17, 31, 0.96);
+    radial-gradient(circle at 50% 50%, #ffffff 0 12%, var(--ground-color) 14% 43%, rgba(255, 255, 255, 0.24) 45% 47%, rgba(5, 17, 31, 0.96) 49% 57%, rgba(255, 255, 255, 0.86) 59% 64%, transparent 66%);
+  border: 0;
   box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.62),
-    0 0 18px rgba(255, 216, 77, 0.46),
+    0 0 18px var(--ground-glow),
     0 8px 22px rgba(0, 0, 0, 0.36);
 }
 
+.ground-dot::after {
+  content: '';
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
 .ground-marker.boundary .ground-dot {
-  width: 24px;
-  height: 24px;
-  background:
-    radial-gradient(circle at 50% 50%, #ffffff 0 14%, #2df6a3 17% 46%, rgba(45, 246, 163, 0.18) 48% 100%);
-  box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.5),
-    0 0 16px rgba(45, 246, 163, 0.42),
-    0 8px 22px rgba(0, 0, 0, 0.34);
+  --ground-size: 30px;
+  --ground-color: #2df6a3;
+  --ground-glow: rgba(45, 246, 163, 0.42);
 }
 
 .ground-marker b {

@@ -47,7 +47,10 @@
             <strong>{{ testResult?.model || form.model || '未测试' }}</strong>
             <em>{{ testResult?.endpoint || form.endpoint }}</em>
           </div>
-          <p>{{ testResult?.reply || '点击连通性测试验证协调器模型服务是否可用。' }}</p>
+          <div
+            class="test-reply markdown-body"
+            v-html="renderMarkdown(testResult?.reply || '点击连通性测试验证协调器模型服务是否可用。')"
+          ></div>
         </div>
       </main>
 
@@ -110,7 +113,7 @@
           <el-button size="small" type="primary" :loading="generating" @click="generateSample">生成</el-button>
         </div>
         <el-input v-model="prompt" type="textarea" :rows="2" resize="none" class="prompt-input" />
-        <pre class="output-box">{{ generatedText }}</pre>
+        <div class="output-box markdown-body" v-html="renderMarkdown(generatedText || '等待生成结果。')"></div>
       </section>
     </section>
   </div>
@@ -121,6 +124,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { llmApi } from '../api'
 import type { LlmStatus, LlmTestResult } from '../api/types'
+import { renderMarkdown } from '../utils/markdown'
 
 const loading = ref(false)
 const saving = ref(false)
@@ -399,9 +403,8 @@ function seedStatus(): LlmStatus {
 .metric-card em,
 .engine-card span,
 .engine-card em,
-.test-result span,
-.test-result em,
-.test-result p,
+.test-result > div > span,
+.test-result > div > em,
 .switch-row span {
   color: var(--vscode-text-muted);
   font-size: 12px;
@@ -505,9 +508,8 @@ function seedStatus(): LlmStatus {
 
 .engine-card span,
 .engine-card em,
-.test-result span,
-.test-result em,
-.test-result p {
+.test-result > div > span,
+.test-result > div > em {
   display: block;
   margin-top: 6px;
   font-style: normal;
@@ -535,11 +537,15 @@ function seedStatus(): LlmStatus {
   white-space: nowrap;
 }
 
-.test-result p {
+.test-reply {
   align-self: center;
   margin: 0;
+  min-width: 0;
+  max-height: 88px;
   line-height: 1.6;
-  white-space: normal;
+  overflow: auto;
+  color: var(--vscode-text);
+  font-size: 12px;
 }
 
 .config-form {
@@ -649,9 +655,47 @@ function seedStatus(): LlmStatus {
   border-radius: 8px;
   background: var(--vscode-bg);
   color: var(--vscode-text);
-  white-space: pre-wrap;
   line-height: 1.6;
-  overflow: hidden;
+  overflow: auto;
+}
+
+.markdown-body {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.markdown-body :deep(p) {
+  margin: 6px 0;
+}
+
+.markdown-body :deep(ul),
+.markdown-body :deep(ol) {
+  margin: 6px 0;
+  padding-left: 18px;
+}
+
+.markdown-body :deep(code) {
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--vscode-hover) 82%, #2563eb);
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+}
+
+.markdown-body :deep(.md-table-wrap) {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.markdown-body :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.markdown-body :deep(th),
+.markdown-body :deep(td) {
+  padding: 6px 8px;
+  border: 1px solid var(--vscode-border);
 }
 
 .full {

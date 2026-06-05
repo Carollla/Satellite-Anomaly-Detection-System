@@ -250,6 +250,30 @@ function buildHelperReasoning(
   ]
 }
 
+function getHelperReasoning(msg: HelperMessage): ReasoningStep[] {
+  if (msg.reasoning?.length) return msg.reasoning
+  if (msg.role !== 'assistant') return []
+  const label = msg.targetLabel || '统一 Agent'
+  const answerLength = msg.content.replace(/\s+/g, '').length
+  return [
+    {
+      label: '任务识别',
+      detail: `${label} 已接收并分类当前问题，判断需要平台上下文、工具结果还是通用模型能力。`,
+      tone: 'blue'
+    },
+    {
+      label: '上下文利用',
+      detail: '如果后端没有返回工具轨迹，前端会展示本轮统一 Agent 的可解释执行摘要。',
+      tone: 'green'
+    },
+    {
+      label: '答案生成',
+      detail: `回答已按 Markdown 渲染，当前正文长度约 ${answerLength} 字。`,
+      tone: 'violet'
+    }
+  ]
+}
+
 async function sendHelper() {
   const question = helperInput.value.trim()
   if (!question || helperSending.value) return
@@ -424,18 +448,17 @@ const currentTitle = computed(() => {
           >
             <div class="msg-role">{{ msg.role === 'user' ? '用户' : msg.targetLabel || '助手' }}</div>
             <div class="msg-content markdown-body" v-html="renderMessage(msg.content)"></div>
-            <el-collapse v-if="msg.reasoning?.length" class="helper-reasoning">
-              <el-collapse-item name="trace">
-                <template #title>
-                  <div class="helper-reasoning-title">
-                    <strong>思考过程 / 工具利用链</strong>
-                    <span>点击展开 · {{ msg.tools?.length || 0 }} 个工具</span>
-                  </div>
-                </template>
+            <details v-if="msg.role === 'assistant'" class="helper-reasoning">
+              <summary class="helper-reasoning-title">
+                <strong>思考过程 / 工具利用链</strong>
+                <span>点击展开 · {{ msg.tools?.length || 0 }} 个工具</span>
+              </summary>
                 <div class="helper-reasoning-body">
-                  <div v-for="step in msg.reasoning" :key="step.label" class="helper-reasoning-step" :class="step.tone">
-                    <span>{{ step.label }}</span>
-                    <p>{{ step.detail }}</p>
+                  <div class="helper-reasoning-timeline">
+                    <div v-for="step in getHelperReasoning(msg)" :key="step.label" class="helper-reasoning-step" :class="step.tone">
+                      <span>{{ step.label }}</span>
+                      <p>{{ step.detail }}</p>
+                    </div>
                   </div>
                   <div v-if="msg.tools?.length" class="helper-tool-list">
                     <div v-for="tool in msg.tools" :key="`${tool.tool}-${tool.result}`" class="helper-tool-item">
@@ -448,8 +471,7 @@ const currentTitle = computed(() => {
                     <span>本轮按通用模型能力或已有上下文直接生成回答。</span>
                   </div>
                 </div>
-              </el-collapse-item>
-            </el-collapse>
+            </details>
           </div>
         </div>
         <div class="chat-input-area">
@@ -1020,33 +1042,44 @@ html.dark .workspace-content .ops-page {
 .helper-reasoning {
   margin-top: 8px;
   border: 1px solid color-mix(in srgb, var(--vscode-border) 78%, #2563eb);
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--vscode-bg) 86%, transparent);
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.12), transparent 52%),
+    color-mix(in srgb, var(--vscode-bg) 88%, transparent);
   overflow: hidden;
 }
 
-.helper-reasoning :deep(.el-collapse-item__header) {
-  height: 34px;
-  padding: 0 10px;
-  border-bottom: 0;
-  background: transparent;
+.helper-reasoning summary {
+  list-style: none;
 }
 
-.helper-reasoning :deep(.el-collapse-item__wrap) {
-  border-bottom: 0;
-  background: transparent;
+.helper-reasoning summary::-webkit-details-marker {
+  display: none;
 }
 
-.helper-reasoning :deep(.el-collapse-item__content) {
-  padding: 0 10px 10px;
+.helper-reasoning[open] .helper-reasoning-title {
+  border-bottom: 1px solid var(--vscode-border);
 }
 
 .helper-reasoning-title {
   min-width: 0;
   width: 100%;
+  height: 40px;
+  padding: 0 12px;
   display: flex;
   align-items: center;
   gap: 8px;
+  cursor: pointer;
+}
+
+.helper-reasoning-title::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.14), 0 0 14px rgba(34, 197, 94, 0.42);
 }
 
 .helper-reasoning-title strong,
@@ -1067,35 +1100,68 @@ html.dark .workspace-content .ops-page {
 }
 
 .helper-reasoning-body {
-  max-height: 220px;
+  max-height: 260px;
   overflow: auto;
   display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(160px, 0.9fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+.helper-reasoning-timeline {
+  position: relative;
+  min-width: 0;
+  display: grid;
   gap: 8px;
+  padding-left: 6px;
+}
+
+.helper-reasoning-timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 18px;
+  bottom: 18px;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.65), rgba(124, 58, 237, 0.26));
 }
 
 .helper-reasoning-step,
 .helper-tool-item {
+  position: relative;
   min-width: 0;
-  padding: 8px 10px;
+  padding: 9px 10px 9px 14px;
   border: 1px solid var(--vscode-border);
-  border-radius: 9px;
+  border-radius: 10px;
   background: color-mix(in srgb, var(--vscode-sidebar-bg) 76%, transparent);
 }
 
 .helper-reasoning-step {
-  border-left: 3px solid #2563eb;
+  border-left: 0;
 }
 
-.helper-reasoning-step.green {
-  border-left-color: #16a34a;
+.helper-reasoning-step::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 14px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid #2563eb;
+  border-radius: 50%;
+  background: var(--vscode-sidebar-bg);
 }
 
-.helper-reasoning-step.amber {
-  border-left-color: #f59e0b;
+.helper-reasoning-step.green::before {
+  border-color: #16a34a;
 }
 
-.helper-reasoning-step.violet {
-  border-left-color: #7c3aed;
+.helper-reasoning-step.amber::before {
+  border-color: #f59e0b;
+}
+
+.helper-reasoning-step.violet::before {
+  border-color: #7c3aed;
 }
 
 .helper-reasoning-step span,
@@ -1118,6 +1184,17 @@ html.dark .workspace-content .ops-page {
 .helper-tool-list {
   display: grid;
   gap: 7px;
+}
+
+.helper-tool-list,
+.helper-tool-item {
+  align-self: start;
+}
+
+@media (max-width: 1180px) {
+  .helper-reasoning-body {
+    grid-template-columns: 1fr;
+  }
 }
 
 .markdown-body {

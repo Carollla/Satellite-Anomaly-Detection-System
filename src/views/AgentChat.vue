@@ -67,19 +67,18 @@
             <strong>诊断结论</strong>
             <span>{{ latestAssistantMessage?.time || '-' }}</span>
           </div>
-          <el-collapse v-if="latestReasoning.length" v-model="openReasoning" class="reasoning-collapse">
-            <el-collapse-item name="trace">
-              <template #title>
-                <div class="reasoning-title">
-                  <strong>思考过程 / 工具利用链</strong>
-                  <el-tag size="small" type="info">点击展开</el-tag>
-                  <span>{{ latestTools.length }} 个工具</span>
-                </div>
-              </template>
+          <details v-if="latestAssistantMessage" class="reasoning-collapse">
+            <summary class="reasoning-title">
+              <strong>思考过程 / 工具利用链</strong>
+              <el-tag size="small" type="info">点击展开</el-tag>
+              <span>{{ latestTools.length }} 个工具</span>
+            </summary>
               <div class="reasoning-body">
-                <div v-for="step in latestReasoning" :key="step.label" class="reasoning-step" :class="step.tone">
-                  <span>{{ step.label }}</span>
-                  <p>{{ step.detail }}</p>
+                <div class="reasoning-timeline">
+                  <div v-for="step in latestReasoning" :key="step.label" class="reasoning-step" :class="step.tone">
+                    <span>{{ step.label }}</span>
+                    <p>{{ step.detail }}</p>
+                  </div>
                 </div>
                 <div v-if="latestTools.length" class="tool-chain">
                   <div v-for="tool in latestTools" :key="`${tool.tool}-${tool.result}`" class="tool-item">
@@ -92,8 +91,7 @@
                   <span>本轮按通用模型能力或已有上下文直接生成回答。</span>
                 </div>
               </div>
-            </el-collapse-item>
-          </el-collapse>
+          </details>
           <div class="answer-text markdown-body" v-html="latestAnswerHtml"></div>
           <div class="suggestions">
             <el-tag v-for="item in latestSuggestions" :key="item" size="small">{{ item }}</el-tag>
@@ -265,7 +263,6 @@ const continueTrace = ref(true)
 const agentType = ref('coordinator')
 const message = ref('')
 const currentTraceId = ref('')
-const openReasoning = ref<string[]>([])
 const status = ref<AgentStatus | null>(null)
 const trace = ref<TraceDetail | null>(null)
 const approvals = ref<ApprovalRequest[]>([])
@@ -313,7 +310,11 @@ const latestAssistantMessage = computed(() => messages.value.find((item) => item
 const latestAnswer = computed(() => latestAssistantMessage.value?.content || '等待诊断结果')
 const latestAnswerHtml = computed(() => renderMarkdown(latestAnswer.value))
 const latestSuggestions = computed(() => latestAssistantMessage.value?.suggestions || [])
-const latestReasoning = computed(() => latestAssistantMessage.value?.reasoning || [])
+const latestReasoning = computed(() =>
+  latestAssistantMessage.value?.reasoning?.length
+    ? latestAssistantMessage.value.reasoning
+    : buildFallbackReasoning(latestAnswer.value)
+)
 const latestTools = computed(() => latestAssistantMessage.value?.tools || [])
 const traceRows = computed(() => trace.value?.plan?.slice(0, 4) || [])
 const pipelineStages = computed(() => {
@@ -363,6 +364,27 @@ function normalizeTools(actions: any[] = []) {
     tool: String(action?.tool || action?.name || 'tool'),
     result: toOneLine(action?.result ?? action?.status ?? action)
   }))
+}
+
+function buildFallbackReasoning(content: string): ReasoningStep[] {
+  const answerLength = content.replace(/\s+/g, '').length
+  return [
+    {
+      label: '任务识别',
+      detail: `已接收当前问题，并将其归类为运维问答、平台机制解释、代码问题或通用知识问题。`,
+      tone: 'blue'
+    },
+    {
+      label: '上下文利用',
+      detail: '本轮没有后端返回的工具轨迹时，前端展示统一 Agent 的可解释执行摘要。',
+      tone: 'green'
+    },
+    {
+      label: '答案生成',
+      detail: `回答正文已按 Markdown 渲染，当前可见内容长度约 ${answerLength} 字。`,
+      tone: 'violet'
+    }
+  ]
 }
 
 function buildReasoningSteps(
@@ -560,7 +582,6 @@ async function sendMessage() {
       traceId: traceAcceptance.trace_id,
       grounding: chatReply.grounding
     })
-    openReasoning.value = []
     message.value = ''
     await loadApprovals()
   } catch (error: any) {
@@ -884,33 +905,45 @@ usePolling(refreshAll, 20000, true)
 .reasoning-collapse {
   min-width: 0;
   border: 1px solid color-mix(in srgb, var(--vscode-border) 76%, #2563eb);
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--vscode-sidebar-bg) 86%, transparent);
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.12), transparent 52%),
+    color-mix(in srgb, var(--vscode-sidebar-bg) 88%, transparent);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
   overflow: hidden;
 }
 
-.reasoning-collapse :deep(.el-collapse-item__header) {
-  height: 34px;
-  padding: 0 10px;
-  border-bottom: 0;
-  background: transparent;
+.reasoning-collapse summary {
+  list-style: none;
 }
 
-.reasoning-collapse :deep(.el-collapse-item__wrap) {
-  border-bottom: 0;
-  background: transparent;
+.reasoning-collapse summary::-webkit-details-marker {
+  display: none;
 }
 
-.reasoning-collapse :deep(.el-collapse-item__content) {
-  padding: 0 10px 10px;
+.reasoning-collapse[open] .reasoning-title {
+  border-bottom: 1px solid var(--vscode-border);
 }
 
 .reasoning-title {
   min-width: 0;
   width: 100%;
+  height: 42px;
+  padding: 0 12px;
   display: flex;
   align-items: center;
   gap: 8px;
+  cursor: pointer;
+}
+
+.reasoning-title::before {
+  content: '';
+  flex: 0 0 auto;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.14), 0 0 14px rgba(34, 197, 94, 0.42);
 }
 
 .reasoning-title strong,
@@ -927,35 +960,68 @@ usePolling(refreshAll, 20000, true)
 }
 
 .reasoning-body {
-  max-height: 190px;
+  max-height: 230px;
   overflow: auto;
   display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(190px, 0.8fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+.reasoning-timeline {
+  position: relative;
+  min-width: 0;
+  display: grid;
   gap: 8px;
+  padding-left: 6px;
+}
+
+.reasoning-timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 18px;
+  bottom: 18px;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.65), rgba(124, 58, 237, 0.26));
 }
 
 .reasoning-step,
 .tool-item {
+  position: relative;
   min-width: 0;
-  padding: 8px 10px;
+  padding: 9px 10px 9px 14px;
   border: 1px solid var(--vscode-border);
-  border-radius: 9px;
+  border-radius: 10px;
   background: color-mix(in srgb, var(--vscode-bg) 76%, transparent);
 }
 
 .reasoning-step {
-  border-left: 3px solid #2563eb;
+  border-left: 0;
 }
 
-.reasoning-step.green {
-  border-left-color: #16a34a;
+.reasoning-step::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 14px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid #2563eb;
+  border-radius: 50%;
+  background: var(--vscode-sidebar-bg);
 }
 
-.reasoning-step.amber {
-  border-left-color: #f59e0b;
+.reasoning-step.green::before {
+  border-color: #16a34a;
 }
 
-.reasoning-step.violet {
-  border-left-color: #7c3aed;
+.reasoning-step.amber::before {
+  border-color: #f59e0b;
+}
+
+.reasoning-step.violet::before {
+  border-color: #7c3aed;
 }
 
 .reasoning-step span,
@@ -978,6 +1044,17 @@ usePolling(refreshAll, 20000, true)
 .tool-chain {
   display: grid;
   gap: 7px;
+}
+
+.tool-chain,
+.empty-tool {
+  align-self: start;
+}
+
+@media (max-width: 1180px) {
+  .reasoning-body {
+    grid-template-columns: 1fr;
+  }
 }
 
 .answer-text {
