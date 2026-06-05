@@ -448,6 +448,11 @@ const currentTitle = computed(() => {
           <div class="chat-group-note">
             插件式统一入口。当前所有前端 Agent 接入同一个后端智能体。
           </div>
+          <div class="context-strip">
+            <span>context</span>
+            <strong>{{ currentTitle }}</strong>
+            <em>{{ helperMessages.length }} messages</em>
+          </div>
         </div>
         <div class="chat-messages">
           <div
@@ -502,6 +507,7 @@ const currentTitle = computed(() => {
           />
           <div class="composer-footer">
             <span>Agent Workspace · {{ selectedHelperAgentMeta.label }}</span>
+            <small>Enter 发送 · Shift+Enter 换行</small>
             <el-button type="primary" size="small" class="send-btn" :loading="helperSending" @click="sendHelper">
               发送
             </el-button>
@@ -1108,6 +1114,37 @@ html.dark .workspace-content .ops-page {
   line-height: 1.5;
 }
 
+.context-strip {
+  min-width: 0;
+  min-height: 34px;
+  margin-top: 10px;
+  padding: 7px 9px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 7px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.context-strip span,
+.context-strip em {
+  color: var(--agent-muted);
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 11px;
+  font-style: normal;
+}
+
+.context-strip strong {
+  min-width: 0;
+  color: var(--agent-text);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .chat-messages {
   min-height: 0;
   flex: 1;
@@ -1136,10 +1173,13 @@ html.dark .workspace-content .ops-page {
 
 .assistant-msg .msg-shell {
   border-color: rgba(91, 140, 255, 0.26);
+  margin-right: 18px;
 }
 
 .user-msg .msg-shell {
   background: rgba(31, 41, 55, 0.88);
+  margin-left: 48px;
+  border-color: rgba(148, 163, 184, 0.22);
 }
 
 .msg-role {
@@ -1349,6 +1389,44 @@ html.dark .workspace-content .ops-page {
   word-break: break-word;
 }
 
+.agent-panel .markdown-body,
+.agent-panel .markdown-body strong {
+  color: var(--agent-text);
+}
+
+.agent-panel .markdown-body p:first-child {
+  margin-top: 0;
+}
+
+.agent-panel .markdown-body p:last-child {
+  margin-bottom: 0;
+}
+
+.agent-panel .markdown-body code {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f3f4f6;
+}
+
+.agent-panel .markdown-body pre {
+  border-color: var(--agent-border);
+  background: #0b0d12;
+}
+
+.agent-panel .markdown-body blockquote {
+  border-left-color: var(--agent-accent);
+  background: rgba(91, 140, 255, 0.08);
+  color: var(--agent-muted);
+}
+
+.agent-panel .markdown-body .md-table-wrap {
+  border-color: var(--agent-border);
+}
+
+.agent-panel .markdown-body th,
+.agent-panel .markdown-body td {
+  border-color: var(--agent-border);
+}
+
 .markdown-body h1,
 .markdown-body h2,
 .markdown-body h3,
@@ -1539,6 +1617,13 @@ html.dark .workspace-content .ops-page {
   font-size: 11px;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.composer-footer small {
+  flex: 0 1 auto;
+  color: #6b7280;
+  font-size: 11px;
   white-space: nowrap;
 }
 
