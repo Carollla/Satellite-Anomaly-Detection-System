@@ -402,11 +402,21 @@ const currentTitle = computed(() => {
 
     <aside class="agent-panel" :class="{ 'is-open': agentDrawerVisible }">
       <div class="agent-header">
-        <span class="agent-title">智能运维助手</span>
+        <div class="agent-brand">
+          <span class="cli-mark">CLI</span>
+          <div>
+            <span class="agent-title">智能运维助手</span>
+            <small>插件式 Agent 工作区</small>
+          </div>
+        </div>
         <el-icon class="agent-close" @click="agentDrawerVisible = false"><Close /></el-icon>
       </div>
       <div class="drawer-chat">
         <div class="chat-groups">
+          <div class="chat-session-head">
+            <span>Agent Session</span>
+            <strong>{{ selectedHelperAgentMeta.label }}</strong>
+          </div>
           <div class="chat-group-tabs">
             <button
               class="chat-group-tab"
@@ -436,7 +446,7 @@ const currentTitle = computed(() => {
             </button>
           </div>
           <div class="chat-group-note">
-            当前选中：{{ selectedHelperAgentMeta.label }}。现阶段所有前端 Agent 统一接入同一个后端智能体。
+            插件式统一入口。当前所有前端 Agent 接入同一个后端智能体。
           </div>
         </div>
         <div class="chat-messages">
@@ -446,13 +456,18 @@ const currentTitle = computed(() => {
             class="msg-card"
             :class="msg.role === 'user' ? 'user-msg' : 'assistant-msg'"
           >
-            <div class="msg-role">{{ msg.role === 'user' ? '用户' : msg.targetLabel || '助手' }}</div>
-            <div class="msg-content markdown-body" v-html="renderMessage(msg.content)"></div>
-            <details v-if="msg.role === 'assistant'" class="helper-reasoning">
-              <summary class="helper-reasoning-title">
-                <strong>思考过程 / 工具利用链</strong>
-                <span>点击展开 · {{ msg.tools?.length || 0 }} 个工具</span>
-              </summary>
+            <div class="msg-shell">
+              <div class="msg-role">
+                <span class="role-dot"></span>
+                <strong>{{ msg.role === 'user' ? 'You' : msg.targetLabel || '智能助手' }}</strong>
+                <small>{{ msg.role === 'user' ? 'prompt' : 'agent workspace' }}</small>
+              </div>
+              <div class="msg-content markdown-body" v-html="renderMessage(msg.content)"></div>
+              <details v-if="msg.role === 'assistant'" class="helper-reasoning">
+                <summary class="helper-reasoning-title">
+                  <strong>思考过程 / 工具利用链</strong>
+                  <span>点击展开 · {{ msg.tools?.length || 0 }} 个工具</span>
+                </summary>
                 <div class="helper-reasoning-body">
                   <div class="helper-reasoning-timeline">
                     <div v-for="step in getHelperReasoning(msg)" :key="step.label" class="helper-reasoning-step" :class="step.tone">
@@ -471,19 +486,26 @@ const currentTitle = computed(() => {
                     <span>本轮按通用模型能力或已有上下文直接生成回答。</span>
                   </div>
                 </div>
-            </details>
+              </details>
+            </div>
           </div>
         </div>
         <div class="chat-input-area">
           <el-input
             v-model="helperInput"
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 5 }"
+            resize="none"
             placeholder="输入任意问题，例如：分析当前卫星告警、解释黑板状态或写代码"
             :disabled="helperSending"
-            @keyup.enter="sendHelper"
+            @keydown.enter.exact.prevent="sendHelper"
           />
-          <el-button type="primary" class="send-btn" :loading="helperSending" @click="sendHelper">
-            发送
-          </el-button>
+          <div class="composer-footer">
+            <span>Agent Workspace · {{ selectedHelperAgentMeta.label }}</span>
+            <el-button type="primary" size="small" class="send-btn" :loading="helperSending" @click="sendHelper">
+              发送
+            </el-button>
+          </div>
         </div>
       </div>
     </aside>
@@ -894,43 +916,91 @@ html.dark .workspace-content .ops-page {
 }
 
 .agent-panel {
+  --agent-bg: #0f1117;
+  --agent-surface: #151821;
+  --agent-surface-2: #1b202b;
+  --agent-border: rgba(148, 163, 184, 0.18);
+  --agent-text: #e5e7eb;
+  --agent-muted: #9ca3af;
+  --agent-accent: #5b8cff;
   width: 0;
   flex-shrink: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  background: var(--vscode-sidebar-bg);
+  background:
+    linear-gradient(180deg, rgba(91, 140, 255, 0.08), transparent 18%),
+    var(--agent-bg);
   border-left: 1px solid transparent;
-  box-shadow: -8px 0 24px var(--vscode-shadow);
+  box-shadow: -18px 0 44px rgba(0, 0, 0, 0.24);
   transition: width 0.2s ease, border-color 0.2s ease;
+  color: var(--agent-text);
 }
 
 .agent-panel.is-open {
-  width: 360px;
-  border-left-color: var(--vscode-border);
+  width: 460px;
+  border-left-color: var(--agent-border);
 }
 
 .agent-header {
-  min-width: 360px;
-  height: 56px;
+  min-width: 460px;
+  height: 68px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 18px;
-  border-bottom: 1px solid var(--vscode-border);
+  border-bottom: 1px solid var(--agent-border);
+  background: rgba(15, 17, 23, 0.92);
+}
+
+.agent-brand {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.cli-mark {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 28px;
+  border: 1px solid rgba(229, 231, 235, 0.18);
+  border-radius: 7px;
+  background: #111827;
+  color: #dbe4f0;
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.agent-brand > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
 }
 
 .agent-title {
-  font-weight: 700;
+  color: var(--agent-text);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.agent-brand small {
+  color: var(--agent-muted);
+  font-size: 12px;
 }
 
 .agent-close {
   cursor: pointer;
-  color: var(--vscode-text-muted);
+  color: var(--agent-muted);
 }
 
 .drawer-chat {
-  min-width: 360px;
+  min-width: 460px;
   min-height: 0;
   height: 100%;
   display: flex;
@@ -938,10 +1008,37 @@ html.dark .workspace-content .ops-page {
 }
 
 .chat-groups {
-  min-width: 360px;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--vscode-border);
-  background: color-mix(in srgb, var(--vscode-sidebar-bg) 86%, var(--vscode-primary) 14%);
+  min-width: 460px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--agent-border);
+  background:
+    linear-gradient(135deg, rgba(91, 140, 255, 0.12), transparent 56%),
+    var(--agent-surface);
+}
+
+.chat-session-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.chat-session-head span {
+  color: var(--agent-muted);
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.chat-session-head strong {
+  min-width: 0;
+  color: var(--agent-text);
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chat-group-tabs {
@@ -952,18 +1049,18 @@ html.dark .workspace-content .ops-page {
 
 .chat-group-tab {
   height: 32px;
-  border: 1px solid var(--vscode-border);
-  border-radius: 6px;
-  background: var(--vscode-sidebar-bg);
-  color: var(--vscode-text-muted);
+  border: 1px solid var(--agent-border);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--agent-muted);
   cursor: pointer;
   font-weight: 700;
 }
 
 .chat-group-tab.active {
-  border-color: var(--vscode-primary);
-  background: var(--vscode-primary);
-  color: var(--vscode-primary-text);
+  border-color: rgba(91, 140, 255, 0.72);
+  background: rgba(91, 140, 255, 0.18);
+  color: #f8fbff;
 }
 
 .chat-agent-list {
@@ -979,10 +1076,10 @@ html.dark .workspace-content .ops-page {
   gap: 6px;
   max-width: 100%;
   padding: 6px 8px;
-  border: 1px solid var(--vscode-border);
+  border: 1px solid var(--agent-border);
   border-radius: 6px;
-  background: var(--vscode-sidebar-bg);
-  color: var(--vscode-text);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--agent-text);
   cursor: pointer;
   font-size: 12px;
 }
@@ -995,18 +1092,18 @@ html.dark .workspace-content .ops-page {
 
 .chat-agent-pill small {
   flex-shrink: 0;
-  color: var(--vscode-text-muted);
+  color: var(--agent-muted);
   font-size: 11px;
 }
 
 .chat-agent-pill.active {
-  border-color: var(--vscode-primary);
-  background: var(--vscode-active);
+  border-color: rgba(91, 140, 255, 0.7);
+  background: rgba(91, 140, 255, 0.14);
 }
 
 .chat-group-note {
   margin-top: 8px;
-  color: var(--vscode-text-muted);
+  color: var(--agent-muted);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -1017,35 +1114,84 @@ html.dark .workspace-content .ops-page {
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
-  padding: 18px;
+  padding: 18px 16px;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    var(--agent-bg);
+  background-size: 100% 28px;
 }
 
 .msg-card {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
+}
+
+.msg-shell {
+  position: relative;
+  padding: 12px;
+  border: 1px solid var(--agent-border);
+  border-radius: 10px;
+  background: rgba(21, 24, 33, 0.92);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+.assistant-msg .msg-shell {
+  border-color: rgba(91, 140, 255, 0.26);
+}
+
+.user-msg .msg-shell {
+  background: rgba(31, 41, 55, 0.88);
 }
 
 .msg-role {
-  margin-bottom: 6px;
-  color: var(--vscode-text-muted);
+  margin-bottom: 9px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--agent-muted);
   font-size: 12px;
-  font-weight: 700;
+}
+
+.msg-role strong {
+  color: var(--agent-text);
+  font-weight: 800;
+}
+
+.msg-role small {
+  margin-left: auto;
+  color: var(--agent-muted);
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 11px;
+}
+
+.role-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
+}
+
+.user-msg .role-dot {
+  background: #94a3b8;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.12);
 }
 
 .msg-content {
-  padding: 12px 14px;
-  border: 1px solid var(--vscode-border);
-  border-radius: 12px;
-  background: var(--vscode-bg);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--agent-text);
   line-height: 1.7;
 }
 
 .helper-reasoning {
-  margin-top: 8px;
-  border: 1px solid color-mix(in srgb, var(--vscode-border) 78%, #2563eb);
-  border-radius: 12px;
+  margin-top: 12px;
+  border: 1px solid rgba(91, 140, 255, 0.22);
+  border-radius: 9px;
   background:
-    linear-gradient(135deg, rgba(37, 99, 235, 0.12), transparent 52%),
-    color-mix(in srgb, var(--vscode-bg) 88%, transparent);
+    linear-gradient(135deg, rgba(91, 140, 255, 0.1), transparent 52%),
+    rgba(15, 17, 23, 0.7);
   overflow: hidden;
 }
 
@@ -1078,8 +1224,8 @@ html.dark .workspace-content .ops-page {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.14), 0 0 14px rgba(34, 197, 94, 0.42);
+  background: var(--agent-accent);
+  box-shadow: 0 0 0 4px rgba(91, 140, 255, 0.14), 0 0 14px rgba(91, 140, 255, 0.42);
 }
 
 .helper-reasoning-title strong,
@@ -1095,7 +1241,7 @@ html.dark .workspace-content .ops-page {
 
 .helper-reasoning-title span {
   margin-left: auto;
-  color: var(--vscode-text-muted);
+  color: var(--agent-muted);
   font-size: 12px;
 }
 
@@ -1131,9 +1277,9 @@ html.dark .workspace-content .ops-page {
   position: relative;
   min-width: 0;
   padding: 9px 10px 9px 14px;
-  border: 1px solid var(--vscode-border);
+  border: 1px solid var(--agent-border);
   border-radius: 10px;
-  background: color-mix(in srgb, var(--vscode-sidebar-bg) 76%, transparent);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .helper-reasoning-step {
@@ -1149,7 +1295,7 @@ html.dark .workspace-content .ops-page {
   height: 9px;
   border: 2px solid #2563eb;
   border-radius: 50%;
-  background: var(--vscode-sidebar-bg);
+  background: var(--agent-surface);
 }
 
 .helper-reasoning-step.green::before {
@@ -1175,7 +1321,7 @@ html.dark .workspace-content .ops-page {
 .helper-reasoning-step p,
 .helper-tool-item span {
   margin: 0;
-  color: var(--vscode-text-muted);
+  color: var(--agent-muted);
   font-size: 12px;
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -1356,11 +1502,50 @@ html.dark .workspace-content .ops-page {
 }
 
 .chat-input-area {
-  padding: 16px;
-  border-top: 1px solid var(--vscode-border);
+  padding: 14px;
+  border-top: 1px solid var(--agent-border);
+  background: var(--agent-surface);
 }
 
-.send-btn,
+.chat-input-area :deep(.el-textarea__inner) {
+  min-height: 54px !important;
+  border-color: rgba(148, 163, 184, 0.24);
+  border-radius: 10px;
+  background: #0b0d12;
+  color: var(--agent-text);
+  box-shadow: none;
+  font-family: 'Cascadia Code', 'Consolas', 'Microsoft YaHei', sans-serif;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.chat-input-area :deep(.el-textarea__inner::placeholder) {
+  color: #6b7280;
+}
+
+.composer-footer {
+  height: 32px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.composer-footer span {
+  min-width: 0;
+  color: var(--agent-muted);
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.send-btn {
+  flex: 0 0 auto;
+}
+
 .login-btn {
   width: 100%;
   margin-top: 10px;
