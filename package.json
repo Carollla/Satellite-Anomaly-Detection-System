@@ -14,11 +14,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/markdown-it": "^14.1.2",
     "axios": "^1.7.9",
     "cesium": "^1.138.0",
     "dayjs": "^1.11.19",
     "echarts": "^5.5.1",
     "element-plus": "^2.8.7",
+    "markdown-it": "^14.2.0",
     "pinia": "^2.2.6",
     "three": "^0.183.2",
     "vite-plugin-cesium": "^1.2.23",

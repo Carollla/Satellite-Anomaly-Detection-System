@@ -162,6 +162,8 @@ let realEarthLayer: Cesium.ImageryLayer | null = null
 let classicEarthLayer: Cesium.ImageryLayer | null = null
 let classicSunEntity: Cesium.Entity | null = null
 let satelliteSpriteImage = ''
+let groundControlSpriteImage = ''
+let groundBoundarySpriteImage = ''
 const cesiumSatelliteEntities = new Map<number, Cesium.Entity>()
 const cesiumOrbitEntities = new Map<number, Cesium.Entity>()
 const cesiumLinkEntities = new Map<string, Cesium.Entity>()
@@ -455,8 +457,55 @@ function buildLinkArcPositions(
   return [start, midpoint, end]
 }
 
-function getGroundStationPosition(station: typeof GROUND_STATIONS[number], height = 36000) {
+function getGroundStationPosition(station: typeof GROUND_STATIONS[number], height = 130000) {
   return Cesium.Cartesian3.fromDegrees(station.lon, station.lat, height)
+}
+
+function createGroundStationSprite(isControl: boolean) {
+  const canvas = document.createElement('canvas')
+  canvas.width = 96
+  canvas.height = 96
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return ''
+
+  const color = isControl ? '#ffd84d' : '#2df6a3'
+  const glow = isControl ? 'rgba(255, 216, 77, 0.34)' : 'rgba(45, 246, 163, 0.32)'
+  const cx = 48
+  const cy = 48
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  const halo = ctx.createRadialGradient(cx, cy, 4, cx, cy, 45)
+  halo.addColorStop(0, glow)
+  halo.addColorStop(0.48, glow)
+  halo.addColorStop(1, 'rgba(0, 0, 0, 0)')
+  ctx.fillStyle = halo
+  ctx.beginPath()
+  ctx.arc(cx, cy, 45, 0, Math.PI * 2)
+  ctx.fill()
+
+  ctx.fillStyle = 'rgba(4, 17, 31, 0.94)'
+  ctx.beginPath()
+  ctx.arc(cx, cy, isControl ? 20 : 17, 0, Math.PI * 2)
+  ctx.fill()
+
+  ctx.lineWidth = isControl ? 7 : 6
+  ctx.strokeStyle = color
+  ctx.beginPath()
+  ctx.arc(cx, cy, isControl ? 19 : 16, 0, Math.PI * 2)
+  ctx.stroke()
+
+  ctx.fillStyle = color
+  ctx.beginPath()
+  ctx.arc(cx, cy, isControl ? 7 : 6, 0, Math.PI * 2)
+  ctx.fill()
+
+  ctx.lineWidth = 2
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.64)'
+  ctx.beginPath()
+  ctx.arc(cx, cy, isControl ? 28 : 24, 0, Math.PI * 2)
+  ctx.stroke()
+
+  return canvas.toDataURL('image/png')
 }
 
 function buildGroundLinkArcPositions(
@@ -465,7 +514,7 @@ function buildGroundLinkArcPositions(
   time: Cesium.JulianDate,
   startTime: Cesium.JulianDate
 ) {
-  const start = getGroundStationPosition(station, 72000)
+  const start = getGroundStationPosition(station, 170000)
   const end = getSatellitePosition(sat, time, startTime)
   const midpointVector = Cesium.Cartesian3.add(start, end, new Cesium.Cartesian3())
   if (Cesium.Cartesian3.magnitude(midpointVector) < 1) return [start, end]
@@ -477,6 +526,9 @@ function buildGroundLinkArcPositions(
 
 function buildGroundNetwork(v: Cesium.Viewer) {
   if (!cesiumStartTime) return
+
+  if (!groundControlSpriteImage) groundControlSpriteImage = createGroundStationSprite(true)
+  if (!groundBoundarySpriteImage) groundBoundarySpriteImage = createGroundStationSprite(false)
 
   const activeStations = new Set<string>()
   const activeCables = new Set<string>()
@@ -491,13 +543,14 @@ function buildGroundNetwork(v: Cesium.Viewer) {
         id: `ground-${station.id}`,
         name: station.name,
         position: getGroundStationPosition(station),
-        point: {
-          pixelSize: isControl ? 16 : 12,
-          color: Cesium.Color.fromCssColorString(isControl ? '#ffd84d' : '#2df6a3').withAlpha(0.95),
-          outlineColor: Cesium.Color.fromCssColorString('#05111f').withAlpha(0.96),
-          outlineWidth: 3,
+        billboard: {
+          image: isControl ? groundControlSpriteImage : groundBoundarySpriteImage,
+          width: isControl ? 34 : 28,
+          height: isControl ? 34 : 28,
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
-          scaleByDistance: new Cesium.NearFarScalar(5000000, 1.35, 90000000, 0.75)
+          horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+          verticalOrigin: Cesium.VerticalOrigin.CENTER,
+          scaleByDistance: new Cesium.NearFarScalar(5000000, 1.25, 90000000, 0.78)
         },
         label: {
           text: station.name,
@@ -506,7 +559,7 @@ function buildGroundNetwork(v: Cesium.Viewer) {
           fillColor: Cesium.Color.WHITE.withAlpha(0.96),
           outlineColor: Cesium.Color.fromCssColorString('#020713').withAlpha(0.85),
           outlineWidth: 3,
-          pixelOffset: new Cesium.Cartesian2(0, isControl ? -24 : -21),
+          pixelOffset: new Cesium.Cartesian2(0, isControl ? -32 : -28),
           horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
@@ -516,14 +569,15 @@ function buildGroundNetwork(v: Cesium.Viewer) {
       cesiumGroundStationEntities.set(station.id, entity)
     } else {
       entity.position = new Cesium.ConstantPositionProperty(getGroundStationPosition(station))
-      if (entity.point) {
-        entity.point.pixelSize = new Cesium.ConstantProperty(isControl ? 16 : 12)
-        entity.point.color = new Cesium.ConstantProperty(
-          Cesium.Color.fromCssColorString(isControl ? '#ffd84d' : '#2df6a3').withAlpha(0.95)
-        )
+      if (entity.billboard) {
+        entity.billboard.image = new Cesium.ConstantProperty(isControl ? groundControlSpriteImage : groundBoundarySpriteImage)
+        entity.billboard.width = new Cesium.ConstantProperty(isControl ? 34 : 28)
+        entity.billboard.height = new Cesium.ConstantProperty(isControl ? 34 : 28)
+        entity.billboard.disableDepthTestDistance = new Cesium.ConstantProperty(Number.POSITIVE_INFINITY)
       }
       if (entity.label) {
         entity.label.text = new Cesium.ConstantProperty(station.name)
+        entity.label.pixelOffset = new Cesium.ConstantProperty(new Cesium.Cartesian2(0, isControl ? -32 : -28))
       }
     }
   })
@@ -534,8 +588,8 @@ function buildGroundNetwork(v: Cesium.Viewer) {
     activeCables.add(id)
     let entity = cesiumGroundCableEntities.get(id)
     const positions = Cesium.Cartesian3.fromDegreesArrayHeights([
-      controlStation.lon, controlStation.lat, 18000,
-      station.lon, station.lat, 18000
+      controlStation.lon, controlStation.lat, 90000,
+      station.lon, station.lat, 90000
     ])
     if (!entity) {
       entity = v.entities.add({
