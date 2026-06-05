@@ -21,7 +21,8 @@ import {
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useAuthStore } from './stores/auth'
-import { agentApi } from './api'
+import { agentApi, satopsApi } from './api'
+import type { PendingApproval } from './api/types'
 import logoUrl from './assets/logo.svg'
 import { renderMarkdown } from './utils/markdown'
 
@@ -45,6 +46,7 @@ interface HelperMessage {
   reasoning?: ReasoningStep[]
   tools?: ToolStep[]
   grounding?: Record<string, any>
+  approvals?: PendingApproval[]
 }
 
 interface ReasoningStep {
@@ -63,6 +65,14 @@ interface HelperAgent {
   label: string
   group: 'command' | 'specialist'
   status: string
+}
+
+interface SlashCommand {
+  command: string
+  title: string
+  detail: string
+  prompt?: string
+  route?: string
 }
 
 const route = useRoute()
@@ -86,6 +96,8 @@ const helperMessages = ref<HelperMessage[]>([
   }
 ])
 
+const thinkingSteps = ['解析请求意图', '读取当前页面上下文', '检查工具与权限', '生成回答与动作计划']
+
 const helperAgents: HelperAgent[] = [
   { id: 'coordinator', label: 'L1 总指挥', group: 'command', status: '统一入口' },
   { id: 'planner', label: '任务规划', group: 'command', status: '统一入口' },
@@ -96,10 +108,62 @@ const helperAgents: HelperAgent[] = [
   { id: 'ops', label: '运维专家', group: 'specialist', status: '统一入口' }
 ]
 
+const slashCommands: SlashCommand[] = [
+  {
+    command: '/config',
+    title: '选择配置文件',
+    detail: '打开模型配置页，并使用当前模型配置继续对话',
+    route: '/llm',
+    prompt: '读取当前模型配置，并说明 provider、endpoint、model、权限策略是否可用。'
+  },
+  {
+    command: '/agent',
+    title: '进入 Agent 工作台',
+    detail: '打开异常监测 Agent 页面，查看 Trace、审批和运行配置',
+    route: '/agent',
+    prompt: '汇总当前 Agent 状态、执行链路和待审批动作。'
+  },
+  {
+    command: '/approval',
+    title: '检查授权动作',
+    detail: '查看需要用户授权的高风险卫星操作',
+    route: '/agent',
+    prompt: '检查审批面板中的高风险动作，说明每个动作的目标、风险和是否建议通过。'
+  },
+  {
+    command: '/blackboard',
+    title: '解释黑板状态',
+    detail: '解释 Fact、Hypothesis、Task、Decision、Result 的流转',
+    route: '/blackboard',
+    prompt: '说明黑板状态中 Fact、Hypothesis、Task、Decision、Result 如何流转。'
+  },
+  {
+    command: '/earth',
+    title: '分析星座视图',
+    detail: '结合卫星群、地面站和链路状态进行说明',
+    route: '/earth',
+    prompt: '分析当前卫星群视图中的星座、地面站和链路状态。'
+  },
+  {
+    command: '/clear',
+    title: '清空对话',
+    detail: '清空当前侧边栏消息并保留初始助手',
+    prompt: ''
+  }
+]
+
 const visibleHelperAgents = computed(() => helperAgents.filter((item) => item.group === selectedAgentGroup.value))
 const selectedHelperAgentMeta = computed(
   () => helperAgents.find((item) => item.id === selectedHelperAgent.value) || helperAgents[0]
 )
+const showSlashMenu = computed(() => helperInput.value.trim().startsWith('/'))
+const filteredSlashCommands = computed(() => {
+  const query = helperInput.value.trim().slice(1).toLowerCase()
+  if (!query) return slashCommands
+  return slashCommands.filter((item) =>
+    `${item.command} ${item.title} ${item.detail}`.toLowerCase().includes(query)
+  )
+})
 
 const groups: NavGroup[] = [
   {
@@ -198,6 +262,24 @@ function selectHelperAgent(agentId: string) {
 
 function renderMessage(content: string) {
   return renderMarkdown(content)
+}
+
+function createHelperWelcome(): HelperMessage {
+  return {
+    role: 'assistant',
+    content: '我是卫星智能运维助手。你可以选择上方任意 Agent 发起对话，当前所有 Agent 会先统一接入同一个后端智能体接口。',
+    targetLabel: 'L1 总指挥'
+  }
+}
+
+function applySlashCommand(item: SlashCommand) {
+  if (item.command === '/clear') {
+    helperMessages.value = [createHelperWelcome()]
+    helperInput.value = ''
+    return
+  }
+  if (item.route) router.push(item.route)
+  helperInput.value = item.prompt || `${item.title}：`
 }
 
 function toOneLine(value: any) {
@@ -313,7 +395,8 @@ async function sendHelper() {
       targetLabel: selectedHelperAgentMeta.value.label,
       reasoning: buildHelperReasoning(question, response, selectedHelperAgentMeta.value.label),
       tools: normalizeTools(response.actions_taken),
-      grounding: response.grounding
+      grounding: response.grounding,
+      approvals: response.pending_approvals || []
     })
   } catch (error: any) {
     ElMessage.error(error?.message || '助手请求失败')
@@ -323,6 +406,27 @@ async function sendHelper() {
     })
   } finally {
     helperSending.value = false
+  }
+}
+
+async function decideHelperApproval(approval: PendingApproval, decision: 'approve' | 'reject') {
+  const requestId = (approval as any).request_id || approval.id
+  if (!requestId) {
+    ElMessage.error('缺少审批编号，无法提交授权')
+    return
+  }
+  try {
+    await satopsApi.submitApprovalDecision(requestId, {
+      decision,
+      reason: decision === 'approve' ? '侧边栏用户授权通过' : '侧边栏用户拒绝授权'
+    })
+    helperMessages.value = helperMessages.value.map((msg) => ({
+      ...msg,
+      approvals: msg.approvals?.filter((item) => ((item as any).request_id || item.id) !== requestId)
+    }))
+    ElMessage.success(decision === 'approve' ? '已授权该动作' : '已拒绝该动作')
+  } catch (error: any) {
+    ElMessage.error(error?.message || '审批提交失败')
   }
 }
 
@@ -492,10 +596,51 @@ const currentTitle = computed(() => {
                   </div>
                 </div>
               </details>
+              <div v-if="msg.approvals?.length" class="approval-gate">
+                <div class="approval-gate-head">
+                  <strong>需要用户授权</strong>
+                  <span>{{ msg.approvals.length }} 个动作等待确认</span>
+                </div>
+                <div v-for="approval in msg.approvals" :key="approval.id" class="approval-gate-row">
+                  <div>
+                    <strong>{{ approval.action }}</strong>
+                    <span>{{ approval.target }} · {{ approval.security_level }}</span>
+                  </div>
+                  <div class="approval-actions">
+                    <button @click="decideHelperApproval(approval, 'reject')">拒绝</button>
+                    <button class="primary" @click="decideHelperApproval(approval, 'approve')">授权</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="helperSending" class="msg-card assistant-msg thinking-msg">
+            <div class="msg-shell">
+              <div class="msg-role">
+                <span class="role-dot thinking-dot"></span>
+                <strong>{{ selectedHelperAgentMeta.label }}</strong>
+                <small>thinking</small>
+              </div>
+              <div class="thinking-copy">正在思考，并准备可执行动作...</div>
+              <div class="thinking-steps">
+                <span v-for="step in thinkingSteps" :key="step">{{ step }}</span>
+              </div>
             </div>
           </div>
         </div>
         <div class="chat-input-area">
+          <div v-if="showSlashMenu" class="slash-menu">
+            <button
+              v-for="item in filteredSlashCommands"
+              :key="item.command"
+              @mousedown.prevent="applySlashCommand(item)"
+            >
+              <code>{{ item.command }}</code>
+              <span>{{ item.title }}</span>
+              <small>{{ item.detail }}</small>
+            </button>
+            <div v-if="!filteredSlashCommands.length" class="slash-empty">没有匹配的命令</div>
+          </div>
           <el-input
             v-model="helperInput"
             type="textarea"
@@ -1377,6 +1522,142 @@ html.dark .workspace-content .ops-page {
   align-self: start;
 }
 
+.approval-gate {
+  margin-top: 12px;
+  border: 1px solid rgba(245, 158, 11, 0.34);
+  border-radius: 9px;
+  background: rgba(245, 158, 11, 0.08);
+  overflow: hidden;
+}
+
+.approval-gate-head {
+  min-height: 38px;
+  padding: 9px 11px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border-bottom: 1px solid rgba(245, 158, 11, 0.22);
+}
+
+.approval-gate-head strong {
+  color: #fde68a;
+  font-size: 12px;
+}
+
+.approval-gate-head span {
+  color: var(--agent-muted);
+  font-size: 12px;
+}
+
+.approval-gate-row {
+  min-width: 0;
+  padding: 10px 11px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.approval-gate-row + .approval-gate-row {
+  border-top: 1px solid rgba(245, 158, 11, 0.18);
+}
+
+.approval-gate-row strong,
+.approval-gate-row span {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.approval-gate-row strong {
+  color: var(--agent-text);
+  font-size: 12px;
+}
+
+.approval-gate-row span {
+  margin-top: 3px;
+  color: var(--agent-muted);
+  font-size: 11px;
+}
+
+.approval-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.approval-actions button {
+  height: 26px;
+  padding: 0 9px;
+  border: 1px solid var(--agent-border);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--agent-text);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.approval-actions button.primary {
+  border-color: rgba(245, 158, 11, 0.56);
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+}
+
+.thinking-msg .msg-shell {
+  border-style: dashed;
+  border-color: rgba(209, 213, 219, 0.24);
+  background: rgba(21, 24, 33, 0.72);
+}
+
+.thinking-dot {
+  animation: pulseThinking 1.2s ease-in-out infinite;
+}
+
+.thinking-copy {
+  color: #cbd5e1;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.thinking-steps {
+  margin-top: 10px;
+  display: grid;
+  gap: 7px;
+}
+
+.thinking-steps span {
+  position: relative;
+  padding-left: 18px;
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.thinking-steps span::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(209, 213, 219, 0.74);
+}
+
+@keyframes pulseThinking {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
 @media (max-width: 1180px) {
   .helper-reasoning-body {
     grid-template-columns: 1fr;
@@ -1580,9 +1861,74 @@ html.dark .workspace-content .ops-page {
 }
 
 .chat-input-area {
+  position: relative;
   padding: 14px;
   border-top: 1px solid var(--agent-border);
   background: var(--agent-surface);
+}
+
+.slash-menu {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: calc(100% - 4px);
+  z-index: 20;
+  max-height: 260px;
+  padding: 7px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+  background: #111827;
+  box-shadow: 0 -18px 38px rgba(0, 0, 0, 0.28);
+  overflow: auto;
+}
+
+.slash-menu button {
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 9px;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 0.72fr) minmax(0, 1.2fr);
+  gap: 8px;
+  align-items: center;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--agent-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.slash-menu button:hover {
+  background: rgba(91, 140, 255, 0.14);
+}
+
+.slash-menu code {
+  color: #bfdbfe;
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 12px;
+}
+
+.slash-menu span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.slash-menu small,
+.slash-empty {
+  min-width: 0;
+  color: var(--agent-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+.slash-empty {
+  padding: 12px;
 }
 
 .chat-input-area :deep(.el-textarea__inner) {
