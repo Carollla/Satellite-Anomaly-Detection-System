@@ -184,7 +184,7 @@ const cesiumGroundLinkEntities = new Map<string, Cesium.Entity>()
 const EARTH_RADIUS_METERS = 6378137
 const EARTH_MU = 3.986004418e14
 const EARTH_ROTATION_RAD_PER_SEC = (2 * Math.PI) / 86164.0905
-const NORMAL_SATELLITE_COLOR = '#bff3ff'
+const NORMAL_SATELLITE_COLOR = '#d6dce3'
 const SATELLITE_SCALE_BY_DISTANCE = new Cesium.NearFarScalar(7000000, 1.9, 90000000, 0.82)
 const GROUND_STATIONS = [
   { id: 'mcs', name: 'MCS 主控站', lat: 35, lon: 105, kind: 'control' },
@@ -426,14 +426,14 @@ function satelliteSpriteSize(sat: any, selected = false) {
 }
 
 function satelliteSpriteColor(sat: any, selected = false) {
-  if (selected) return Cesium.Color.fromCssColorString('#eefbff').withAlpha(0.8)
+  if (selected) return Cesium.Color.fromCssColorString('#f3f6f8').withAlpha(0.92)
   if (sat.status === 'warning') return Cesium.Color.fromCssColorString('#ffd36f').withAlpha(0.72)
   if (sat.status === 'danger') return Cesium.Color.fromCssColorString('#ff8f8f').withAlpha(0.72)
-  if (sat.status === 'offline') return Cesium.Color.fromCssColorString('#8a97a3').withAlpha(0.52)
+  if (sat.status === 'offline') return Cesium.Color.fromCssColorString('#aab2bd').withAlpha(0.68)
   const layer = getSatelliteLayer(sat.alt || 0)
-  if (layer === 'GEO') return Cesium.Color.fromCssColorString('#f2dda0').withAlpha(0.66)
-  if (layer === 'MEO') return Cesium.Color.fromCssColorString('#86d2ef').withAlpha(0.7)
-  return Cesium.Color.fromCssColorString('#aee8f4').withAlpha(0.68)
+  if (layer === 'GEO') return Cesium.Color.fromCssColorString('#ded6c2').withAlpha(0.86)
+  if (layer === 'MEO') return Cesium.Color.fromCssColorString('#cbd5df').withAlpha(0.88)
+  return Cesium.Color.fromCssColorString('#d8dee6').withAlpha(0.9)
 }
 
 function getLinkShellKey(sat: any) {
@@ -1021,9 +1021,9 @@ function createSatelliteSprite() {
   ctx.clearRect(0, 0, canvas.width, canvas.height)
 
   const halo = ctx.createRadialGradient(cx, cy, 8, cx, cy, 96)
-  halo.addColorStop(0, 'rgba(70, 220, 255, 0.24)')
-  halo.addColorStop(0.35, 'rgba(48, 120, 255, 0.08)')
-  halo.addColorStop(0.68, 'rgba(124, 92, 255, 0.045)')
+  halo.addColorStop(0, 'rgba(218, 226, 235, 0.28)')
+  halo.addColorStop(0.35, 'rgba(148, 163, 184, 0.12)')
+  halo.addColorStop(0.68, 'rgba(96, 165, 250, 0.055)')
   halo.addColorStop(1, 'rgba(48, 120, 255, 0)')
   ctx.fillStyle = halo
   ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -1031,23 +1031,23 @@ function createSatelliteSprite() {
   const leftPanel = { x: 28, y: 74, w: 96, h: 48 }
   const rightPanel = { x: 196, y: 74, w: 96, h: 48 }
   const panelGradient = ctx.createLinearGradient(28, 74, 124, 122)
-  panelGradient.addColorStop(0, 'rgba(8, 18, 39, 0.98)')
-  panelGradient.addColorStop(0.46, 'rgba(28, 70, 118, 0.94)')
-  panelGradient.addColorStop(1, 'rgba(6, 12, 24, 0.98)')
+  panelGradient.addColorStop(0, 'rgba(50, 57, 68, 0.98)')
+  panelGradient.addColorStop(0.46, 'rgba(88, 101, 116, 0.96)')
+  panelGradient.addColorStop(1, 'rgba(34, 39, 48, 0.98)')
   ctx.fillStyle = panelGradient
   ctx.beginPath()
   ctx.roundRect(leftPanel.x, leftPanel.y, leftPanel.w, leftPanel.h, 7)
   ctx.fill()
   const rightGradient = ctx.createLinearGradient(196, 74, 292, 122)
-  rightGradient.addColorStop(0, 'rgba(6, 12, 24, 0.98)')
-  rightGradient.addColorStop(0.54, 'rgba(28, 70, 118, 0.94)')
-  rightGradient.addColorStop(1, 'rgba(8, 18, 39, 0.98)')
+  rightGradient.addColorStop(0, 'rgba(34, 39, 48, 0.98)')
+  rightGradient.addColorStop(0.54, 'rgba(88, 101, 116, 0.96)')
+  rightGradient.addColorStop(1, 'rgba(50, 57, 68, 0.98)')
   ctx.fillStyle = rightGradient
   ctx.beginPath()
   ctx.roundRect(rightPanel.x, rightPanel.y, rightPanel.w, rightPanel.h, 7)
   ctx.fill()
 
-  ctx.strokeStyle = 'rgba(92, 235, 255, 0.32)'
+  ctx.strokeStyle = 'rgba(226, 232, 240, 0.56)'
   ctx.lineWidth = 1.4
   ctx.beginPath()
   ctx.roundRect(leftPanel.x + 1, leftPanel.y + 1, leftPanel.w - 2, leftPanel.h - 2, 7)
@@ -1056,7 +1056,7 @@ function createSatelliteSprite() {
   ctx.roundRect(rightPanel.x + 1, rightPanel.y + 1, rightPanel.w - 2, rightPanel.h - 2, 7)
   ctx.stroke()
 
-  ctx.strokeStyle = 'rgba(130, 205, 255, 0.22)'
+  ctx.strokeStyle = 'rgba(203, 213, 225, 0.28)'
   ctx.lineWidth = 1
   for (let x = leftPanel.x + 12; x < leftPanel.x + leftPanel.w; x += 14) {
     ctx.beginPath()
@@ -1081,7 +1081,7 @@ function createSatelliteSprite() {
     ctx.stroke()
   }
 
-  ctx.strokeStyle = 'rgba(198, 218, 234, 0.72)'
+  ctx.strokeStyle = 'rgba(229, 234, 240, 0.9)'
   ctx.lineWidth = 4
   ctx.lineCap = 'round'
   ctx.beginPath()
@@ -1094,10 +1094,10 @@ function createSatelliteSprite() {
   ctx.stroke()
 
   const bodyGradient = ctx.createLinearGradient(132, 52, 188, 146)
-  bodyGradient.addColorStop(0, 'rgba(220, 232, 244, 0.96)')
-  bodyGradient.addColorStop(0.28, 'rgba(78, 96, 118, 0.98)')
-  bodyGradient.addColorStop(0.7, 'rgba(21, 30, 46, 0.98)')
-  bodyGradient.addColorStop(1, 'rgba(180, 194, 208, 0.92)')
+  bodyGradient.addColorStop(0, 'rgba(245, 247, 250, 0.98)')
+  bodyGradient.addColorStop(0.28, 'rgba(158, 168, 180, 0.98)')
+  bodyGradient.addColorStop(0.7, 'rgba(76, 86, 99, 0.98)')
+  bodyGradient.addColorStop(1, 'rgba(214, 220, 227, 0.96)')
   ctx.fillStyle = bodyGradient
   ctx.beginPath()
   ctx.moveTo(160, 46)
@@ -1110,8 +1110,8 @@ function createSatelliteSprite() {
   ctx.closePath()
   ctx.fill()
 
-  ctx.strokeStyle = 'rgba(227, 246, 255, 0.7)'
-  ctx.lineWidth = 1.8
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.92)'
+  ctx.lineWidth = 2.2
   ctx.beginPath()
   ctx.moveTo(160, 49)
   ctx.lineTo(181, 64)
@@ -1124,35 +1124,35 @@ function createSatelliteSprite() {
   ctx.stroke()
 
   const bodyGlow = ctx.createRadialGradient(160, 94, 4, 160, 94, 44)
-  bodyGlow.addColorStop(0, 'rgba(100, 232, 255, 0.46)')
-  bodyGlow.addColorStop(0.34, 'rgba(84, 170, 255, 0.14)')
-  bodyGlow.addColorStop(1, 'rgba(84, 170, 255, 0)')
+  bodyGlow.addColorStop(0, 'rgba(240, 246, 255, 0.34)')
+  bodyGlow.addColorStop(0.34, 'rgba(148, 163, 184, 0.18)')
+  bodyGlow.addColorStop(1, 'rgba(148, 163, 184, 0)')
   ctx.fillStyle = bodyGlow
   ctx.beginPath()
   ctx.roundRect(139, 58, 42, 76, 12)
   ctx.fill()
 
-  ctx.fillStyle = 'rgba(220, 248, 255, 0.72)'
+  ctx.fillStyle = 'rgba(245, 248, 252, 0.86)'
   ctx.beginPath()
   ctx.arc(160, 86, 12, 0, Math.PI * 2)
   ctx.fill()
-  ctx.fillStyle = 'rgba(28, 80, 122, 0.94)'
+  ctx.fillStyle = 'rgba(75, 85, 99, 0.94)'
   ctx.beginPath()
   ctx.arc(160, 86, 5, 0, Math.PI * 2)
   ctx.fill()
 
-  ctx.strokeStyle = 'rgba(170, 236, 255, 0.72)'
+  ctx.strokeStyle = 'rgba(235, 241, 248, 0.86)'
   ctx.lineWidth = 2
   ctx.beginPath()
   ctx.moveTo(160, 46)
   ctx.lineTo(160, 25)
   ctx.stroke()
-  ctx.fillStyle = 'rgba(150, 236, 255, 0.6)'
+  ctx.fillStyle = 'rgba(229, 236, 244, 0.82)'
   ctx.beginPath()
   ctx.arc(160, 22, 4.5, 0, Math.PI * 2)
   ctx.fill()
 
-  ctx.strokeStyle = 'rgba(130, 218, 255, 0.55)'
+  ctx.strokeStyle = 'rgba(218, 226, 235, 0.7)'
   ctx.lineWidth = 1.4
   ctx.beginPath()
   ctx.moveTo(147, 128)
@@ -1162,13 +1162,13 @@ function createSatelliteSprite() {
   ctx.stroke()
 
   const engineGlow = ctx.createRadialGradient(160, 142, 2, 160, 142, 34)
-  engineGlow.addColorStop(0, 'rgba(72, 226, 255, 0.48)')
-  engineGlow.addColorStop(0.45, 'rgba(58, 130, 255, 0.16)')
-  engineGlow.addColorStop(1, 'rgba(58, 130, 255, 0)')
+  engineGlow.addColorStop(0, 'rgba(210, 220, 232, 0.42)')
+  engineGlow.addColorStop(0.45, 'rgba(148, 163, 184, 0.2)')
+  engineGlow.addColorStop(1, 'rgba(148, 163, 184, 0)')
   ctx.fillStyle = engineGlow
   ctx.fillRect(126, 126, 68, 48)
 
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.38)'
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.58)'
   ctx.lineWidth = 1
   ctx.beginPath()
   ctx.moveTo(145, 67)
