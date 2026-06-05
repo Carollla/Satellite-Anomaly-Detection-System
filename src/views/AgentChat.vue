@@ -67,7 +67,7 @@
             <strong>诊断结论</strong>
             <span>{{ messages[0]?.time || '-' }}</span>
           </div>
-          <div class="answer-text">{{ latestAnswer }}</div>
+          <div class="answer-text markdown-body" v-html="latestAnswerHtml"></div>
           <div class="suggestions">
             <el-tag v-for="item in latestSuggestions" :key="item" size="small">{{ item }}</el-tag>
           </div>
@@ -194,6 +194,7 @@ import { ElMessage } from 'element-plus'
 import { agentApi, llmApi, satopsApi } from '../api'
 import type { AgentStatus, ApprovalRequest, TraceDetail } from '../api/types'
 import { usePolling } from '../composables/usePolling'
+import { renderMarkdown } from '../utils/markdown'
 
 interface ChatMessage {
   id: string
@@ -266,6 +267,7 @@ const summaryCards = computed(() => [
   { label: '待审批', value: approvals.value.length, tone: 'amber' }
 ])
 const latestAnswer = computed(() => messages.value.find((item) => item.role === 'assistant')?.content || '等待诊断结果')
+const latestAnswerHtml = computed(() => renderMarkdown(latestAnswer.value))
 const latestSuggestions = computed(() => messages.value.find((item) => item.role === 'assistant')?.suggestions || [])
 const traceRows = computed(() => trace.value?.plan?.slice(0, 4) || [])
 const pipelineStages = computed(() => {
@@ -779,9 +781,140 @@ usePolling(refreshAll, 20000, true)
 .answer-text {
   min-height: 0;
   line-height: 1.55;
-  white-space: pre-wrap;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
   font-size: 14px;
+  padding-right: 4px;
+}
+
+.markdown-body {
+  color: var(--vscode-text);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.markdown-body :deep(h1),
+.markdown-body :deep(h2),
+.markdown-body :deep(h3),
+.markdown-body :deep(h4) {
+  margin: 10px 0 8px;
+  line-height: 1.28;
+  letter-spacing: 0;
+}
+
+.markdown-body :deep(h1) {
+  font-size: 22px;
+}
+
+.markdown-body :deep(h2) {
+  font-size: 19px;
+}
+
+.markdown-body :deep(h3) {
+  font-size: 17px;
+}
+
+.markdown-body :deep(h4) {
+  font-size: 15px;
+}
+
+.markdown-body :deep(p) {
+  margin: 8px 0;
+}
+
+.markdown-body :deep(ul),
+.markdown-body :deep(ol) {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.markdown-body :deep(li) {
+  margin: 4px 0;
+}
+
+.markdown-body :deep(strong) {
+  color: var(--vscode-text);
+  font-weight: 800;
+}
+
+.markdown-body :deep(code) {
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--vscode-hover) 82%, #2563eb);
+  color: var(--vscode-text);
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  font-size: 0.92em;
+}
+
+.markdown-body :deep(pre) {
+  margin: 10px 0;
+  padding: 12px;
+  border: 1px solid var(--vscode-border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--vscode-bg) 78%, #0f172a);
+  overflow: auto;
+}
+
+.markdown-body :deep(pre code) {
+  display: block;
+  padding: 0;
+  background: transparent;
+  white-space: pre;
+}
+
+.markdown-body :deep(blockquote) {
+  margin: 10px 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--vscode-primary);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--vscode-hover) 70%, transparent);
+  color: var(--vscode-text-muted);
+}
+
+.markdown-body :deep(.md-table-wrap) {
+  width: 100%;
+  margin: 10px 0;
+  overflow-x: auto;
+  border: 1px solid var(--vscode-border);
+  border-radius: 8px;
+}
+
+.markdown-body :deep(table) {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.markdown-body :deep(th),
+.markdown-body :deep(td) {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--vscode-border);
+  border-right: 1px solid var(--vscode-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown-body :deep(th) {
+  background: color-mix(in srgb, var(--vscode-hover) 72%, #2563eb);
+  color: var(--vscode-text);
+  font-weight: 800;
+}
+
+.markdown-body :deep(.math-inline),
+.markdown-body :deep(.math-block) {
+  font-family: 'Cambria Math', 'Times New Roman', serif;
+  color: color-mix(in srgb, var(--vscode-text) 86%, #2563eb);
+}
+
+.markdown-body :deep(.math-block) {
+  display: block;
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--vscode-hover) 64%, transparent);
+  overflow-x: auto;
+  white-space: pre-wrap;
 }
 
 .suggestions {
