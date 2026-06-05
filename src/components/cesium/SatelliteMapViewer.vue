@@ -3,13 +3,13 @@
     <div
       ref="cesiumContainer"
       class="cesium-imagery-layer"
-      :class="{ active: earthStyle === 'real' }"
+      :class="{ active: true }"
     ></div>
     <iframe
       ref="iframeRef"
       :key="iframeSrc"
       class="satmap-iframe"
-      :class="{ ready: earthStyle === 'classic' && iframeReady }"
+      :class="{ ready: false }"
       :src="iframeSrc"
       frameborder="0"
       allowfullscreen
@@ -165,11 +165,21 @@ let satelliteSpriteImage = ''
 const cesiumSatelliteEntities = new Map<number, Cesium.Entity>()
 const cesiumOrbitEntities = new Map<number, Cesium.Entity>()
 const cesiumLinkEntities = new Map<string, Cesium.Entity>()
+const cesiumGroundStationEntities = new Map<string, Cesium.Entity>()
+const cesiumGroundCableEntities = new Map<string, Cesium.Entity>()
+const cesiumGroundLinkEntities = new Map<string, Cesium.Entity>()
 const EARTH_RADIUS_METERS = 6378137
 const EARTH_MU = 3.986004418e14
 const EARTH_ROTATION_RAD_PER_SEC = (2 * Math.PI) / 86164.0905
 const NORMAL_SATELLITE_COLOR = '#bff3ff'
 const SATELLITE_SCALE_BY_DISTANCE = new Cesium.NearFarScalar(7000000, 1.9, 90000000, 0.82)
+const GROUND_STATIONS = [
+  { id: 'mcs', name: 'MCS 主控站', lat: 35, lon: 105, kind: 'control' },
+  { id: 'bnd-n', name: '北向边界站', lat: 53, lon: 126, kind: 'boundary' },
+  { id: 'bnd-s', name: '南向边界站', lat: 18, lon: 110, kind: 'boundary' },
+  { id: 'bnd-w', name: '西向边界站', lat: 40, lon: 73, kind: 'boundary' },
+  { id: 'bnd-e', name: '东向边界站', lat: 48, lon: 134, kind: 'boundary' }
+] as const
 const CLASSIC_OCEAN = [4, 19, 31]
 const CLASSIC_LAND = [19, 37, 66]
 const CLASSIC_COAST = [41, 105, 132]
@@ -445,6 +455,198 @@ function buildLinkArcPositions(
   return [start, midpoint, end]
 }
 
+function getGroundStationPosition(station: typeof GROUND_STATIONS[number], height = 36000) {
+  return Cesium.Cartesian3.fromDegrees(station.lon, station.lat, height)
+}
+
+function buildGroundLinkArcPositions(
+  station: typeof GROUND_STATIONS[number],
+  sat: any,
+  time: Cesium.JulianDate,
+  startTime: Cesium.JulianDate
+) {
+  const start = getGroundStationPosition(station, 72000)
+  const end = getSatellitePosition(sat, time, startTime)
+  const midpointVector = Cesium.Cartesian3.add(start, end, new Cesium.Cartesian3())
+  if (Cesium.Cartesian3.magnitude(midpointVector) < 1) return [start, end]
+  const direction = Cesium.Cartesian3.normalize(midpointVector, new Cesium.Cartesian3())
+  const shellRadius = Math.max(EARTH_RADIUS_METERS + Number(sat.alt || 0) * 0.58, EARTH_RADIUS_METERS + 1650000)
+  const midpoint = Cesium.Cartesian3.multiplyByScalar(direction, shellRadius, new Cesium.Cartesian3())
+  return [start, midpoint, end]
+}
+
+function buildGroundNetwork(v: Cesium.Viewer) {
+  if (!cesiumStartTime) return
+
+  const activeStations = new Set<string>()
+  const activeCables = new Set<string>()
+  const activeGroundLinks = new Set<string>()
+
+  GROUND_STATIONS.forEach((station) => {
+    activeStations.add(station.id)
+    const isControl = station.kind === 'control'
+    let entity = cesiumGroundStationEntities.get(station.id)
+    if (!entity) {
+      entity = v.entities.add({
+        id: `ground-${station.id}`,
+        name: station.name,
+        position: getGroundStationPosition(station),
+        point: {
+          pixelSize: isControl ? 16 : 12,
+          color: Cesium.Color.fromCssColorString(isControl ? '#ffd84d' : '#2df6a3').withAlpha(0.95),
+          outlineColor: Cesium.Color.fromCssColorString('#05111f').withAlpha(0.96),
+          outlineWidth: 3,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          scaleByDistance: new Cesium.NearFarScalar(5000000, 1.35, 90000000, 0.75)
+        },
+        label: {
+          text: station.name,
+          font: '700 12px "Microsoft YaHei", sans-serif',
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          fillColor: Cesium.Color.WHITE.withAlpha(0.96),
+          outlineColor: Cesium.Color.fromCssColorString('#020713').withAlpha(0.85),
+          outlineWidth: 3,
+          pixelOffset: new Cesium.Cartesian2(0, isControl ? -24 : -21),
+          horizontalOrigin: Cesium.HorizontalOrigin.CENTER,
+          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          scaleByDistance: new Cesium.NearFarScalar(5000000, 1, 90000000, 0.58)
+        }
+      })
+      cesiumGroundStationEntities.set(station.id, entity)
+    } else {
+      entity.position = new Cesium.ConstantPositionProperty(getGroundStationPosition(station))
+      if (entity.point) {
+        entity.point.pixelSize = new Cesium.ConstantProperty(isControl ? 16 : 12)
+        entity.point.color = new Cesium.ConstantProperty(
+          Cesium.Color.fromCssColorString(isControl ? '#ffd84d' : '#2df6a3').withAlpha(0.95)
+        )
+      }
+      if (entity.label) {
+        entity.label.text = new Cesium.ConstantProperty(station.name)
+      }
+    }
+  })
+
+  const controlStation = GROUND_STATIONS[0]
+  GROUND_STATIONS.slice(1).forEach((station) => {
+    const id = `ground-cable-${controlStation.id}-${station.id}`
+    activeCables.add(id)
+    let entity = cesiumGroundCableEntities.get(id)
+    const positions = Cesium.Cartesian3.fromDegreesArrayHeights([
+      controlStation.lon, controlStation.lat, 18000,
+      station.lon, station.lat, 18000
+    ])
+    if (!entity) {
+      entity = v.entities.add({
+        id,
+        name: `${station.name} 到 ${controlStation.name}`,
+        polyline: {
+          positions,
+          width: 2,
+          material: new Cesium.PolylineGlowMaterialProperty({
+            glowPower: 0.08,
+            color: Cesium.Color.fromCssColorString('#ffd84d').withAlpha(0.42)
+          }),
+          arcType: Cesium.ArcType.GEODESIC,
+          clampToGround: false
+        }
+      })
+      cesiumGroundCableEntities.set(id, entity)
+    } else if (entity.polyline) {
+      entity.polyline.positions = new Cesium.ConstantProperty(positions)
+    }
+  })
+
+  const now = v.clock.currentTime
+  GROUND_STATIONS.forEach((station) => {
+    const stationPosition = getGroundStationPosition(station)
+    const candidates = satelliteStore.satellites
+      .map((sat) => ({
+        sat,
+        layer: getSatelliteLayer(sat.alt || 0),
+        distance: Cesium.Cartesian3.distance(
+          stationPosition,
+          getSatellitePosition(sat, now, cesiumStartTime as Cesium.JulianDate)
+        )
+      }))
+      .sort((a, b) => a.distance - b.distance)
+
+    const picked: any[] = []
+    ;['LEO', 'MEO', 'GEO'].forEach((layer) => {
+      const match = candidates.find((item) => item.layer === layer && !picked.some((sat) => sat.id === item.sat.id))
+      if (match) picked.push(match.sat)
+    })
+    candidates.slice(0, station.kind === 'control' ? 3 : 2).forEach((item) => {
+      if (!picked.some((sat) => sat.id === item.sat.id)) picked.push(item.sat)
+    })
+
+    picked.slice(0, station.kind === 'control' ? 4 : 3).forEach((sat) => {
+      const id = `ground-link-${station.id}-${sat.id}`
+      activeGroundLinks.add(id)
+      const selected = satelliteStore.selectedSatelliteId === sat.id
+      const abnormal = sat.status !== 'normal'
+      const color = selected
+        ? Cesium.Color.WHITE
+        : abnormal
+          ? Cesium.Color.fromCssColorString('#ffb45c')
+          : Cesium.Color.fromCssColorString(station.kind === 'control' ? '#44ffaa' : '#2df6a3')
+      const positions = new Cesium.CallbackProperty((time) => {
+        return buildGroundLinkArcPositions(
+          station,
+          sat,
+          time || v.clock.currentTime,
+          cesiumStartTime as Cesium.JulianDate
+        )
+      }, false)
+
+      let entity = cesiumGroundLinkEntities.get(id)
+      if (!entity) {
+        entity = v.entities.add({
+          id,
+          name: `${station.name} - ${sat.name}`,
+          polyline: {
+            positions,
+            width: selected ? 2.8 : abnormal ? 2.1 : 1.75,
+            material: new Cesium.PolylineGlowMaterialProperty({
+              glowPower: selected ? 0.16 : 0.08,
+              color: color.withAlpha(selected ? 0.74 : abnormal ? 0.5 : 0.38)
+            }),
+            arcType: Cesium.ArcType.NONE
+          }
+        })
+        cesiumGroundLinkEntities.set(id, entity)
+      } else if (entity.polyline) {
+        entity.polyline.positions = positions
+        entity.polyline.width = new Cesium.ConstantProperty(selected ? 2.8 : abnormal ? 2.1 : 1.75)
+        entity.polyline.material = new Cesium.PolylineGlowMaterialProperty({
+          glowPower: selected ? 0.16 : 0.08,
+          color: color.withAlpha(selected ? 0.74 : abnormal ? 0.5 : 0.38)
+        })
+      }
+    })
+  })
+
+  cesiumGroundStationEntities.forEach((entity, id) => {
+    if (!activeStations.has(id)) {
+      v.entities.remove(entity)
+      cesiumGroundStationEntities.delete(id)
+    }
+  })
+  cesiumGroundCableEntities.forEach((entity, id) => {
+    if (!activeCables.has(id)) {
+      v.entities.remove(entity)
+      cesiumGroundCableEntities.delete(id)
+    }
+  })
+  cesiumGroundLinkEntities.forEach((entity, id) => {
+    if (!activeGroundLinks.has(id)) {
+      v.entities.remove(entity)
+      cesiumGroundLinkEntities.delete(id)
+    }
+  })
+}
+
 function buildCommunicationLinks(v: Cesium.Viewer) {
   const activeLinkIds = new Set<string>()
   if (!cesiumStartTime) return activeLinkIds
@@ -656,6 +858,7 @@ function buildCesiumSatellites() {
   })
 
   buildCommunicationLinks(v)
+  buildGroundNetwork(v)
 
   cesiumSatelliteEntities.forEach((entity, id) => {
     if (!activeIds.has(id)) {
@@ -1493,6 +1696,9 @@ onBeforeUnmount(() => {
   cesiumSatelliteEntities.clear()
   cesiumOrbitEntities.clear()
   cesiumLinkEntities.clear()
+  cesiumGroundStationEntities.clear()
+  cesiumGroundCableEntities.clear()
+  cesiumGroundLinkEntities.clear()
 })
 </script>
 

@@ -42,6 +42,20 @@ interface HelperMessage {
   role: 'user' | 'assistant'
   content: string
   targetLabel?: string
+  reasoning?: ReasoningStep[]
+  tools?: ToolStep[]
+  grounding?: Record<string, any>
+}
+
+interface ReasoningStep {
+  label: string
+  detail: string
+  tone?: 'blue' | 'green' | 'amber' | 'violet'
+}
+
+interface ToolStep {
+  tool: string
+  result: string
 }
 
 interface HelperAgent {
@@ -186,6 +200,56 @@ function renderMessage(content: string) {
   return renderMarkdown(content)
 }
 
+function toOneLine(value: any) {
+  if (value === null || value === undefined) return '无返回摘要'
+  if (typeof value === 'string') return value.replace(/\s+/g, ' ').trim()
+  try {
+    return JSON.stringify(value).replace(/\s+/g, ' ').slice(0, 180)
+  } catch {
+    return String(value)
+  }
+}
+
+function normalizeTools(actions: any[] = []) {
+  return actions.map((action) => ({
+    tool: String(action?.tool || action?.name || 'tool'),
+    result: toOneLine(action?.result ?? action?.status ?? action)
+  }))
+}
+
+function buildHelperReasoning(
+  question: string,
+  reply: { grounding?: Record<string, any>; actions_taken?: any[] },
+  agentLabel: string
+): ReasoningStep[] {
+  const grounding = reply.grounding || {}
+  const toolCount = Number(grounding.tool_count ?? reply.actions_taken?.length ?? 0)
+  return [
+    {
+      label: '任务识别',
+      detail: `${agentLabel} 接收问题“${question.slice(0, 34)}${question.length > 34 ? '...' : ''}”，先判断是实时运维查询、平台机制解释还是通用问答。`,
+      tone: 'blue'
+    },
+    {
+      label: '上下文检索',
+      detail: toolCount > 0
+        ? `本轮使用 ${toolCount} 个工具或平台上下文，回答会优先依据实时状态和工具结果。`
+        : '本轮未命中实时工具，直接使用统一大模型能力回答知识、代码、方案或解释类问题。',
+      tone: 'green'
+    },
+    {
+      label: '模型生成',
+      detail: grounding.llm_used ? '已调用当前配置的大模型生成回答，并按 Markdown 输出。' : '大模型未使用或不可用，后端 Agent 使用规则与上下文生成回答。',
+      tone: grounding.llm_used ? 'violet' : 'amber'
+    },
+    {
+      label: '结果回传',
+      detail: '答案已回写到当前对话，工具链摘要保存在本条消息的可展开面板中。',
+      tone: 'blue'
+    }
+  ]
+}
+
 async function sendHelper() {
   const question = helperInput.value.trim()
   if (!question || helperSending.value) return
@@ -222,7 +286,10 @@ async function sendHelper() {
     helperMessages.value.push({
       role: 'assistant',
       content: extras || '已收到请求，但当前没有可展示的结果。',
-      targetLabel: selectedHelperAgentMeta.value.label
+      targetLabel: selectedHelperAgentMeta.value.label,
+      reasoning: buildHelperReasoning(question, response, selectedHelperAgentMeta.value.label),
+      tools: normalizeTools(response.actions_taken),
+      grounding: response.grounding
     })
   } catch (error: any) {
     ElMessage.error(error?.message || '助手请求失败')
@@ -357,6 +424,28 @@ const currentTitle = computed(() => {
           >
             <div class="msg-role">{{ msg.role === 'user' ? '用户' : msg.targetLabel || '助手' }}</div>
             <div class="msg-content markdown-body" v-html="renderMessage(msg.content)"></div>
+            <el-collapse v-if="msg.reasoning?.length" class="helper-reasoning">
+              <el-collapse-item name="trace">
+                <template #title>
+                  <div class="helper-reasoning-title">
+                    <strong>思考过程与工具链</strong>
+                    <span>{{ msg.tools?.length || 0 }} 个工具</span>
+                  </div>
+                </template>
+                <div class="helper-reasoning-body">
+                  <div v-for="step in msg.reasoning" :key="step.label" class="helper-reasoning-step" :class="step.tone">
+                    <span>{{ step.label }}</span>
+                    <p>{{ step.detail }}</p>
+                  </div>
+                  <div v-if="msg.tools?.length" class="helper-tool-list">
+                    <div v-for="tool in msg.tools" :key="`${tool.tool}-${tool.result}`" class="helper-tool-item">
+                      <strong>{{ tool.tool }}</strong>
+                      <span>{{ tool.result }}</span>
+                    </div>
+                  </div>
+                </div>
+              </el-collapse-item>
+            </el-collapse>
           </div>
         </div>
         <div class="chat-input-area">
@@ -922,6 +1011,109 @@ html.dark .workspace-content .ops-page {
   border-radius: 12px;
   background: var(--vscode-bg);
   line-height: 1.7;
+}
+
+.helper-reasoning {
+  margin-top: 8px;
+  border: 1px solid color-mix(in srgb, var(--vscode-border) 78%, #2563eb);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--vscode-bg) 86%, transparent);
+  overflow: hidden;
+}
+
+.helper-reasoning :deep(.el-collapse-item__header) {
+  height: 34px;
+  padding: 0 10px;
+  border-bottom: 0;
+  background: transparent;
+}
+
+.helper-reasoning :deep(.el-collapse-item__wrap) {
+  border-bottom: 0;
+  background: transparent;
+}
+
+.helper-reasoning :deep(.el-collapse-item__content) {
+  padding: 0 10px 10px;
+}
+
+.helper-reasoning-title {
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.helper-reasoning-title strong,
+.helper-reasoning-title span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.helper-reasoning-title strong {
+  font-size: 12px;
+}
+
+.helper-reasoning-title span {
+  margin-left: auto;
+  color: var(--vscode-text-muted);
+  font-size: 12px;
+}
+
+.helper-reasoning-body {
+  max-height: 220px;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
+}
+
+.helper-reasoning-step,
+.helper-tool-item {
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--vscode-border);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--vscode-sidebar-bg) 76%, transparent);
+}
+
+.helper-reasoning-step {
+  border-left: 3px solid #2563eb;
+}
+
+.helper-reasoning-step.green {
+  border-left-color: #16a34a;
+}
+
+.helper-reasoning-step.amber {
+  border-left-color: #f59e0b;
+}
+
+.helper-reasoning-step.violet {
+  border-left-color: #7c3aed;
+}
+
+.helper-reasoning-step span,
+.helper-tool-item strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.helper-reasoning-step p,
+.helper-tool-item span {
+  margin: 0;
+  color: var(--vscode-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.helper-tool-list {
+  display: grid;
+  gap: 7px;
 }
 
 .markdown-body {
