@@ -1,0 +1,5 @@
+{
+  "baseUrl": "https://your-api-gateway.example.com",
+  "apiKey": "replace-with-your-local-key",
+  "model": "gpt-5.5"
+}

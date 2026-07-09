@@ -1,0 +1,1531 @@
+﻿<!DOCTYPE html><html lang="en" style="scrollbar-gutter: auto !important" class="preload" data-astro-cid-37fxchfa> <head><title>Amateur Radio Satellite Tracker 鈥?Live Ham Radio Passes &amp; Frequencies</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Track amateur radio satellites in real-time. See which ham radio satellites are overhead, their frequencies, transponder modes, and pass predictions. Built for ham radio operators."><meta name="keywords" content="amateur radio satellite, ham radio satellite tracker, amsat, satellite pass tracker, VHF UHF satellite, ISS repeater, amateur satellite frequencies, SO-50, AO-91"><meta name="author" content="SatelliteMap.space"><meta name="robots" content="index, follow"><!-- Canonical URL --><link rel="canonical" href="/amateur-radio"><!-- Hreflang alternate language links (only for pages with translations) --><!-- Open Graph / Facebook + Twitter Card (raw HTML to avoid entity double-encoding) --><meta property="og:type" content="website">
+  <meta property="og:title" content="Amateur Radio Satellite Tracker 鈥?Live Ham Radio Passes & Frequencies">
+  <meta property="og:description" content="Track amateur radio satellites in real-time. See which ham radio satellites are overhead, their frequencies, transponder modes, and pass predictions. Built for ham radio operators.">
+  <meta property="og:image" content="/og-preview-v2.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="/amateur-radio">
+  <meta property="og:site_name" content="SatelliteMap.space">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@SatelliteMapApp">
+  <meta name="twitter:creator" content="@SatelliteMapApp">
+  <meta name="twitter:title" content="Amateur Radio Satellite Tracker 鈥?Live Ham Radio Passes & Frequencies">
+  <meta name="twitter:description" content="Track amateur radio satellites in real-time. See which ham radio satellites are overhead, their frequencies, transponder modes, and pass predictions. Built for ham radio operators.">
+  <meta name="twitter:image" content="/og-preview-v2.jpg"><!-- Apple Mobile --><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Satellite Map"><!-- Structured Data --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Amateur Radio Satellite Tracker","description":"Real-time amateur radio satellite tracking with live sky view and frequency display","url":"/amateur-radio","applicationCategory":"ScienceApplication","operatingSystem":"Web Browser"}</script><link rel="icon" type="image/png" href="/favicon-96x96.png?v5" sizes="96x96"><link rel="icon" type="image/svg+xml" href="/favicon.svg?v5"><link rel="shortcut icon" href="/favicon.ico?v5"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v5"><meta name="apple-mobile-web-app-title" content="Satellite Map"><meta name="msapplication-TileColor" content="#da532c"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#000"><!-- Styles are imported via the frontmatter above --><link rel="stylesheet" href="/_astro/_constellation_path_.othtnewT.css"></head> <body class="bg-black text-white" data-astro-cid-37fxchfa> <!-- Flowbite Dark Navbar - EXACT COPY from index.html --> <nav class="border-gray-700 fixed w-full z-20 top-0 start-0 border-b" data-astro-cid-37fxchfa> <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto px-2 py-1" data-astro-cid-37fxchfa> <!-- Mobile burger button (all mobile orientations) --> <button id="mobile-menu-toggle" type="button" class="navbar-mobile-custom items-center p-1.5 w-8 h-8 justify-center text-sm text-white rounded-lg hover:bg-gray-700 focus:outline-none mr-3" data-astro-cid-37fxchfa> <span class="sr-only" data-astro-cid-37fxchfa>Open main menu</span> <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14" data-astro-cid-37fxchfa> <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15" data-astro-cid-37fxchfa></path> </svg> </button> <!-- Logo (smaller and centered on mobile) --> <a href="/about" data-route="/about" class="flex items-center space-x-2 rtl:space-x-reverse" data-astro-cid-37fxchfa> <div class="px-[1px]" data-astro-cid-37fxchfa> <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 68 68" data-astro-cid-37fxchfa> <g id="busy-indicator" class="atom-logo" transform="translate(34, 34)" stroke="#1a73e8" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" data-astro-cid-37fxchfa> <circle cx="0" cy="0" r="8" fill="#1a73e8" stroke="#1ad7e8" data-astro-cid-37fxchfa></circle> <ellipse rx="32" ry="8" transform="rotate(0)" data-astro-cid-37fxchfa></ellipse> <ellipse rx="32" ry="8" transform="rotate(60)" data-astro-cid-37fxchfa></ellipse> <ellipse rx="32" ry="8" transform="rotate(120)" data-astro-cid-37fxchfa></ellipse> <ellipse rx="32" ry="8" transform="rotate(30)" stroke="#34a853" data-astro-cid-37fxchfa></ellipse> <ellipse rx="32" ry="8" transform="rotate(90)" data-astro-cid-37fxchfa></ellipse> <ellipse rx="32" ry="8" transform="rotate(150)" data-astro-cid-37fxchfa></ellipse> </g> </svg> </div> <span class="self-center text-lg font-medium whitespace-nowrap text-white" data-astro-cid-37fxchfa>
+satellitemap<span class="text-blue-400" data-astro-cid-37fxchfa>.space</span> </span> </a> <!-- Spacer for mobile to center logo --> <div class="w-8 navbar-mobile-spacer" style="display: none;" data-astro-cid-37fxchfa></div> <!-- Desktop menu --> <div class="navbar-desktop-custom" id="navbar-desktop" style="display: none; width: auto;" data-astro-cid-37fxchfa> <ul class="flex items-center space-x-6" data-astro-cid-37fxchfa> <!-- People in Space --> <li class="flex items-center" data-astro-cid-37fxchfa> <a href="/people" data-route="/people" class="navbar-link" data-translate="people" data-astro-cid-37fxchfa>People</a> </li> <!-- News --> <li class="flex items-center" data-astro-cid-37fxchfa> <a href="/news" data-route="/news" class="navbar-link" data-translate="news" data-astro-cid-37fxchfa>Satellite News</a> </li> <!-- Visualizer --> <li class="flex items-center" data-astro-cid-37fxchfa> <a href="/" class="navbar-link" data-astro-cid-37fxchfa>Visualizer</a> </li> <!-- Load Dropdown --> <li class="relative flex items-center" data-astro-cid-37fxchfa> <button id="dropdownLoadLink" data-dropdown-toggle="dropdownLoad" class="navbar-dropdown-button" data-astro-cid-37fxchfa> <span data-astro-cid-37fxchfa>Load</span> <svg class="w-2.5 h-2.5 ms-1 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6" data-astro-cid-37fxchfa> <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" data-astro-cid-37fxchfa></path> </svg> </button> <div id="dropdownLoad" class="navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" aria-labelledby="dropdownLoadLink" data-astro-cid-37fxchfa> <!-- Types Submenu --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Types
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/vis/type/internet" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Internet</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/communications" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Communications</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/global-positioning" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Global Positioning</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/earth-observation" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Earth Observation</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/geostationary" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Geostationary</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/geosynchronous" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Geosynchronous</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/all-functional" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>All Functional</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/debris" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Debris</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/all" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>All</a></li> </ul> </div> </li> <!-- Divider --> <li data-astro-cid-37fxchfa><hr class="my-1 border-gray-600" data-astro-cid-37fxchfa></li> <!-- Constellation Finder --> <li data-astro-cid-37fxchfa> <a href="/constellations" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>
+Finder
+</a> </li> <!-- Divider --> <li data-astro-cid-37fxchfa><hr class="my-1 border-gray-600" data-astro-cid-37fxchfa></li> <!-- Internet Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Internet
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/starlink" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Starlink</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/amazon-leo" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Amazon Leo</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/oneweb" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Oneweb</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/spacesail" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>SpaceSail (鍗冨竼)</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/xingwang" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Guowang (鍥界綉)</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/yinhe" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>GalaxySpace</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/e-space" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>E-space</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/rassvet" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Rassvet</a></li> </ul> </div> </li> <!-- Cellular Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Cellular
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/iridium" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Iridium NEXT</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/globalstar" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Globalstar</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/lynk" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Lynk</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/bluewalker" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Bluewalker</a></li> </ul> </div> </li> <!-- Positioning Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Positioning
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/gps" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>GPS</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/galileo" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Galileo</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/glonass" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>GLONASS</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/beidou" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>BeiDou</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/parus" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Parus</a></li> </ul> </div> </li> <!-- Earth Obs Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Earth Obs
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/planet" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Planet</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/jilin-1" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Jilin-1</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/satelog" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Satelog</a></li> </ul> </div> </li> <!-- Weather Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Weather
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/spire" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Spire</a></li> </ul> </div> </li> <!-- Science Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Science
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/swarm" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Swarm</a></li> </ul> </div> </li> <!-- IoT Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+IoT
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/orbcomm" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Orbcomm</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/geespace" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Geespace</a></li> </ul> </div> </li> </ul> </div> </li> <!-- Functions Dropdown --> <li class="relative flex items-center" data-astro-cid-37fxchfa> <button id="dropdownFunctionsLink" data-dropdown-toggle="dropdownFunctions" class="navbar-dropdown-button" data-astro-cid-37fxchfa> <span data-translate="functions" data-astro-cid-37fxchfa>Functions</span> <svg class="w-2.5 h-2.5 ms-1 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6" data-astro-cid-37fxchfa> <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" data-astro-cid-37fxchfa></path> </svg> </button> <div id="dropdownFunctions" class="navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" aria-labelledby="dropdownFunctionsLink" data-astro-cid-37fxchfa> <!-- Constellation Data --> <li data-astro-cid-37fxchfa><a href="/vis/constellation/starlink/growth" class="navbar-desktop-dropdown-item" title="Constellation growth and statistics" data-astro-cid-37fxchfa> <span data-astro-cid-37fxchfa>Constellation Data</span> </a></li> <!-- To Visualizer --> <li data-astro-cid-37fxchfa><a href="/" class="navbar-desktop-dropdown-item" title="Interactive 3D satellite visualizer" data-astro-cid-37fxchfa> <span data-astro-cid-37fxchfa>To Visualizer</span> </a></li> <!-- Calculators Submenu --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-translate="calculators" data-astro-cid-37fxchfa> Calculators <svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="absolute left-full top-0 hidden group-hover:block navbar-dropdown-menu" id="calculators-submenu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/vis/trains" data-route="/vis/trains" class="navbar-desktop-dropdown-item" title="Calculate satellite train overflights for your location" data-astro-cid-37fxchfa> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" data-astro-cid-37fxchfa></path> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v8a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1h-1M6 16h2M6 8h6" data-astro-cid-37fxchfa></path> </svg> <span class="ml-2" data-astro-cid-37fxchfa>Trains</span> </a></li> <li data-astro-cid-37fxchfa><a href="/vis/sky-transits" class="navbar-desktop-dropdown-item" title="Calculate satellite overflights for your location" data-astro-cid-37fxchfa> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" data-astro-cid-37fxchfa></path> <circle cx="12" cy="10" r="3" data-astro-cid-37fxchfa></circle> </svg> <span class="ml-2" data-astro-cid-37fxchfa>Transits</span> </a></li> <li data-astro-cid-37fxchfa><a href="/vis/interference" class="navbar-desktop-dropdown-item" title="Find when other satellites interfere with line of sight" data-astro-cid-37fxchfa> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" data-astro-cid-37fxchfa></path> </svg> <span class="ml-2" data-astro-cid-37fxchfa>Interference</span> </a></li> <li data-astro-cid-37fxchfa><a href="/vis/altitude-history" class="navbar-desktop-dropdown-item" title="Track satellite orbital decay and altitude changes over time" data-astro-cid-37fxchfa> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" data-astro-cid-37fxchfa></path> </svg> <span class="ml-2" data-astro-cid-37fxchfa>Altitude History</span> </a></li> </ul> </div> </li> <!-- Apps Submenu --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Apps
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="absolute left-full top-0 hidden group-hover:block navbar-dropdown-menu" id="apps-submenu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/re-entries" class="navbar-desktop-dropdown-item" title="Monitor satellites at risk of re-entry" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" data-astro-cid-37fxchfa></path> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>Re-Entries</span> </a></li> <li data-astro-cid-37fxchfa><a href="/transit-finder" class="navbar-desktop-dropdown-item" title="Find when satellites transit the Sun, Moon or planets" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" data-astro-cid-37fxchfa></path> <circle cx="12" cy="12" r="5" data-astro-cid-37fxchfa></circle> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>Transit Finder</span> </a></li> <li data-astro-cid-37fxchfa><a href="/tle-calculator" class="navbar-desktop-dropdown-item" title="Parse and analyze Two-Line Element (TLE) orbital data" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" data-astro-cid-37fxchfa></path> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>TLE Analysis</span> </a></li> <li data-astro-cid-37fxchfa><a href="/satellite-photobomb" class="navbar-desktop-dropdown-item" title="Satellite photobomb simulator" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" data-astro-cid-37fxchfa></path> <circle cx="12" cy="13" r="3" data-astro-cid-37fxchfa></circle> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>Photo Simulator</span> </a></li> <li data-astro-cid-37fxchfa><a href="/satellite-collision-finding" class="navbar-desktop-dropdown-item" title="GPU-accelerated satellite conjunction search" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" data-astro-cid-37fxchfa></path> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>Close Approaches</span> </a></li> <li data-astro-cid-37fxchfa><a href="/amateur-radio" class="navbar-desktop-dropdown-item" title="Live amateur radio satellite tracking with sky view and frequencies" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.14 0M1.394 9.393c5.857-5.858 15.355-5.858 21.213 0" data-astro-cid-37fxchfa></path> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>SatNOGS Radio</span> </a></li> </ul> </div> </li> <!-- Constellations --> <li data-astro-cid-37fxchfa><a href="/constellations" class="navbar-desktop-dropdown-item" title="Browse and search constellations" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <circle cx="6" cy="6" r="1.5" fill="currentColor" data-astro-cid-37fxchfa></circle><circle cx="18" cy="6" r="1.5" fill="currentColor" data-astro-cid-37fxchfa></circle><circle cx="12" cy="18" r="1.5" fill="currentColor" data-astro-cid-37fxchfa></circle><circle cx="6" cy="14" r="1.5" fill="currentColor" data-astro-cid-37fxchfa></circle> <line x1="6" y1="6" x2="18" y2="6" stroke="currentColor" stroke-width="1" data-astro-cid-37fxchfa></line><line x1="18" y1="6" x2="12" y2="18" stroke="currentColor" stroke-width="1" data-astro-cid-37fxchfa></line><line x1="12" y1="18" x2="6" y2="14" stroke="currentColor" stroke-width="1" data-astro-cid-37fxchfa></line><line x1="6" y1="14" x2="6" y2="6" stroke="currentColor" stroke-width="1" data-astro-cid-37fxchfa></line> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>Constellations</span> </a></li> <!-- Historical --> <li data-astro-cid-37fxchfa><a href="/leo-internet-treemap" class="navbar-desktop-dropdown-item" title="Orbital object treemap 鈥?growth over time" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2" data-astro-cid-37fxchfa></rect><rect x="14" y="3" width="7" height="4" rx="1" stroke-width="2" data-astro-cid-37fxchfa></rect><rect x="14" y="10" width="7" height="4" rx="1" stroke-width="2" data-astro-cid-37fxchfa></rect><rect x="3" y="13" width="7" height="8" rx="1" stroke-width="2" data-astro-cid-37fxchfa></rect><rect x="14" y="17" width="7" height="4" rx="1" stroke-width="2" data-astro-cid-37fxchfa></rect> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>Historical</span> </a></li> </ul> </div> </li> <!-- More Dropdown (with user status icon) --> <li class="relative flex items-center" data-astro-cid-37fxchfa> <button id="dropdownMoreLink" data-dropdown-toggle="dropdownMore" class="navbar-dropdown-button" data-astro-cid-37fxchfa> <!-- User Status Icon (inline with More) --> <span id="userStatusIcon" class="inline-flex items-center" title="User status" data-astro-cid-37fxchfa> <!-- Filled icon for verified users --> <svg id="userIconFilled" class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-astro-cid-37fxchfa> <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" data-astro-cid-37fxchfa></path> </svg> <!-- Outline icon for non-verified/logged-out users --> <svg id="userIconOutline" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" data-astro-cid-37fxchfa></path> </svg> </span> <span data-translate="more" data-astro-cid-37fxchfa>More</span> <svg class="w-2.5 h-2.5 ms-1 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6" data-astro-cid-37fxchfa> <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" data-astro-cid-37fxchfa></path> </svg> </button> <div id="dropdownMore" class="navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" aria-labelledby="dropdownMoreLink" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/settings" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Settings</a></li> <li data-astro-cid-37fxchfa><a href="/info" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Info & Updates</a></li> <li data-astro-cid-37fxchfa><a href="/feedback" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Feedback</a></li> <li data-astro-cid-37fxchfa><a href="/credits" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Credits</a></li> <li data-astro-cid-37fxchfa><a href="/space-track-status" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Space-track Status</a></li> </ul> </div> </li> </ul> </div> <!-- Spacer for desktop right margin --> <div class="navbar-desktop-spacer w-15" style="display: none;" data-astro-cid-37fxchfa></div> </div> </nav> <!-- Search trigger icon (appears on top right) --> <div id="search-trigger-icon" data-astro-cid-37fxchfa> <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" data-astro-cid-37fxchfa></path> </svg> </div> <!-- Mobile Slide-Out Menu - EXACT COPY from index.html --> <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 navbar-mobile-overlay opacity-0 pointer-events-none transition-opacity duration-300" data-astro-cid-37fxchfa></div> <div id="mobile-menu" class="navbar-mobile-menu transform -translate-x-full transition-transform duration-300 ease-in-out" data-astro-cid-37fxchfa> <div class="flex flex-col h-full" data-astro-cid-37fxchfa> <!-- Mobile menu items --> <div class="flex-1 overflow-y-auto py-4" data-astro-cid-37fxchfa> <!-- People in Space --> <a href="/people" data-route="/people" onclick="closeMobileMenu()" class="navbar-mobile-link" data-translate="people" data-astro-cid-37fxchfa>
+People
+</a> <!-- News --> <a href="/news" data-route="/news" onclick="closeMobileMenu()" class="navbar-mobile-link" data-translate="news" data-astro-cid-37fxchfa> Satellite News </a> <!-- Visualizer --> <a href="/" onclick="closeMobileMenu()" class="navbar-mobile-link" data-astro-cid-37fxchfa>
+Visualizer
+</a> <!-- Load --> <div class="border-b border-gray-700" data-astro-cid-37fxchfa> <button id="mobile-load-toggle" class="navbar-mobile-toggle" data-astro-cid-37fxchfa> <span data-astro-cid-37fxchfa>Load</span> <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-37fxchfa></path> </svg> </button> <div id="mobile-load-menu" class="navbar-mobile-submenu hidden" data-astro-cid-37fxchfa> <div class="px-2 py-2" data-astro-cid-37fxchfa> <!-- Types --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold" data-astro-cid-37fxchfa>Types</div> <a href="/vis/type/internet" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Internet</a> <a href="/vis/type/communications" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Communications</a> <a href="/vis/type/global-positioning" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Global Positioning</a> <a href="/vis/type/earth-observation" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Earth Observation</a> <a href="/vis/type/geostationary" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Geostationary</a> <a href="/vis/type/geosynchronous" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Geosynchronous</a> <a href="/vis/type/all-functional" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>All Functional</a> <a href="/vis/type/debris" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Debris</a> <a href="/vis/type/all" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>All</a> <hr class="my-2 border-gray-600" data-astro-cid-37fxchfa> <!-- Constellation Finder --> <a href="/constellations" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Finder</a> <hr class="my-2 border-gray-600" data-astro-cid-37fxchfa> <!-- Internet --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold" data-astro-cid-37fxchfa>Internet</div> <a href="/constellation/starlink" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Starlink</a> <a href="/constellation/amazon-leo" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Amazon Leo</a> <a href="/constellation/oneweb" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>OneWeb</a> <a href="/constellation/spacesail" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>SpaceSail (鍗冨竼)</a> <a href="/constellation/xingwang" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Guowang (鍥界綉)</a> <a href="/constellation/yinhe" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>GalaxySpace</a> <a href="/constellation/e-space" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>E-space</a> <a href="/constellation/rassvet" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Rassvet</a> <!-- Voice --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Voice</div> <a href="/constellation/iridium" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Iridium NEXT</a> <a href="/constellation/globalstar" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Globalstar</a> <a href="/constellation/lynk" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Lynk</a> <a href="/constellation/bluewalker" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Bluewalker</a> <!-- Positioning --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Positioning</div> <a href="/constellation/gps" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>GPS</a> <a href="/constellation/galileo" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Galileo</a> <a href="/constellation/glonass" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>GLONASS</a> <a href="/constellation/beidou" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>BeiDou</a> <a href="/constellation/parus" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Parus</a> <!-- Earth Obs --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Earth Obs</div> <a href="/constellation/planet" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Planet</a> <a href="/constellation/jilin-1" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Jilin-1</a> <a href="/constellation/satelog" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Satelog</a> <!-- Weather --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Weather</div> <a href="/constellation/spire" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Spire</a> <!-- Military --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Military</div> <a href="/constellation/strela-1m" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Strela-1m</a> <a href="/constellation/strela-3" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Strela-3</a> <!-- Science --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Science</div> <a href="/constellation/swarm" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Swarm</a> <!-- IoT --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>IoT</div> <a href="/constellation/orbcomm" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Orbcomm</a> <a href="/constellation/geespace" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Geespace</a> </div> </div> </div> <!-- Functions --> <div class="border-b border-gray-700" data-astro-cid-37fxchfa> <button id="mobile-functions-toggle" class="navbar-mobile-toggle" data-astro-cid-37fxchfa> <span data-translate="functions" data-astro-cid-37fxchfa>Functions</span> <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-37fxchfa></path> </svg> </button> <div id="mobile-functions-menu" class="navbar-mobile-submenu hidden" data-astro-cid-37fxchfa> <div class="px-2 py-2" data-astro-cid-37fxchfa> <a href="/vis/constellation/starlink/growth" class="block text-gray-400 hover:text-white px-2 py-2" data-astro-cid-37fxchfa>Constellation Data</a> <a href="/" class="block text-gray-400 hover:text-white px-2 py-2" data-astro-cid-37fxchfa>To Visualizer</a> <div class="border-t border-gray-600 pt-2 mt-2" data-astro-cid-37fxchfa> <button id="mobile-calculators-toggle" class="flex items-center justify-between w-full text-left text-gray-300 hover:text-white py-2" data-astro-cid-37fxchfa> <span data-translate="vis-calculators" data-astro-cid-37fxchfa>Vis Calculators</span> <svg class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-37fxchfa></path> </svg> </button> <div id="mobile-calculators-menu" class="hidden" data-astro-cid-37fxchfa> <a href="/vis/trains" data-route="/vis/trains" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Trains</a> <a href="/vis/sky-transits" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Transits</a> <a href="/vis/interference" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Interference</a> <a href="/vis/altitude-history" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Altitude History</a> </div> </div> <!-- Apps --> <div class="border-t border-gray-600 pt-2 mt-2" data-astro-cid-37fxchfa> <button id="mobile-apps-toggle" class="flex items-center justify-between w-full text-left text-gray-300 hover:text-white py-2" data-astro-cid-37fxchfa> <span data-astro-cid-37fxchfa>Apps</span> <svg class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-37fxchfa></path> </svg> </button> <div id="mobile-apps-menu" class="hidden" data-astro-cid-37fxchfa> <a href="/re-entries" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Re-Entries</a> <a href="/transit-finder" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Transit Finder</a> <a href="/tle-calculator" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>TLE Calculator</a> <a href="/satellite-photobomb" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Photo-bomb Sim</a> <a href="/satellite-collision-finding" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Close Approaches</a> <a href="/amateur-radio" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>SatNOGS Radio</a> </div> </div> <!-- Constellations --> <div class="border-t border-gray-600 pt-2 mt-2" data-astro-cid-37fxchfa> <a href="/constellations" class="block text-gray-400 hover:text-white px-2 py-2" data-astro-cid-37fxchfa>Constellations</a> <a href="/leo-internet-treemap" class="block text-gray-400 hover:text-white px-2 py-2" data-astro-cid-37fxchfa>Historical</a> </div> </div> </div> </div> <!-- More --> <div class="border-b border-gray-700" data-astro-cid-37fxchfa> <button id="mobile-more-toggle" class="navbar-mobile-toggle" data-astro-cid-37fxchfa> <span class="flex items-center gap-1.5" data-astro-cid-37fxchfa> <!-- User Status Icon (inline with More) --> <span id="mobile-userStatusIcon" class="inline-flex items-center" title="User status" data-astro-cid-37fxchfa> <!-- Filled icon for verified users --> <svg id="mobile-userIconFilled" class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-astro-cid-37fxchfa> <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" data-astro-cid-37fxchfa></path> </svg> <!-- Outline icon for non-verified/logged-out users --> <svg id="mobile-userIconOutline" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" data-astro-cid-37fxchfa></path> </svg> </span> <span data-translate="more" data-astro-cid-37fxchfa>More</span> </span> <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-37fxchfa></path> </svg> </button> <div id="mobile-more-menu" class="navbar-mobile-submenu hidden" data-astro-cid-37fxchfa> <div class="px-2 py-2" data-astro-cid-37fxchfa> <a href="/settings" class="navbar-mobile-dropdown-item" data-translate="settings" data-astro-cid-37fxchfa>Settings</a> <a href="/info" class="navbar-mobile-dropdown-item" data-translate="info" data-astro-cid-37fxchfa>Info</a> <a href="/feedback" class="navbar-mobile-dropdown-item" data-translate="feedback" data-astro-cid-37fxchfa>Feedback</a> <a href="/credits" data-route="/credits" onclick="closeMobileMenu()" class="navbar-mobile-dropdown-item" data-translate="credits" data-astro-cid-37fxchfa>Credits</a> <a href="/space-track-status" class="navbar-mobile-dropdown-item" data-translate="spaceTrackStatus" data-astro-cid-37fxchfa>Space-track Status</a> <!-- Admin links will be added here dynamically --> <div id="mobile-admin-links" data-astro-cid-37fxchfa></div> </div> </div> </div> </div> </div> </div> <!-- Main Content --> <main class="pt-10 min-h-screen bg-black" data-astro-cid-37fxchfa>  <div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800"> <!-- Header --> <div class="relative overflow-hidden bg-gradient-to-r from-[rgb(112,163,243)]/20 via-slate-800/70 to-slate-900/80 backdrop-blur-sm border-b border-slate-600"> <img src="/images/header-bg.png" alt="" class="absolute left-0 top-0 h-full w-auto opacity-30 pointer-events-none select-none" style="mask-image:linear-gradient(to right,black 50%,transparent);-webkit-mask-image:linear-gradient(to right,black 50%,transparent)"> <div class="px-4 sm:px-6 lg:px-8 py-4 relative"> <div class="space-y-2"> <h1 class="text-2xl lg:text-3xl font-bold text-white">Amateur Radio Satellites</h1> <p id="header-desc" class="text-gray-300 max-w-2xl text-sm">
+Live tracking of amateur radio satellites with sky view, frequencies, and transponder modes.
+            Transmitter data from <a href="#offline-external" target="_blank" rel="noopener" class="text-blue-400 hover:text-blue-300">SatNOGS DB</a>.
+            Please <a href="/settings/location?returnUrl=/amateur-radio" class="text-blue-400 hover:text-blue-300">set your location</a> to see satellites overhead.
+            This dashboard is also available for free in the <a href="#offline-external" target="_blank" rel="noopener" class="text-blue-400 hover:text-blue-300">iOS app</a>. Please report bugs or make feature requests here: <a href="/feedback" class="text-blue-400 hover:text-blue-300">feedback</a>.
+</p> </div> <button id="header-toggle" class="absolute bottom-2 right-4 text-gray-500 hover:text-white text-xs lg:hidden" onclick="
+          const d = document.getElementById('header-desc');
+          const b = this;
+          if (d.classList.contains('hidden')) { d.classList.remove('hidden'); b.textContent = '鈻?Less'; }
+          else { d.classList.add('hidden'); b.textContent = '鈻?More'; }
+        ">鈻?Less</button> </div> </div> <!-- Main Content --> <div class="px-4 sm:px-6 lg:px-8 py-6 max-w-7xl"> <!-- Sky View + Tables (50/50 on desktop) --> <div class="flex flex-col lg:flex-row gap-6 mb-6"> <!-- Left: Sky View --> <div class="relative bg-slate-800/60 rounded-lg border border-slate-700 p-4 lg:w-1/2 overflow-hidden"> <div class="mb-2"> <div class="flex items-center justify-between"> <h2 id="sky-title" class="text-sm font-semibold text-gray-300">Sky View</h2> <span id="sky-count" class="text-xs text-gray-500">0 satellites overhead</span> </div> <div class="flex items-center gap-2 mt-1"> <button id="time-back" class="px-2 py-1 text-xs bg-slate-600 hover:bg-slate-500 text-white rounded border border-slate-500" title="Back 1 hour">鈭?h</button> <button id="time-fwd" class="px-2 py-1 text-xs bg-slate-600 hover:bg-slate-500 text-white rounded border border-slate-500" title="Forward 1 hour">+1h</button> <button id="time-reset" class="px-2 py-1 text-xs bg-slate-600 hover:bg-slate-500 text-white rounded border border-slate-500" title="Return to real time">Reset</button> <button id="refresh-contacts" class="px-2 py-1 text-xs bg-slate-600 hover:bg-slate-500 text-white rounded border border-slate-500" title="Refresh SatNOGS contacts">Refresh Contacts</button> </div> </div> <div id="skyContainer" class="relative mx-auto" style="max-width: 600px; width: 200px; height: 200px;"> <canvas id="skyCanvas" class="absolute inset-0 w-full h-full cursor-pointer"></canvas> </div> <!-- Observation info box (top right, shown when satellite selected) --> <div id="obs-box" class="hidden absolute top-12 right-4 z-10 bg-slate-900/90 border border-slate-600 rounded-lg p-2 max-w-[360px] text-[10px] leading-tight backdrop-blur-sm"> <div class="flex items-center justify-between mb-1"> <span id="obs-sat-name" class="text-white font-semibold text-xs"></span> <button id="obs-close" class="text-gray-500 hover:text-white text-sm leading-none ml-2">&times;</button> </div> <div id="obs-content" class="text-gray-400 max-h-[160px] overflow-y-auto">Loading...</div> </div> <!-- Frequency Strip --> <div class="mt-3 pt-3 border-t border-slate-700"> <div class="flex items-center justify-between mb-2"> <h2 class="text-sm font-semibold text-gray-300">Active Frequencies</h2> <span class="text-xs text-gray-600">drag to tune</span> <span id="freq-count" class="text-xs text-gray-500">0 active</span> </div> <div class="relative" style="height: 80px;"> <canvas id="freqCanvas" class="w-full h-full cursor-pointer"></canvas> </div> <div class="flex justify-between text-xs text-gray-500 mt-1"> <span id="freq-min">144 MHz</span> <span>VHF / UHF</span> <span id="freq-max">440 MHz</span> </div> </div> </div> <!-- Right: Satellite Table + Passes + Globe stacked --> <div class="lg:w-1/2 flex flex-col gap-4"> <!-- Filter buttons --> <div class="flex items-center gap-2"> <span class="text-xs text-gray-500">TX/RX Filters:</span> <button id="filter-amsat" class="px-3 py-1 text-xs rounded border border-slate-600 text-gray-400 hover:border-cyan-500 hover:text-cyan-400 transition-colors">Amateur</button> <button id="filter-observed" class="px-3 py-1 text-xs rounded border border-slate-600 text-gray-400 hover:border-green-500 hover:text-green-400 transition-colors">Observed</button> <button id="filter-favorites" class="px-3 py-1 text-xs rounded border border-slate-600 text-gray-400 hover:border-yellow-500 hover:text-yellow-400 transition-colors">Favorites</button> </div> <!-- Satellite Table --> <div class="bg-slate-800/60 rounded-lg border border-slate-700 p-4 max-h-[320px] overflow-y-auto flex-1"> <h2 class="text-sm font-semibold text-gray-300 mb-3">Satellites Overhead</h2> <div id="sat-table" class="overflow-x-auto"> <p class="text-sm text-gray-500 py-4 text-center">Waiting for satellite data...</p> </div> </div> <!-- Transmitter Detail Panel --> <div id="tx-detail-panel" class="hidden bg-slate-800/60 rounded-lg border border-cyan-700/30 p-3 text-xs"> <div class="flex items-center justify-between mb-2"> <span id="tx-detail-title" class="text-sm font-semibold text-gray-300"></span> <button id="tx-detail-close" class="text-gray-500 hover:text-white text-sm leading-none">&times;</button> </div> <div id="tx-detail-content" class="space-y-2 max-h-[200px] overflow-y-auto pr-1"></div> </div> <!-- Alarm Panel --> <div id="alarm-panel" class="hidden bg-slate-800/60 rounded-lg border border-yellow-700/40 p-2 mb-2 text-xs"> <div class="flex items-center justify-between gap-2"> <div class="flex items-center gap-2 flex-1 min-w-0"> <svg class="w-3.5 h-3.5 text-yellow-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"></path></svg> <span id="alarm-list" class="text-gray-300 truncate"></span> </div> <div class="flex items-center gap-2 shrink-0"> <label class="text-gray-500">El&ge;</label> <input id="alarm-threshold" type="number" min="0" max="90" value="10" class="w-10 bg-slate-900 border border-slate-600 rounded px-1 py-0.5 text-xs text-white text-center focus:border-blue-500 focus:outline-none"> <span class="text-gray-500">掳</span> <button id="alarm-test-btn" class="px-2 py-0.5 bg-slate-700 hover:bg-slate-600 text-gray-300 rounded border border-slate-600" title="Test alarm">Test</button> </div> </div> </div> <!-- Passes --> <div class="bg-slate-800/60 rounded-lg border border-slate-700 p-4 flex-1 lg:max-h-[280px] lg:overflow-y-auto"> <div class="flex items-center justify-between mb-3"> <h2 id="passes-title" class="text-sm font-semibold text-gray-300">Passes</h2> <div class="relative"> <input id="amsat-search" type="text" placeholder="Search satellite..." class="w-36 bg-slate-900 border border-slate-600 rounded px-2 py-1 text-xs text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"> <div id="amsat-search-results" class="hidden absolute right-0 top-full mt-1 w-52 max-h-40 overflow-y-auto bg-slate-900 border border-slate-600 rounded shadow-lg z-20"></div> </div> </div> <div id="pass-table"> <p class="text-sm text-gray-500 py-4 text-center">Search for a satellite to see upcoming passes</p> </div> </div> <!-- Globe --> <div class="relative rounded-lg overflow-hidden bg-black" id="blueglobe-container" style="height: 200px;"> <div class="absolute inset-0 flex items-center justify-center" id="blueglobe-loading"> <div class="animate-spin w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full"></div> </div> <canvas id="glCanvas" class="w-full h-full"></canvas> </div> </div> </div> </div> </div>  <div id="alarm-toast" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-blue-600 text-white px-5 py-3 rounded-lg shadow-xl text-sm font-semibold flex items-center gap-3 animate-bounce"> <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"></path></svg> <span id="alarm-toast-text"></span> <button onclick="dismissAlarm()" class="text-white/70 hover:text-white text-lg leading-none ml-2">&times;</button> </div>  <script type="module">
+    import { getApiEndpointClient, apiFetch } from '/scripts/api.js?h=888618fb';
+    import { SessionManager } from '../sessions.js';
+
+    const API_BASE = getApiEndpointClient();
+    const sessionManager = new SessionManager(API_BASE);
+    let globe = null;
+    let skyCtx = null;
+    let freqCtx = null;
+    let transmitterCache = {};  // norad_id 鈫?transmitter array
+    let pendingFetches = new Set();
+    let skyData = [];           // current getInMySky result
+    let freqRange = { min: 144, max: 450 }; // MHz
+    let selectedNorad = null;   // clicked satellite NORAD ID
+    let freqDragging = false;   // frequency strip drag state
+    let skyTrackCache = { norad: null, points: [] }; // cached sky track for selected sat
+    let lastSkyPositions = [];  // [{norad, x, y, s}] for click hit testing
+    let filterAmsat = false;
+    let filterObserved = false;
+    let filterFavorites = false;
+
+    // Load bookmarked satellite IDs from user session
+    function getBookmarkedIds() {
+      const data = sessionManager.getData();
+      return data?.bookmarks ? new Set(Object.keys(data.bookmarks)) : new Set();
+    }
+
+    // Amateur radio favorites 鈥?stored separately in session data
+    function getAmsatFavorites() {
+      const data = sessionManager.getData();
+      return data?.amsat_favorites || {};
+    }
+    function isAmsatFavorite(norad) {
+      return !!getAmsatFavorites()[String(norad)];
+    }
+    function toggleAmsatFavorite(norad, name) {
+      const data = sessionManager.getData();
+      if (!data) return false;
+      if (!data.amsat_favorites) data.amsat_favorites = {};
+      const key = String(norad);
+      if (data.amsat_favorites[key]) {
+        delete data.amsat_favorites[key];
+      } else {
+        data.amsat_favorites[key] = { name, added: new Date().toISOString() };
+      }
+      sessionManager.saveData(data);
+      updateFavoritesCount();
+      applyFilters();
+      return !!data.amsat_favorites[key];
+    }
+    window.toggleAmsatFav = function(norad, name) {
+      toggleAmsatFavorite(norad, name);
+    };
+
+    // Update count once session is loaded
+    sessionManager.initialize().then(() => updateFavoritesCount());
+
+    // Filter toggles
+    function toggleFilter(btn, active, activeClasses, inactiveClasses) {
+      if (active) {
+        btn.classList.remove(...inactiveClasses);
+        btn.classList.add(...activeClasses);
+      } else {
+        btn.classList.remove(...activeClasses);
+        btn.classList.add(...inactiveClasses);
+      }
+    }
+    document.getElementById('filter-amsat').addEventListener('click', (e) => {
+      filterAmsat = !filterAmsat;
+      toggleFilter(e.currentTarget, filterAmsat,
+        ['border-cyan-500', 'text-cyan-400', 'bg-cyan-900/30'],
+        ['border-slate-600', 'text-gray-400']);
+      applyFilters();
+    });
+    document.getElementById('filter-observed').addEventListener('click', (e) => {
+      filterObserved = !filterObserved;
+      toggleFilter(e.currentTarget, filterObserved,
+        ['border-green-500', 'text-green-400', 'bg-green-900/30'],
+        ['border-slate-600', 'text-gray-400']);
+      applyFilters();
+    });
+    document.getElementById('filter-favorites').addEventListener('click', (e) => {
+      filterFavorites = !filterFavorites;
+      toggleFilter(e.currentTarget, filterFavorites,
+        ['border-yellow-500', 'text-yellow-400', 'bg-yellow-900/30'],
+        ['border-slate-600', 'text-gray-400']);
+      applyFilters();
+    });
+    // Show favorites count on the button
+    function updateFavoritesCount() {
+      const btn = document.getElementById('filter-favorites');
+      const count = Object.keys(getAmsatFavorites()).length;
+      btn.textContent = count ? `Favorites (${count})` : 'Favorites';
+    }
+    updateFavoritesCount();
+
+    function getFilteredSats(sats) {
+      const favIds = filterFavorites ? new Set(Object.keys(getAmsatFavorites())) : null;
+      return sats.filter(sat => {
+        const norad = sat.satellite?.norad_id || sat.norad_id;
+        if (filterAmsat && !transmitterCache[norad]?.some(tx => tx.service === 'Amateur')) return false;
+        if (filterObserved && !contactSummary[norad]) return false;
+        if (filterFavorites && !favIds.has(String(norad))) return false;
+        return true;
+      });
+    }
+
+    function applyFilters() {
+      if (!skyData.length) return;
+      const filtered = getFilteredSats(skyData);
+      drawSkyView(filtered);
+      renderTable(filtered);
+      drawFreqStrip(filtered);
+    }
+
+    // Pass alarm system
+    const passAlarms = new Map(); // key 鈫?{ timer, norad, name, start }
+    let alarmAudioCtx = null;
+    const ALARM_STORAGE_KEY = 'amsat_pass_alarms';
+    const ALARM_THRESHOLD_KEY = 'amsat_alarm_threshold';
+
+    function getAlarmThreshold() {
+      return parseInt(localStorage.getItem(ALARM_THRESHOLD_KEY) || '10', 10);
+    }
+
+    function getAlarmKey(norad, startMs) {
+      const d = new Date(startMs);
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const hh = String(d.getHours()).padStart(2, '0');
+      const mi = String(d.getMinutes()).padStart(2, '0');
+      return `${Number(norad)}_${dd}${mm}${hh}${mi}`;
+    }
+
+    function saveAlarmsToStorage() {
+      const entries = [];
+      for (const [key, a] of passAlarms) {
+        entries.push({ key, norad: a.norad, name: a.name, start: a.start.toISOString() });
+      }
+      localStorage.setItem(ALARM_STORAGE_KEY, JSON.stringify(entries));
+    }
+
+    function restoreAlarmsFromStorage() {
+      try {
+        const raw = localStorage.getItem(ALARM_STORAGE_KEY);
+        if (!raw) return;
+        const entries = JSON.parse(raw);
+        let changed = false;
+        for (const e of entries) {
+          const startDate = new Date(e.start);
+          const delay = startDate.getTime() - Date.now();
+          if (delay < 0) { changed = true; continue; }
+          const key = getAlarmKey(e.norad, startDate.getTime());
+          const timer = setTimeout(() => watchElevation(e.norad, e.name, key), delay);
+          passAlarms.set(key, { timer, norad: e.norad, name: e.name, start: startDate });
+        }
+        if (changed) saveAlarmsToStorage();
+      } catch (e) {}
+      updateAlarmPanel();
+    }
+
+    restoreAlarmsFromStorage();
+
+    function setPassAlarm(norad, name, startDate) {
+      const startMs = startDate.getTime();
+      const key = getAlarmKey(norad, startMs);
+      if (passAlarms.has(key)) { clearPassAlarm(key); return; }
+      const delay = startMs - Date.now();
+      if (delay < 0) return;
+      const timer = setTimeout(() => watchElevation(norad, name, key), delay);
+      passAlarms.set(key, { timer, norad, name, start: startDate });
+      saveAlarmsToStorage();
+      updateAlarmPanel();
+      showPasses(norad);
+    }
+
+    function clearPassAlarm(key) {
+      const alarm = passAlarms.get(key);
+      const norad = alarm?.norad;
+      if (alarm) clearTimeout(alarm.timer);
+      passAlarms.delete(key);
+      saveAlarmsToStorage();
+      updateAlarmPanel();
+      if (norad) showPasses(norad);
+    }
+
+    function watchElevation(norad, name, key) {
+      const threshold = getAlarmThreshold();
+      const sat = skyData.find(s => s.satellite?.norad_id === norad);
+      const elDeg = sat ? sat.elevation * (180 / Math.PI) : 0;
+
+      if (elDeg >= threshold) {
+        fireAlarm(name, key);
+      } else {
+        // Poll every 10s for up to 15 minutes
+        let attempts = 0;
+        const poll = setInterval(() => {
+          attempts++;
+          const s = skyData.find(s => s.satellite?.norad_id === norad);
+          const el = s ? s.elevation * (180 / Math.PI) : 0;
+          if (el >= threshold) {
+            clearInterval(poll);
+            fireAlarm(name, key);
+          } else if (attempts > 90) { // 15 min
+            clearInterval(poll);
+            fireAlarm(name, key); // fire anyway, pass may have low peak
+          }
+        }, 10000);
+      }
+    }
+
+    function playAlarmTone() {
+      try {
+        if (!alarmAudioCtx) alarmAudioCtx = new AudioContext();
+        if (alarmAudioCtx.state === 'suspended') alarmAudioCtx.resume();
+        const osc = alarmAudioCtx.createOscillator();
+        const gain = alarmAudioCtx.createGain();
+        osc.connect(gain); gain.connect(alarmAudioCtx.destination);
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.3, alarmAudioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, alarmAudioCtx.currentTime + 1.5);
+        osc.start(); osc.stop(alarmAudioCtx.currentTime + 1.5);
+      } catch (e) { console.warn('[Alarm] tone error:', e); }
+    }
+
+    function fireAlarm(name, key) {
+      passAlarms.delete(key);
+      saveAlarmsToStorage();
+      updateAlarmPanel();
+      playAlarmTone();
+      const toast = document.getElementById('alarm-toast');
+      const text = document.getElementById('alarm-toast-text');
+      text.textContent = `${name} is in the sky!`;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 8000);
+      if (selectedNorad) showPasses(selectedNorad);
+    }
+
+    function updateAlarmPanel() {
+      const panel = document.getElementById('alarm-panel');
+      const listEl = document.getElementById('alarm-list');
+      if (!panel || !listEl) return;
+
+      if (passAlarms.size === 0) {
+        panel.classList.add('hidden');
+        return;
+      }
+      panel.classList.remove('hidden');
+
+      // Build alarm list with per-alarm delete buttons
+      listEl.innerHTML = '';
+      for (const [key, a] of passAlarms) {
+        const time = a.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        const day = a.start.toLocaleDateString([], { weekday: 'short' });
+        const span = document.createElement('span');
+        span.className = 'inline-flex items-center gap-1 mr-2';
+        span.innerHTML = `${a.name} ${day} ${time}<button class="text-gray-500 hover:text-red-400 ml-0.5 cursor-pointer" title="Cancel alarm">&times;</button>`;
+        span.querySelector('button').addEventListener('click', () => clearPassAlarm(key));
+        listEl.appendChild(span);
+      }
+    }
+
+    window.dismissAlarm = function() {
+      document.getElementById('alarm-toast').classList.add('hidden');
+    };
+
+    window.setPassAlarmFromRow = function(norad, name, isoTime) {
+      setPassAlarm(norad, name, new Date(isoTime));
+    };
+
+    window.clearPassAlarmFromRow = function(key) {
+      clearPassAlarm(key);
+    };
+
+    // Threshold input + test button
+    document.addEventListener('DOMContentLoaded', () => {
+      const thresholdInput = document.getElementById('alarm-threshold');
+      if (thresholdInput) {
+        thresholdInput.value = getAlarmThreshold();
+        thresholdInput.addEventListener('change', () => {
+          localStorage.setItem(ALARM_THRESHOLD_KEY, thresholdInput.value);
+        });
+      }
+      document.getElementById('alarm-test-btn')?.addEventListener('click', () => {
+        playAlarmTone();
+        const toast = document.getElementById('alarm-toast');
+        const text = document.getElementById('alarm-toast-text');
+        text.textContent = 'Test alarm!';
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 4000);
+      });
+    });
+    let dopplerCache = {};      // norad_id 鈫?{ factor, shiftHz_per_MHz, rangeRateKmS, timestamp }
+    let contactSummary = {};    // norad_id 鈫?{ contacts, last_heard }
+
+    // 鈹€鈹€ Doppler Calculation 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+    // Compute Doppler factor from range-rate between observer and satellite.
+    // Uses satellite.js propagation at t and t+1s to get range-rate.
+
+    function computeDoppler(sat) {
+      if (!globe?.getDopplerShift) return null;
+      const norad = sat.satellite?.norad_id;
+      if (!norad) return null;
+
+      // Check cache (valid for 1 second)
+      const cached = dopplerCache[norad];
+      if (cached && Date.now() - cached.timestamp < 1000) return cached;
+
+      try {
+        const d = globe.getDopplerShift(norad);
+        if (!d) return null;
+        const result = { factor: d.factor, shiftPerMHz: d.shiftPerMHz, rangeRateKmS: d.rangeRate, timestamp: Date.now() };
+        dopplerCache[norad] = result;
+        return result;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function formatDopplerShift(freqMhz, doppler) {
+      if (!doppler || !freqMhz) return '鈥?;
+      const shiftHz = doppler.shiftPerMHz * freqMhz;
+      const shiftKhz = shiftHz / 1000;
+      const sign = shiftKhz >= 0 ? '+' : '';
+      return `${sign}${shiftKhz.toFixed(1)} kHz`;
+    }
+
+    // 鈹€鈹€ Load BlueGlobe 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    async function initGlobe() {
+      const canvas = document.getElementById('glCanvas');
+      const loading = document.getElementById('blueglobe-loading');
+      if (!canvas) return;
+
+      try {
+        const isDev = window.location.hostname === 'localhost';
+        const url = isDev ? '/blueglobe.js?h=a2a04a9d' : '/blueglobe.js?h=a2a04a9d';
+        const { BlueGlobe } = await import(url);
+
+        globe = new BlueGlobe(canvas, {
+          initialConstellation: undefined,
+          initialType: 'amsat',
+          apiBaseUrl: API_BASE,
+          compactMode: true,
+          hideElements: ['search', 'filters-panel', 'info-panel']
+        });
+
+        await globe.init();
+        loading.style.display = 'none';
+        globe.show_rotating = 0;
+        window.globe = globe;
+
+        // Ensure home location is set (needed for Doppler, passes, sky track)
+        if (globe.preferences?.homeLat == null || globe.preferences?.homeLon == null) {
+          globe.setHome({ lat: 0.01, lon: 0.01 });
+        }
+
+        // Position camera over home location
+        globe._goToHomeOrbitalView();
+
+        // Start sky polling after globe is ready
+        setTimeout(startSkyPolling, 3000);
+
+      } catch (e) {
+        console.error('Globe init failed:', e);
+        loading.innerHTML = '<p class="text-red-400 text-sm">Failed to load globe</p>';
+      }
+    }
+
+    // 鈹€鈹€ Sky View Canvas 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    function initSkyCanvas() {
+      const canvas = document.getElementById('skyCanvas');
+      if (!canvas) return;
+      skyCtx = canvas.getContext('2d');
+      resizeSkyCanvas();
+      window.addEventListener('resize', resizeSkyCanvas);
+      drawSkyView([]);
+    }
+
+    function resizeSkyCanvas() {
+      const container = document.getElementById('skyContainer');
+      const canvas = document.getElementById('skyCanvas');
+      if (!canvas || !container) return;
+      // Size to parent's available width (not the container's own size)
+      const parentWidth = container.parentElement.clientWidth - 32; // minus padding
+      const size = Math.min(parentWidth, 600);
+      container.style.width = size + 'px';
+      container.style.height = size + 'px';
+      canvas.width = size * (window.devicePixelRatio || 1);
+      canvas.height = size * (window.devicePixelRatio || 1);
+      if (skyData.length) drawSkyView(skyData);
+    }
+
+    function skyColors() {
+      const sunEl = globe?.getSunElevation?.() ?? 10;
+
+      let bg, bgHorizon, grid, gridBright, cardinalColor, satColor, satTxColor, selectedColor;
+      if (sunEl > 6) {
+        // Day 鈥?sky blue
+        bg = '#4a90d9';
+        bgHorizon = '#a0c4e8';
+        grid = '#3a78b8';
+        gridBright = '#5a9ae0';
+        cardinalColor = '#1a4a7a';
+        satColor = '#1a1a1a';
+        satTxColor = '#cc2200';
+        selectedColor = '#ffee00';
+      } else if (sunEl > -6) {
+        // Twilight
+        const t = (sunEl - 6) / -12;
+        bg = lerpColor('#4a90d9', '#0a0a20', t);
+        bgHorizon = lerpColor('#a0c4e8', '#151530', t);
+        grid = lerpColor('#3a78b8', '#1e293b', t);
+        gridBright = lerpColor('#5a9ae0', '#334155', t);
+        cardinalColor = lerpColor('#1a4a7a', '#64748b', t);
+        satColor = lerpColor('#1a1a1a', '#22d3ee', t);
+        satTxColor = lerpColor('#cc2200', '#f59e0b', t);
+        selectedColor = '#ffee00';
+      } else {
+        // Night
+        bg = '#0a0a20';
+        bgHorizon = '#151530';
+        grid = '#1e293b';
+        gridBright = '#334155';
+        cardinalColor = '#64748b';
+        satColor = '#22d3ee';
+        satTxColor = '#f59e0b';
+        selectedColor = '#ffee00';
+      }
+      return { bg, bgHorizon, grid, gridBright, cardinalColor, satColor, satTxColor, selectedColor };
+    }
+
+    function lerpColor(a, b, t) {
+      const pa = [parseInt(a.slice(1,3),16), parseInt(a.slice(3,5),16), parseInt(a.slice(5,7),16)];
+      const pb = [parseInt(b.slice(1,3),16), parseInt(b.slice(3,5),16), parseInt(b.slice(5,7),16)];
+      const r = Math.round(pa[0] + (pb[0]-pa[0]) * t);
+      const g = Math.round(pa[1] + (pb[1]-pa[1]) * t);
+      const bl = Math.round(pa[2] + (pb[2]-pa[2]) * t);
+      return `rgb(${r},${g},${bl})`;
+    }
+
+    function computeSkyTrack(norad) {
+      if (!norad || !globe) return [];
+      if (skyTrackCache.norad === norad && skyTrackCache.points.length > 0) return skyTrackCache.points;
+
+      const points = globe.calculateSkyTrack(norad, { hoursForward: 12, minElevation: 1 });
+      skyTrackCache = { norad, points };
+      return points;
+    }
+
+    function drawSkyView(satellites) {
+      if (!skyCtx) return;
+      const c = skyCtx;
+      const w = c.canvas.width;
+      const h = c.canvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const r = Math.min(cx, cy) * 0.93;
+      const col = skyColors();
+
+      c.clearRect(0, 0, w, h);
+
+      // Background with horizon fog gradient
+      const bgGrad = c.createRadialGradient(cx, cy, 0, cx, cy, r);
+      bgGrad.addColorStop(0, col.bg);
+      bgGrad.addColorStop(0.78, col.bg);    // 10掳 elevation 鈮?89% radius
+      bgGrad.addColorStop(1.0, col.bgHorizon);
+      c.fillStyle = bgGrad;
+      c.beginPath();
+      c.arc(cx, cy, r, 0, Math.PI * 2);
+      c.fill();
+
+      // Elevation rings 鈥?10掳 and 20掳 brighter, 30掳/60掳 subtle
+      c.lineWidth = 1;
+      for (const el of [10, 20, 30, 60]) {
+        const ringR = r * (1 - el / 90);
+        c.strokeStyle = (el <= 20) ? col.gridBright : col.grid;
+        c.beginPath();
+        c.arc(cx, cy, ringR, 0, Math.PI * 2);
+        c.stroke();
+      }
+
+      // Elevation labels
+      c.fillStyle = col.gridBright;
+      c.font = `${Math.round(r * 0.04)}px monospace`;
+      c.textAlign = 'left';
+      for (const el of [10, 20]) {
+        const ringR = r * (1 - el / 90);
+        c.fillText(`${el}掳`, cx + 3, cy - ringR + r * 0.04);
+      }
+
+      // Cardinal lines
+      c.strokeStyle = col.grid;
+      c.beginPath();
+      c.moveTo(cx, cy - r); c.lineTo(cx, cy + r);
+      c.moveTo(cx - r, cy); c.lineTo(cx + r, cy);
+      c.stroke();
+
+      // Cardinal labels
+      c.fillStyle = col.cardinalColor;
+      c.font = `${Math.round(r * 0.08)}px monospace`;
+      c.textAlign = 'center';
+      c.fillText('N', cx, cy - r + r * 0.08);
+      c.fillText('S', cx, cy + r - r * 0.02);
+      c.fillText('E', cx + r - r * 0.06, cy + r * 0.03);
+      c.fillText('W', cx - r + r * 0.06, cy + r * 0.03);
+
+      // Draw sky track for selected satellite
+      if (selectedNorad) {
+        const track = computeSkyTrack(selectedNorad);
+        if (track.length > 1) {
+          // Future portion
+          c.strokeStyle = 'rgba(255, 200, 50, 0.7)';
+          c.lineWidth = 3;
+          c.setLineDash([6, 4]);
+          c.beginPath();
+          let started = false;
+          for (const pt of track) {
+            if (pt.isPast) continue;
+            const d = (1 - pt.el / 90) * r;
+            const px = cx + d * Math.sin(pt.az);
+            const py = cy - d * Math.cos(pt.az);
+            if (!started) { c.moveTo(px, py); started = true; }
+            else c.lineTo(px, py);
+          }
+          c.stroke();
+
+          // Past portion (solid)
+          c.strokeStyle = 'rgba(255, 200, 50, 0.5)';
+          c.lineWidth = 3;
+          c.setLineDash([]);
+          c.beginPath();
+          started = false;
+          for (const pt of track) {
+            if (!pt.isPast) break;
+            const d = (1 - pt.el / 90) * r;
+            const px = cx + d * Math.sin(pt.az);
+            const py = cy - d * Math.cos(pt.az);
+            if (!started) { c.moveTo(px, py); started = true; }
+            else c.lineTo(px, py);
+          }
+          c.stroke();
+          c.setLineDash([]);
+        }
+      }
+
+      // Plot satellites as glyphs 鈥?store positions for click hit testing
+      lastSkyPositions = [];
+      for (const sat of satellites) {
+        const el = sat.elevation * (180 / Math.PI);
+        const az = sat.azimuth;
+        if (el < 0) continue;
+
+        const dist = (1 - el / 90) * r;
+        const x = cx + dist * Math.sin(az);
+        const y = cy - dist * Math.cos(az);
+
+        const maxDist = 2500;
+        const minSize = r * 0.02;
+        const maxSize = r * 0.05;
+        const distKm = sat.distance || 1000;
+        const sizeFrac = 1 - Math.min(distKm / maxDist, 0.85);
+        const s = minSize + sizeFrac * (maxSize - minSize);
+
+        const norad = sat.satellite?.norad_id;
+        const isSelected = norad === selectedNorad;
+        const hasTx = norad && transmitterCache[norad]?.length > 0;
+        const hasContacts = norad && contactSummary[norad];
+        const color = isSelected ? col.selectedColor : (hasContacts ? '#22ff66' : (hasTx ? col.satTxColor : col.satColor));
+
+        lastSkyPositions.push({ norad, x, y, s }); // hit radius = body size
+
+        c.save();
+        c.translate(x, y);
+
+        // Contact indicator 鈥?pulsing outer ring for satellites with recent SatNOGS contacts
+        if (hasContacts && !isSelected) {
+          const pulse = 0.5 + 0.5 * Math.sin(performance.now() * 0.003);
+          c.strokeStyle = '#22ff66';
+          c.globalAlpha = 0.3 + 0.3 * pulse;
+          c.lineWidth = 1.5;
+          c.beginPath();
+          c.arc(0, 0, s * 2.5, 0, Math.PI * 2);
+          c.stroke();
+          c.globalAlpha = 1;
+        }
+
+        // Selection ring + name label
+        if (isSelected) {
+          c.strokeStyle = col.selectedColor;
+          c.globalAlpha = 0.5;
+          c.lineWidth = 2;
+          c.beginPath();
+          c.arc(0, 0, s * 3, 0, Math.PI * 2);
+          c.stroke();
+
+          // Name label below glyph
+          const name = sat.satellite?.name || '';
+          c.fillStyle = col.selectedColor;
+          c.globalAlpha = 0.9;
+          c.font = `${Math.round(r * 0.035)}px monospace`;
+          c.textAlign = 'center';
+          c.fillText(name, 0, s * 2.5);
+          c.globalAlpha = 1;
+        }
+
+        // Solar panels
+        c.fillStyle = color;
+        c.globalAlpha = 0.6;
+        c.fillRect(-s * 2.2, -s * 0.3, s * 1.4, s * 0.6);
+        c.fillRect(s * 0.8, -s * 0.3, s * 1.4, s * 0.6);
+
+        // Body
+        c.globalAlpha = 0.9;
+        c.fillStyle = color;
+        c.fillRect(-s * 0.5, -s * 0.5, s, s);
+
+        // Antenna
+        c.strokeStyle = color;
+        c.globalAlpha = 0.7;
+        c.lineWidth = Math.max(1, s * 0.15);
+        c.beginPath();
+        c.moveTo(0, -s * 0.5);
+        c.lineTo(0, -s * 1.2);
+        c.stroke();
+
+        c.restore();
+        c.globalAlpha = 1;
+      }
+
+      // Zenith crosshair
+      c.strokeStyle = col.gridBright;
+      c.lineWidth = 1;
+      c.beginPath();
+      c.moveTo(cx - 4, cy); c.lineTo(cx + 4, cy);
+      c.moveTo(cx, cy - 4); c.lineTo(cx, cy + 4);
+      c.stroke();
+    }
+
+    // 鈹€鈹€ Frequency Strip 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    function initFreqCanvas() {
+      const canvas = document.getElementById('freqCanvas');
+      if (!canvas) return;
+      freqCtx = canvas.getContext('2d');
+      resizeFreqCanvas();
+      window.addEventListener('resize', resizeFreqCanvas);
+    }
+
+    function resizeFreqCanvas() {
+      const canvas = document.getElementById('freqCanvas');
+      if (!canvas) return;
+      canvas.width = canvas.clientWidth * (window.devicePixelRatio || 1);
+      canvas.height = canvas.clientHeight * (window.devicePixelRatio || 1);
+    }
+
+    let needleMhz = null;
+    let nearestDragNorad = null;
+    let nearestDragMhz = null; // the specific frequency line closest to needle
+
+    function drawFreqStrip(satellites) {
+      if (!freqCtx) return;
+      const c = freqCtx;
+      const w = c.canvas.width;
+      const h = c.canvas.height;
+
+      c.clearRect(0, 0, w, h);
+      c.fillStyle = '#0f172a';
+      c.fillRect(0, 0, w, h);
+
+      const freqs = [];
+      for (const sat of satellites) {
+        const norad = sat.satellite?.norad_id;
+        const txList = transmitterCache[norad];
+        if (!txList) continue;
+        for (const tx of txList) {
+          if (tx.downlink_mhz) freqs.push({ mhz: tx.downlink_mhz, type: 'downlink', norad, name: sat.satellite.name, mode: tx.mode, desc: tx.description });
+          if (tx.uplink_mhz) freqs.push({ mhz: tx.uplink_mhz, type: 'uplink', norad, name: sat.satellite.name, mode: tx.mode, desc: tx.description });
+        }
+      }
+      window._freqData = freqs;
+      document.getElementById('freq-count').textContent = `${freqs.length} active`;
+
+      if (freqs.length === 0) {
+        c.fillStyle = '#475569';
+        c.font = `${Math.round(h * 0.2)}px monospace`;
+        c.textAlign = 'center';
+        c.fillText('No active frequencies overhead', w / 2, h / 2 + h * 0.07);
+        nearestDragNorad = null;
+        return;
+      }
+
+      const allMhz = freqs.map(f => f.mhz);
+      const dataMin = Math.floor(Math.min(...allMhz) / 10) * 10;
+      const dataMax = Math.ceil(Math.max(...allMhz) / 10) * 10;
+      const span = dataMax - dataMin;
+      // Ensure minimum 40 MHz visible range so narrow clusters don't stretch labels
+      const minSpan = 40;
+      const pad = span < minSpan ? (minSpan - span) / 2 + 5 : Math.max(10, span * 0.08);
+      freqRange.min = Math.max(0, dataMin - pad);
+      freqRange.max = dataMax + pad;
+      document.getElementById('freq-min').textContent = Math.round(freqRange.min) + ' MHz';
+      document.getElementById('freq-max').textContent = Math.round(freqRange.max) + ' MHz';
+      const range = freqRange.max - freqRange.min;
+
+      // Find nearest single line to needle during drag
+      if (needleMhz !== null) {
+        let nearest = null, bestDist = Infinity;
+        for (const f of freqs) {
+          const d = Math.abs(f.mhz - needleMhz);
+          if (d < bestDist) { bestDist = d; nearest = f; }
+        }
+        nearestDragNorad = nearest ? nearest.norad : null;
+        nearestDragMhz = nearest ? nearest.mhz : null;
+        selectedNorad = nearestDragNorad;
+        skyTrackCache = { norad: null, points: [] };
+      } else {
+        nearestDragNorad = null;
+        nearestDragMhz = null;
+      }
+
+      // Draw frequency lines 鈥?linear positions
+      for (const f of freqs) {
+        const x = ((f.mhz - freqRange.min) / range) * w;
+        const isDown = f.type === 'downlink';
+        const isNearest = freqDragging && f.mhz === nearestDragMhz && f.norad === nearestDragNorad;
+        const isHighlighted = !freqDragging && f.norad === selectedNorad;
+        const highlight = isNearest || isHighlighted;
+
+        const isUp = f.type === 'uplink';
+
+        c.save();
+        const baseColor = isUp ? '#f59e0b' : '#22d3ee';
+        const lineColor = highlight ? '#ffee00' : baseColor;
+        c.shadowColor = lineColor;
+        c.shadowBlur = highlight ? 18 : 8;
+        c.strokeStyle = lineColor;
+        c.globalAlpha = highlight ? 1.0 : (freqDragging ? 0.25 : 0.7);
+        c.lineWidth = highlight ? 3 : 1.5;
+        c.beginPath();
+        c.moveTo(x, h * 0.18);
+        c.lineTo(x, h * 0.65);
+        c.stroke();
+        c.restore();
+
+        c.textAlign = 'center';
+        if (highlight) {
+          c.fillStyle = '#ffee00';
+          c.globalAlpha = 1.0;
+          c.font = `bold ${Math.round(h * 0.13)}px monospace`;
+          const label = `${isUp ? '鈫? : '鈫?} ${f.mhz.toFixed(3)}  ${f.name}`;
+          c.fillText(label, x, isUp ? h * 0.13 : h * 0.80);
+        } else {
+          c.fillStyle = '#94a3b8';
+          c.globalAlpha = freqDragging ? 0.15 : 0.6;
+          c.font = `${Math.round(h * 0.11)}px monospace`;
+          c.fillText(f.mhz.toFixed(1), x, isUp ? h * 0.13 : h * 0.80);
+        }
+        c.globalAlpha = 1;
+      }
+
+      // Needle line
+      if (needleMhz !== null) {
+        const nx = ((needleMhz - freqRange.min) / range) * w;
+        c.strokeStyle = 'rgba(255,255,255,0.9)';
+        c.lineWidth = 1.5;
+        c.beginPath();
+        c.moveTo(nx, 0);
+        c.lineTo(nx, h);
+        c.stroke();
+        // Needle head
+        c.fillStyle = 'rgba(255,255,255,0.9)';
+        c.beginPath();
+        c.arc(nx, 4, 3, 0, Math.PI * 2);
+        c.fill();
+      }
+    }
+
+    // 鈹€鈹€ Satellite Table 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    function renderTable(satellites) {
+      const container = document.getElementById('sat-table');
+      if (!container) return;
+
+      if (satellites.length === 0) {
+        container.innerHTML = '<p class="text-sm text-gray-500 py-4 text-center">No amateur radio satellites overhead right now.</p>';
+        return;
+      }
+
+      let html = `<table class="w-full text-sm">
+        <thead><tr class="text-xs text-gray-400 border-b border-slate-700">
+          <th class="text-left py-1 px-2">Satellite</th>
+          <th class="text-left py-1 px-2">Downlink</th>
+          <th class="text-left py-1 px-2">Uplink</th>
+          <th class="text-left py-1 px-2">Mode</th>
+          <th class="text-right py-1 px-2">Doppler</th>
+          <th class="text-right py-1 px-2">El/Az</th>
+        </tr></thead><tbody>`;
+
+      for (const sat of satellites) {
+        const norad = sat.satellite?.norad_id;
+        const name = sat.satellite?.name || 'Unknown';
+        const el = (sat.elevation * 180 / Math.PI).toFixed(0);
+        const az = (sat.azimuth * 180 / Math.PI).toFixed(0);
+        const txList = transmitterCache[norad] || [];
+        const doppler = computeDoppler(sat);
+        const cInfo = contactSummary[norad];
+        const contactBadge = cInfo ? `<span class="ml-1 px-1 py-0.5 bg-green-900/50 text-green-400 rounded text-[10px]" title="Last heard ${timeAgo(new Date(cInfo.last_heard))}">${cInfo.contacts}鉁?/span>` : '';
+        const isFav = isAmsatFavorite(norad);
+        const favStar = `<span class="cursor-pointer select-none ${isFav ? 'text-yellow-400' : 'text-gray-600 hover:text-yellow-400'}" onclick="toggleAmsatFav(${norad}, '${name.replace(/'/g, "\\'")}')" title="${isFav ? 'Remove from favorites' : 'Add to favorites'}">鈽?/span>`;
+
+        if (txList.length === 0) {
+          html += `<tr class="border-b border-slate-700/50 hover:bg-slate-700/30">
+            <td class="py-1.5 px-2">${favStar} <a href="/sat/${norad}" class="text-blue-400 hover:text-blue-300">${name}</a>${contactBadge}</td>
+            <td class="py-1.5 px-2 text-gray-500" colspan="3">Loading...</td>
+            <td class="text-right py-1.5 px-2 text-gray-400">鈥?/td>
+            <td class="text-right py-1.5 px-2 text-gray-500 text-xs min-w-[3.5em]">${el}掳/${az}掳</td>
+          </tr>`;
+        } else {
+          for (let i = 0; i < txList.length; i++) {
+            const tx = txList[i];
+            const dlShift = formatDopplerShift(tx.downlink_mhz, doppler);
+            const ulShift = formatDopplerShift(tx.uplink_mhz, doppler);
+            // For downlink: satellite transmits, we receive (use doppler as-is)
+            // For uplink: we transmit, need to pre-compensate (negate the shift)
+            const dopplerColor = doppler && doppler.rangeRateKmS < 0 ? 'text-green-400' : 'text-red-400';
+            html += `<tr class="border-b border-slate-700/50 hover:bg-slate-700/30">`;
+            if (i === 0) {
+              html += `<td class="py-1.5 px-2" rowspan="${txList.length}">${favStar} <a href="/sat/${norad}" class="text-blue-400 hover:text-blue-300">${name}</a>${contactBadge}</td>`;
+            }
+            const txIdx = i;
+            html += `<td class="py-1.5 px-2 font-mono text-cyan-400 text-xs">${tx.downlink_mhz ? tx.downlink_mhz + ' MHz' : '鈥?}</td>
+              <td class="py-1.5 px-2 font-mono text-amber-400 text-xs">${tx.uplink_mhz ? tx.uplink_mhz + ' MHz' : '鈥?}</td>
+              <td class="py-1.5 px-2 text-gray-400 text-xs">${tx.mode || tx.description || '鈥?} <button class="text-cyan-500 hover:text-cyan-300 ml-1" onclick="showTxDetail(${norad}, ${txIdx})" title="Transmitter details">鈸?/button></td>`;
+            if (i === 0) {
+              html += `<td class="text-right py-1.5 px-2 font-mono ${dopplerColor} text-xs" rowspan="${txList.length}">${dlShift}</td>
+                <td class="text-right py-1.5 px-2 text-gray-500 text-xs" rowspan="${txList.length}">${el}掳/${az}掳</td>`;
+            }
+            html += `</tr>`;
+          }
+        }
+      }
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    // 鈹€鈹€ Transmitter Detail Panel 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    window.showTxDetail = function(norad, txIdx) {
+      const panel = document.getElementById('tx-detail-panel');
+      const title = document.getElementById('tx-detail-title');
+      const content = document.getElementById('tx-detail-content');
+      if (!panel || !content) return;
+
+      const txList = transmitterCache[norad];
+      if (!txList || !txList[txIdx]) return;
+
+      const tx = txList[txIdx];
+      const sat = skyData.find(s => s.satellite?.norad_id === norad);
+      const satName = sat?.satellite?.name || `NORAD ${norad}`;
+      const cInfo = contactSummary[norad];
+
+      title.textContent = `${satName} 鈥?${tx.description || tx.mode || 'Transmitter'}`;
+
+      let html = '<div class="space-y-1.5">';
+
+      // Status indicator
+      let statusDot = 'text-blue-400';
+      let statusText = 'Status unknown';
+      if (cInfo) {
+        const lastMs = Date.now() - new Date(cInfo.last_heard).getTime();
+        if (lastMs < 86400000) { statusDot = 'text-green-400'; statusText = `Active 鈥?last heard ${timeAgo(new Date(cInfo.last_heard))}`; }
+        else if (lastMs < 7 * 86400000) { statusDot = 'text-yellow-400'; statusText = `Last heard ${timeAgo(new Date(cInfo.last_heard))}`; }
+        else { statusDot = 'text-red-400'; statusText = `No signal since ${timeAgo(new Date(cInfo.last_heard))}`; }
+      }
+      html += `<div class="flex items-center gap-1 ${statusDot}"><span class="text-[6px]">鈼?/span><span>${statusText}</span></div>`;
+
+      // Description
+      html += `<div class="font-bold text-gray-300 uppercase tracking-wider">${tx.description || tx.mode || '鈥?}</div>`;
+
+      // Frequencies
+      if (tx.downlink_mhz) {
+        html += `<div class="flex gap-2"><span class="text-gray-500">鈫?DL</span><span class="text-cyan-400 font-mono">${tx.downlink_mhz} MHz</span></div>`;
+      }
+      if (tx.uplink_mhz) {
+        html += `<div class="flex gap-2"><span class="text-gray-500">鈫?UL</span><span class="text-amber-400 font-mono">${tx.uplink_mhz} MHz</span></div>`;
+      }
+
+      // Mode & type
+      if (tx.mode) html += `<div class="text-gray-400">Mode: ${tx.mode}</div>`;
+      if (tx.type) html += `<div class="text-gray-400">Type: ${tx.type}</div>`;
+      if (tx.baud != null) html += `<div class="text-gray-400">Baud: ${tx.baud}</div>`;
+
+      // Alive status from SatNOGS
+      if (tx.alive !== undefined) {
+        html += `<div class="text-gray-400">SatNOGS status: ${tx.alive ? '<span class="text-green-400">Active</span>' : '<span class="text-red-400">Inactive</span>'}</div>`;
+      }
+
+      // Observation count
+      if (cInfo) {
+        html += `<div class="text-gray-400">Observations: ${cInfo.contacts} in last 24h</div>`;
+      }
+
+      html += '</div>';
+      content.innerHTML = html;
+      panel.classList.remove('hidden');
+    };
+
+    document.getElementById('tx-detail-close')?.addEventListener('click', () => {
+      document.getElementById('tx-detail-panel')?.classList.add('hidden');
+    });
+
+    // 鈹€鈹€ Bulk Transmitter Prefetch 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    let bulkFetchDone = false;
+
+    async function bulkFetchTransmitters() {
+      if (bulkFetchDone || !globe?.dots?.movingPoints) return;
+      bulkFetchDone = true;
+
+      // Extract all NORAD IDs from loaded globe data
+      const allIds = globe.dots.movingPoints
+        .map(s => s.norad_id || s.metadata?.norad_id)
+        .filter(Boolean);
+
+      if (allIds.length === 0) return;
+
+      console.log(`[amsat] Bulk fetching ${allIds.length} satellites`);
+
+      try {
+        // Batch in groups of 200 (endpoint cap)
+        for (let i = 0; i < allIds.length; i += 200) {
+          const batch = allIds.slice(i, i + 200);
+          const resp = await apiFetch(`/satellite/${batch.join(',')}`);
+          if (!resp.ok) continue;
+          const result = await resp.json();
+          if (result.data) {
+            for (const sat of result.data) {
+              transmitterCache[sat.norad_id] = sat.transmitters || [];
+            }
+          }
+        }
+        console.log(`[amsat] Cached transmitters for ${Object.keys(transmitterCache).length} satellites`);
+      } catch (e) {
+        console.warn('[amsat] Bulk fetch failed:', e);
+      }
+    }
+
+    // 鈹€鈹€ Contact Summary Fetch 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    async function fetchContactSummary() {
+      try {
+        const resp = await apiFetch('/api/observations/summary?hours=24');
+        if (!resp.ok) return;
+        const result = await resp.json();
+        contactSummary = {};
+        for (const row of (result.data || [])) {
+          contactSummary[row.norad_cat_id] = { contacts: row.contacts, last_heard: row.last_heard };
+        }
+        console.log(`[amsat] ${Object.keys(contactSummary).length} satellites with recent contacts`);
+      } catch (e) {
+        console.warn('[amsat] Contact summary fetch failed:', e);
+      }
+    }
+
+    document.getElementById('refresh-contacts')?.addEventListener('click', async (e) => {
+      e.target.disabled = true;
+      e.target.textContent = 'Refreshing...';
+      await fetchContactSummary();
+      obsCache = {}; // clear observation detail cache too
+      e.target.textContent = 'Refresh Contacts';
+      e.target.disabled = false;
+    });
+
+    // 鈹€鈹€ Sky Polling Loop 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    let pollTimer = null;
+    let renderTimer = null;
+
+    function startSkyPolling() {
+      updateSky();
+      fetchContactSummary();
+      pollTimer = setInterval(updateSky, 5000);        // full update (table, freq, bulk fetch) every 5s
+      renderTimer = setInterval(renderFrame, 100);      // sky canvas 10fps with fresh positions
+      setInterval(fetchContactSummary, 30 * 60 * 1000); // refresh contact summary every 30 min (backend syncs hourly)
+    }
+
+    function renderFrame() {
+      if (!globe || !globe.getInMySky) return;
+      try {
+        const result = globe.getInMySky(5);
+        const sats = result?.satellites || [];
+        skyData = sats;
+        const filtered = getFilteredSats(sats);
+        drawSkyView(filtered);
+        drawFreqStrip(filtered);
+      } catch (e) { /* silent */ }
+    }
+
+    async function updateSky() {
+      if (!globe || !globe.getInMySky) return;
+
+      try {
+        const result = globe.getInMySky(5);
+        const sats = result?.satellites || [];
+        skyData = sats;
+
+        // Update title with location and local time
+        const prefs = globe.preferences;
+        const titleEl = document.getElementById('sky-title');
+        if (titleEl && prefs?.homeLat && prefs?.homeLon) {
+          const latStr = `${Math.abs(prefs.homeLat).toFixed(1)}掳${prefs.homeLat >= 0 ? 'N' : 'S'}`;
+          const lonStr = `${Math.abs(prefs.homeLon).toFixed(1)}掳${prefs.homeLon >= 0 ? 'E' : 'W'}`;
+          const now = globe.wallclock ? new Date(globe.wallclock.now()) : new Date();
+          const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          titleEl.textContent = `Sky view from ${latStr} ${lonStr} at ${timeStr}`;
+        }
+
+        const filtered = getFilteredSats(sats);
+        document.getElementById('sky-count').textContent = `${filtered.length} satellite${filtered.length !== 1 ? 's' : ''} overhead`;
+
+        if (!bulkFetchDone) await bulkFetchTransmitters();
+        renderTable(filtered);
+
+      } catch (e) {
+        console.warn('Sky update error:', e);
+      }
+    }
+
+    // 鈹€鈹€ Observation Info Box 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    const obsBox = document.getElementById('obs-box');
+    const obsContent = document.getElementById('obs-content');
+    const obsSatName = document.getElementById('obs-sat-name');
+    let obsCache = {}; // norad 鈫?{ data, timestamp }
+
+    document.getElementById('obs-close')?.addEventListener('click', () => {
+      selectedNorad = null;
+      obsBox.classList.add('hidden');
+    });
+
+    async function showObservations(norad) {
+      if (!norad) {
+        obsBox.classList.add('hidden');
+        return;
+      }
+
+      // Find satellite name from current sky data
+      const sat = skyData.find(s => s.satellite?.norad_id === norad);
+      const name = sat?.satellite?.name || `NORAD ${norad}`;
+      obsSatName.textContent = name;
+      obsBox.classList.remove('hidden');
+
+      // Check cache (5 min TTL)
+      const cached = obsCache[norad];
+      if (cached && Date.now() - cached.timestamp < 300000) {
+        renderObsContent(cached.data, norad);
+        return;
+      }
+
+      obsContent.textContent = 'Loading observations...';
+
+      try {
+        const resp = await apiFetch(`/api/observations/${norad}`);
+        if (!resp.ok) throw new Error(resp.status);
+        const result = await resp.json();
+        obsCache[norad] = { data: result.data || [], timestamp: Date.now() };
+        renderObsContent(result.data || [], norad);
+      } catch (e) {
+        obsContent.textContent = 'No observation data available';
+      }
+    }
+
+    function renderObsContent(observations, norad) {
+      if (observations.length === 0) {
+        obsContent.innerHTML = '<p class="text-gray-500">No recent observations from SatNOGS network.</p>';
+        return;
+      }
+
+      let html = '';
+      for (const obs of observations) {
+        const ago = timeAgo(new Date(obs.start));
+        const freq = obs.frequency_mhz ? obs.frequency_mhz.toFixed(3) + ' MHz' : '';
+        const mode = obs.transmitter_mode || '';
+        const station = obs.station_name || obs.observer || '?';
+        const el = obs.max_altitude ? `${obs.max_altitude.toFixed(0)}掳` : '';
+        html += `<div class="border-b border-slate-700/50 py-1.5">
+          <div class="flex justify-between">
+            <span class="text-green-400">${station}</span>
+            <span class="text-gray-500">${ago}</span>
+          </div>
+          <div class="text-gray-400">${freq} ${mode} ${el ? '路 max ' + el : ''}</div>
+        </div>`;
+      }
+
+      html += `<a href="#offline-external"
+        target="_blank" rel="noopener" class="block text-blue-400 hover:text-blue-300 text-center mt-2 pt-1 border-t border-slate-700">
+        View all on SatNOGS 鈫?      </a>`;
+
+      obsContent.innerHTML = html;
+
+      // Fetch and append the contact matrix
+      fetchContactMatrix(norad);
+    }
+
+    let matrixCache = {}; // norad 鈫?{ data, timestamp }
+
+    async function fetchContactMatrix(norad) {
+      const cached = matrixCache[norad];
+      if (cached && Date.now() - cached.timestamp < 300000) {
+        renderContactMatrix(cached.data, norad);
+        return;
+      }
+      try {
+        const resp = await apiFetch(`/api/observations/${norad}/matrix?days=14`);
+        if (!resp.ok) return;
+        const result = await resp.json();
+        const rows = result.data || [];
+        matrixCache[norad] = { data: rows, timestamp: Date.now() };
+        renderContactMatrix(rows, norad);
+      } catch (e) { /* silent */ }
+    }
+
+    function renderContactMatrix(rows, norad) {
+      if (!rows.length) return;
+
+      // Build grid: transmitter 鈫?{ day 鈫?count }
+      const txMap = new Map();
+      const daySet = new Set();
+      for (const r of rows) {
+        const day = r.day.slice(0, 10); // YYYY-MM-DD
+        daySet.add(day);
+        if (!txMap.has(r.transmitter)) txMap.set(r.transmitter, {});
+        txMap.get(r.transmitter)[day] = r.contacts;
+      }
+
+      const days = [...daySet].sort();
+      const txNames = [...txMap.keys()].sort();
+
+      // Day labels: just DD
+      const dayLabels = days.map(d => d.slice(8)); // DD
+
+      let html = `<div class="mt-2 pt-2 border-t border-slate-700">
+        <div class="text-[9px] text-gray-500 mb-1">Contacts (14 days)</div>
+        <div class="overflow-x-auto">
+        <table class="text-[9px] border-collapse" style="border-spacing:1px">
+          <tr><td></td>${dayLabels.map(d => `<td class="px-0.5 text-gray-600 text-center">${d}</td>`).join('')}</tr>`;
+
+      for (const tx of txNames) {
+        const counts = txMap.get(tx);
+        // Truncate long names
+        const label = tx.length > 18 ? tx.slice(0, 16) + '鈥? : tx;
+        html += `<tr><td class="pr-1 text-gray-400 whitespace-nowrap">${label}</td>`;
+        for (const day of days) {
+          const c = counts[day] || 0;
+          if (c === 0) {
+            html += `<td class="px-0.5 text-center"><span class="text-gray-700">路</span></td>`;
+          } else {
+            const intensity = Math.min(c / 10, 1);
+            const g = Math.round(80 + 175 * intensity);
+            html += `<td class="px-0.5 text-center"><span class="inline-block min-w-[14px] rounded px-0.5" style="background:rgb(15,${Math.round(40+60*intensity)},25);color:rgb(30,${g},60)">${c}</span></td>`;
+          }
+        }
+        html += '</tr>';
+      }
+
+      html += '</table></div></div>';
+
+      // Append to existing obs content
+      obsContent.innerHTML += html;
+    }
+
+    // 鈹€鈹€ Pass Predictions 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    function showPasses(norad) {
+      const container = document.getElementById('pass-table');
+      const titleEl = document.getElementById('passes-title');
+      if (!container) return;
+
+      if (!norad || !globe) {
+        if (titleEl) titleEl.textContent = 'Passes';
+        container.innerHTML = '<p class="text-sm text-gray-500 py-4 text-center">Search for a satellite to see upcoming passes</p>';
+        return;
+      }
+
+      const satName = skyData.find(s => s.satellite?.norad_id === norad)?.satellite?.name || norad;
+      if (titleEl) titleEl.textContent = `${satName} Passes`;
+
+      const passes = globe.calculatePasses(norad, { hoursForward: 48, minElevation: 3 });
+
+      if (!passes || passes.length === 0) {
+        container.innerHTML = `<p class="text-sm text-gray-500 py-4 text-center">No passes for ${satName} in next 48h</p>`;
+        return;
+      }
+
+      let html = `<table class="w-full text-sm">
+        <thead><tr class="text-xs text-gray-400 border-b border-slate-700">
+          <th class="text-left py-1 px-1">Time</th>
+          <th class="w-5"></th>
+          <th class="text-right py-1 px-1">Peak</th>
+          <th class="text-right py-1 px-1">Dur</th>
+          <th class="text-left py-1 px-1">Az</th>
+        </tr></thead><tbody>`;
+
+      for (const p of passes) {
+        const start = new Date(p.start);
+        const isPast = p.isPast;
+        const lowPass = !isPast && p.peakElevation < 10;
+        const rowClass = isPast ? 'text-gray-600' : lowPass ? 'text-gray-500/60' : '';
+        const dateStr = start.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+        const timeStr = start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        const peakEl = p.peakElevation + '掳';
+        const dur = p.duration < 60 ? p.duration + 's' : Math.floor(p.duration / 60) + 'm' + (p.duration % 60 ? (p.duration % 60) + 's' : '');
+        const azStr = `${Math.round(p.startAzimuth)}鈫?{Math.round(p.endAzimuth)}掳`;
+
+        // Bell alarm icon
+        let bellHtml = '';
+        if (!isPast) {
+          const key = getAlarmKey(norad, start.getTime());
+          const isSet = passAlarms.has(key);
+          const escapedName = satName.toString().replace(/'/g, "\\'");
+          const bellSvg = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>`;
+          if (isSet) {
+            bellHtml = `<td class="py-1 px-0 text-center"><button onclick="clearPassAlarmFromRow('${key}')" class="text-yellow-400 hover:text-yellow-300" title="Cancel alarm">${bellSvg}</button></td>`;
+          } else {
+            bellHtml = `<td class="py-1 px-0 text-center"><button onclick="setPassAlarmFromRow(${norad}, '${escapedName}', '${start.toISOString()}')" class="text-gray-600 hover:text-yellow-400" title="Set alarm">${bellSvg}</button></td>`;
+          }
+        } else {
+          bellHtml = '<td></td>';
+        }
+
+        const bright = (isPast || lowPass) ? '' : 'text-white';
+        html += `<tr class="border-b border-slate-700/50 ${rowClass}">
+          <td class="py-1 px-1 text-xs">${dateStr} <span class="${bright}">${timeStr}</span></td>
+          ${bellHtml}
+          <td class="text-right py-1 px-1 text-xs ${bright}">${peakEl}</td>
+          <td class="text-right py-1 px-1 text-xs text-gray-400">${dur}</td>
+          <td class="py-1 px-1 text-xs text-gray-400">${azStr}</td>
+        </tr>`;
+      }
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    function timeAgo(date) {
+      const ms = Date.now() - date.getTime();
+      const mins = Math.floor(ms / 60000);
+      if (mins < 1) return 'just now';
+      if (mins < 60) return `${mins}m ago`;
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return `${hrs}h ago`;
+      return `${Math.floor(hrs / 24)}d ago`;
+    }
+
+    // 鈹€鈹€ Sky Canvas Click 鈫?Select/Deselect Satellite 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    document.getElementById('skyCanvas')?.addEventListener('click', (e) => {
+      const canvas = e.target;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const mx = (e.clientX - rect.left) * dpr;
+      const my = (e.clientY - rect.top) * dpr;
+
+      // Hit test against satellite body center
+      let hit = null;
+      for (const p of lastSkyPositions) {
+        const dx = mx - p.x, dy = my - p.y;
+        const hitR = Math.max(p.s * 1.5, 12); // body radius with minimum tap target
+        if (dx * dx + dy * dy < hitR * hitR) {
+          hit = p.norad;
+          break;
+        }
+      }
+      // Toggle selection + orbit/focus on globe
+      const prev = selectedNorad;
+      selectedNorad = (hit === selectedNorad) ? null : hit;
+      skyTrackCache = { norad: null, points: [] }; // invalidate track cache
+      if (globe) {
+        if (prev) globe.setOrbitVisible(prev, false);
+        if (selectedNorad) {
+          globe.setOrbitVisible(selectedNorad, true);
+          globe.focusExistingSatellite(selectedNorad);
+        } else {
+          globe.focusHome();
+        }
+      }
+      showObservations(selectedNorad);
+      showPasses(selectedNorad);
+    });
+
+    // 鈹€鈹€ Frequency Strip Drag 鈫?Select Satellite 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    const freqCanvas = document.getElementById('freqCanvas');
+
+    function clientXToMhz(clientX) {
+      if (!freqCanvas) return null;
+      const rect = freqCanvas.getBoundingClientRect();
+      const frac = (clientX - rect.left) / rect.width;
+      return freqRange.min + frac * (freqRange.max - freqRange.min);
+    }
+
+    freqCanvas?.addEventListener('mousedown', (e) => {
+      freqDragging = true;
+      needleMhz = clientXToMhz(e.clientX);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!freqDragging) return;
+      needleMhz = clientXToMhz(e.clientX);
+      if (skyData.length) drawFreqStrip(getFilteredSats(skyData));
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (freqDragging) {
+        freqDragging = false;
+        needleMhz = null;
+        if (nearestDragNorad) { selectedNorad = nearestDragNorad; showObservations(selectedNorad); showPasses(selectedNorad); }
+      }
+    });
+
+    // Touch support for frequency strip drag
+    freqCanvas?.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      freqDragging = true;
+      needleMhz = clientXToMhz(e.touches[0].clientX);
+    }, { passive: false });
+
+    freqCanvas?.addEventListener('touchmove', (e) => {
+      if (!freqDragging) return;
+      e.preventDefault();
+      needleMhz = clientXToMhz(e.touches[0].clientX);
+      if (skyData.length) drawFreqStrip(getFilteredSats(skyData));
+    }, { passive: false });
+
+    freqCanvas?.addEventListener('touchend', () => {
+      if (freqDragging) {
+        freqDragging = false;
+        needleMhz = null;
+        if (nearestDragNorad) { selectedNorad = nearestDragNorad; showObservations(selectedNorad); showPasses(selectedNorad); }
+      }
+    });
+
+    // 鈹€鈹€ Time Controls 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    document.getElementById('time-back')?.addEventListener('click', () => {
+      if (!globe?.setClock) return;
+      globe.setClock(new Date(globe.wallclock.now() - 3600000));
+      skyTrackCache = { norad: null, points: [] };
+      updateSky();
+    });
+
+    document.getElementById('time-fwd')?.addEventListener('click', () => {
+      if (!globe?.setClock) return;
+      globe.setClock(new Date(globe.wallclock.now() + 3600000));
+      skyTrackCache = { norad: null, points: [] };
+      updateSky();
+    });
+
+    document.getElementById('time-reset')?.addEventListener('click', () => {
+      if (!globe?.setClock) return;
+      skyTrackCache = { norad: null, points: [] };
+      globe.setClock(new Date());
+      updateSky();
+    });
+
+    // 鈹€鈹€ Satellite Search 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    const searchInput = document.getElementById('amsat-search');
+    const searchResults = document.getElementById('amsat-search-results');
+    let searchDebounce = null;
+
+    searchInput?.addEventListener('input', () => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => doSearch(searchInput.value.trim()), 150);
+    });
+
+    searchInput?.addEventListener('focus', () => {
+      if (searchInput.value.trim().length >= 1) doSearch(searchInput.value.trim());
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!searchInput?.contains(e.target) && !searchResults?.contains(e.target)) {
+        searchResults?.classList.add('hidden');
+      }
+    });
+
+    function doSearch(query) {
+      if (!query || query.length < 1 || !globe?.dots?.movingPoints) {
+        searchResults.classList.add('hidden');
+        return;
+      }
+
+      const q = query.toLowerCase();
+      const qNum = parseFloat(query);
+      const isFreqSearch = !isNaN(qNum) && qNum > 30;
+      const matches = globe.dots.movingPoints
+        .filter(s => {
+          const name = (s.name || s.metadata?.sat_name || '').toLowerCase();
+          const norad = String(s.norad_id || '');
+          if (name.includes(q) || norad.startsWith(q)) return true;
+          if (isFreqSearch) {
+            const txs = transmitterCache[s.norad_id];
+            if (txs) return txs.some(tx => {
+              const dl = tx.downlink_low / 1e6;
+              const ul = tx.uplink_low ? tx.uplink_low / 1e6 : 0;
+              return (dl > 0 && Math.abs(dl - qNum) < 1) || (ul > 0 && Math.abs(ul - qNum) < 1);
+            });
+          }
+          return false;
+        })
+        .slice(0, 15);
+
+      if (matches.length === 0) {
+        searchResults.innerHTML = '<div class="px-3 py-2 text-xs text-gray-500">No matches</div>';
+        searchResults.classList.remove('hidden');
+        return;
+      }
+
+      searchResults.innerHTML = matches.map(s => {
+        const name = s.name || s.metadata?.sat_name || 'Unknown';
+        const norad = s.norad_id;
+        const hasTx = transmitterCache[norad]?.length > 0;
+        const hasObs = contactSummary[norad];
+        const badges = (hasTx ? '<span class="text-cyan-400">鈼?/span>' : '') +
+                       (hasObs ? '<span class="text-green-400 ml-1">鈼?/span>' : '');
+        let freqHint = '';
+        if (isFreqSearch && transmitterCache[norad]) {
+          const match = transmitterCache[norad].find(tx => {
+            const dl = tx.downlink_low / 1e6;
+            const ul = tx.uplink_low ? tx.uplink_low / 1e6 : 0;
+            return (dl > 0 && Math.abs(dl - qNum) < 1) || (ul > 0 && Math.abs(ul - qNum) < 1);
+          });
+          if (match) freqHint = ` <span class="text-cyan-400">${(match.downlink_low/1e6).toFixed(3)}</span>`;
+        }
+        return `<div class="px-3 py-1.5 text-xs text-gray-300 hover:bg-slate-700 cursor-pointer flex justify-between items-center" data-norad="${norad}">
+          <span>${name} <span class="text-gray-500">${norad}</span>${freqHint}</span>
+          <span>${badges}</span>
+        </div>`;
+      }).join('');
+
+      searchResults.querySelectorAll('[data-norad]').forEach(el => {
+        el.addEventListener('click', () => {
+          const norad = parseInt(el.dataset.norad);
+          searchResults.classList.add('hidden');
+          searchInput.value = el.querySelector('span').textContent.trim();
+
+          // Select satellite 鈥?same as sky canvas click
+          const prev = selectedNorad;
+          selectedNorad = norad;
+          skyTrackCache = { norad: null, points: [] };
+          if (globe) {
+            if (prev) globe.setOrbitVisible(prev, false);
+            globe.setOrbitVisible(norad, true);
+            globe.focusExistingSatellite(norad);
+          }
+          showObservations(norad);
+          showPasses(norad);
+        });
+      });
+
+      searchResults.classList.remove('hidden');
+    }
+
+    // 鈹€鈹€ Init 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    initSkyCanvas();
+    initFreqCanvas();
+    initGlobe();
+
+    // Re-measure canvases after layout settles (fonts, flexbox, images)
+    setTimeout(() => { resizeSkyCanvas(); resizeFreqCanvas(); }, 500);
+
+    // Cleanup on unload
+    window.addEventListener('beforeunload', () => {
+      if (pollTimer) clearInterval(pollTimer);
+      if (renderTimer) clearInterval(renderTimer);
+    });
+  </script>  </main> <!-- Development API Toggle Footer (localhost only) --> <div id="api-toggle-footer" class="fixed bottom-4 right-4 z-30 bg-gray-800/90 backdrop-blur-sm rounded-lg p-3 border border-gray-600 text-sm hidden" data-astro-cid-37fxchfa> <div class="flex items-center gap-2" data-astro-cid-37fxchfa> <span class="text-gray-300" data-astro-cid-37fxchfa>API:</span> <button id="api-toggle-btn" class="px-2 py-1 rounded text-xs font-mono border transition-colors" data-astro-cid-37fxchfa> <!-- Will be populated by JavaScript --> </button> <button id="api-toggle-close" class="text-gray-400 hover:text-white ml-2" title="Hide" data-astro-cid-37fxchfa>脳</button> </div> </div> <script type="module" src="/_astro/BaseLayout.astro_astro_type_script_index_0_lang.CWhBtdny.js"></script> <!-- App peek moved to session init block (only shown to non-logged-in users) --> <!-- Navbar styles are now in global.css --> </body></html>
+

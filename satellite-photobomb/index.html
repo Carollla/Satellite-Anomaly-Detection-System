@@ -1,0 +1,2388 @@
+﻿<!DOCTYPE html><html lang="en" style="scrollbar-gutter: auto !important" class="preload" data-astro-cid-37fxchfa> <head><title>Satellite Photo-bomb Simulator 鈥?Will a Satellite Cross Your Shot? | SatelliteMap.space</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Check if satellites will cross your astrophotography or Earth observation shot. Set location, time, and camera field of view to find Starlink and other satellite trails in your frame."><meta name="keywords" content="satellite photobomb, astrophotography satellites, satellite trail, Starlink trail, satellite in photo, satellite crossing, astrophotography planning"><meta name="author" content="SatelliteMap.space"><meta name="robots" content="index, follow"><!-- Canonical URL --><link rel="canonical" href="/satellite-photobomb"><!-- Hreflang alternate language links (only for pages with translations) --><!-- Open Graph / Facebook + Twitter Card (raw HTML to avoid entity double-encoding) --><meta property="og:type" content="website">
+  <meta property="og:title" content="Satellite Photo-bomb Simulator 鈥?Will a Satellite Cross Your Shot? | SatelliteMap.space">
+  <meta property="og:description" content="Check if satellites will cross your astrophotography or Earth observation shot. Set location, time, and camera field of view to find Starlink and other satellite trails in your frame.">
+  <meta property="og:image" content="/og-preview-v2.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="/satellite-photobomb">
+  <meta property="og:site_name" content="SatelliteMap.space">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@SatelliteMapApp">
+  <meta name="twitter:creator" content="@SatelliteMapApp">
+  <meta name="twitter:title" content="Satellite Photo-bomb Simulator 鈥?Will a Satellite Cross Your Shot? | SatelliteMap.space">
+  <meta name="twitter:description" content="Check if satellites will cross your astrophotography or Earth observation shot. Set location, time, and camera field of view to find Starlink and other satellite trails in your frame.">
+  <meta name="twitter:image" content="/og-preview-v2.jpg"><!-- Apple Mobile --><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Satellite Map"><!-- Structured Data --><link rel="icon" type="image/png" href="/favicon-96x96.png?v5" sizes="96x96"><link rel="icon" type="image/svg+xml" href="/favicon.svg?v5"><link rel="shortcut icon" href="/favicon.ico?v5"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v5"><meta name="apple-mobile-web-app-title" content="Satellite Map"><meta name="msapplication-TileColor" content="#da532c"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#000"><!-- Styles are imported via the frontmatter above --><link rel="stylesheet" href="/_astro/_constellation_path_.othtnewT.css">
+<link rel="stylesheet" href="/_astro/satellite-photobomb.BPPlVvcd.css"></head> <body class="bg-black text-white" data-astro-cid-37fxchfa> <!-- Flowbite Dark Navbar - EXACT COPY from index.html --> <nav class="border-gray-700 fixed w-full z-20 top-0 start-0 border-b" data-astro-cid-37fxchfa> <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto px-2 py-1" data-astro-cid-37fxchfa> <!-- Mobile burger button (all mobile orientations) --> <button id="mobile-menu-toggle" type="button" class="navbar-mobile-custom items-center p-1.5 w-8 h-8 justify-center text-sm text-white rounded-lg hover:bg-gray-700 focus:outline-none mr-3" data-astro-cid-37fxchfa> <span class="sr-only" data-astro-cid-37fxchfa>Open main menu</span> <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14" data-astro-cid-37fxchfa> <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15" data-astro-cid-37fxchfa></path> </svg> </button> <!-- Logo (smaller and centered on mobile) --> <a href="/about" data-route="/about" class="flex items-center space-x-2 rtl:space-x-reverse" data-astro-cid-37fxchfa> <div class="px-[1px]" data-astro-cid-37fxchfa> <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 68 68" data-astro-cid-37fxchfa> <g id="busy-indicator" class="atom-logo" transform="translate(34, 34)" stroke="#1a73e8" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" data-astro-cid-37fxchfa> <circle cx="0" cy="0" r="8" fill="#1a73e8" stroke="#1ad7e8" data-astro-cid-37fxchfa></circle> <ellipse rx="32" ry="8" transform="rotate(0)" data-astro-cid-37fxchfa></ellipse> <ellipse rx="32" ry="8" transform="rotate(60)" data-astro-cid-37fxchfa></ellipse> <ellipse rx="32" ry="8" transform="rotate(120)" data-astro-cid-37fxchfa></ellipse> <ellipse rx="32" ry="8" transform="rotate(30)" stroke="#34a853" data-astro-cid-37fxchfa></ellipse> <ellipse rx="32" ry="8" transform="rotate(90)" data-astro-cid-37fxchfa></ellipse> <ellipse rx="32" ry="8" transform="rotate(150)" data-astro-cid-37fxchfa></ellipse> </g> </svg> </div> <span class="self-center text-lg font-medium whitespace-nowrap text-white" data-astro-cid-37fxchfa>
+satellitemap<span class="text-blue-400" data-astro-cid-37fxchfa>.space</span> </span> </a> <!-- Spacer for mobile to center logo --> <div class="w-8 navbar-mobile-spacer" style="display: none;" data-astro-cid-37fxchfa></div> <!-- Desktop menu --> <div class="navbar-desktop-custom" id="navbar-desktop" style="display: none; width: auto;" data-astro-cid-37fxchfa> <ul class="flex items-center space-x-6" data-astro-cid-37fxchfa> <!-- People in Space --> <li class="flex items-center" data-astro-cid-37fxchfa> <a href="/people" data-route="/people" class="navbar-link" data-translate="people" data-astro-cid-37fxchfa>People</a> </li> <!-- News --> <li class="flex items-center" data-astro-cid-37fxchfa> <a href="/news" data-route="/news" class="navbar-link" data-translate="news" data-astro-cid-37fxchfa>Satellite News</a> </li> <!-- Visualizer --> <li class="flex items-center" data-astro-cid-37fxchfa> <a href="/" class="navbar-link" data-astro-cid-37fxchfa>Visualizer</a> </li> <!-- Load Dropdown --> <li class="relative flex items-center" data-astro-cid-37fxchfa> <button id="dropdownLoadLink" data-dropdown-toggle="dropdownLoad" class="navbar-dropdown-button" data-astro-cid-37fxchfa> <span data-astro-cid-37fxchfa>Load</span> <svg class="w-2.5 h-2.5 ms-1 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6" data-astro-cid-37fxchfa> <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" data-astro-cid-37fxchfa></path> </svg> </button> <div id="dropdownLoad" class="navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" aria-labelledby="dropdownLoadLink" data-astro-cid-37fxchfa> <!-- Types Submenu --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Types
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/vis/type/internet" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Internet</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/communications" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Communications</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/global-positioning" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Global Positioning</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/earth-observation" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Earth Observation</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/geostationary" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Geostationary</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/geosynchronous" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Geosynchronous</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/all-functional" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>All Functional</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/debris" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Debris</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/all" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>All</a></li> </ul> </div> </li> <!-- Divider --> <li data-astro-cid-37fxchfa><hr class="my-1 border-gray-600" data-astro-cid-37fxchfa></li> <!-- Constellation Finder --> <li data-astro-cid-37fxchfa> <a href="/constellations" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>
+Finder
+</a> </li> <!-- Divider --> <li data-astro-cid-37fxchfa><hr class="my-1 border-gray-600" data-astro-cid-37fxchfa></li> <!-- Internet Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Internet
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/starlink" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Starlink</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/amazon-leo" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Amazon Leo</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/oneweb" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Oneweb</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/spacesail" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>SpaceSail (鍗冨竼)</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/xingwang" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Guowang (鍥界綉)</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/yinhe" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>GalaxySpace</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/e-space" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>E-space</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/rassvet" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Rassvet</a></li> </ul> </div> </li> <!-- Cellular Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Cellular
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/iridium" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Iridium NEXT</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/globalstar" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Globalstar</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/lynk" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Lynk</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/bluewalker" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Bluewalker</a></li> </ul> </div> </li> <!-- Positioning Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Positioning
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/gps" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>GPS</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/galileo" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Galileo</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/glonass" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>GLONASS</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/beidou" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>BeiDou</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/parus" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Parus</a></li> </ul> </div> </li> <!-- Earth Obs Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Earth Obs
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/planet" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Planet</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/jilin-1" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Jilin-1</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/satelog" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Satelog</a></li> </ul> </div> </li> <!-- Weather Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Weather
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/spire" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Spire</a></li> </ul> </div> </li> <!-- Science Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Science
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/swarm" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Swarm</a></li> </ul> </div> </li> <!-- IoT Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+IoT
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/orbcomm" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Orbcomm</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/geespace" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Geespace</a></li> </ul> </div> </li> </ul> </div> </li> <!-- Functions Dropdown --> <li class="relative flex items-center" data-astro-cid-37fxchfa> <button id="dropdownFunctionsLink" data-dropdown-toggle="dropdownFunctions" class="navbar-dropdown-button" data-astro-cid-37fxchfa> <span data-translate="functions" data-astro-cid-37fxchfa>Functions</span> <svg class="w-2.5 h-2.5 ms-1 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6" data-astro-cid-37fxchfa> <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" data-astro-cid-37fxchfa></path> </svg> </button> <div id="dropdownFunctions" class="navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" aria-labelledby="dropdownFunctionsLink" data-astro-cid-37fxchfa> <!-- Constellation Data --> <li data-astro-cid-37fxchfa><a href="/vis/constellation/starlink/growth" class="navbar-desktop-dropdown-item" title="Constellation growth and statistics" data-astro-cid-37fxchfa> <span data-astro-cid-37fxchfa>Constellation Data</span> </a></li> <!-- To Visualizer --> <li data-astro-cid-37fxchfa><a href="/" class="navbar-desktop-dropdown-item" title="Interactive 3D satellite visualizer" data-astro-cid-37fxchfa> <span data-astro-cid-37fxchfa>To Visualizer</span> </a></li> <!-- Calculators Submenu --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-translate="calculators" data-astro-cid-37fxchfa> Calculators <svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="absolute left-full top-0 hidden group-hover:block navbar-dropdown-menu" id="calculators-submenu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/vis/trains" data-route="/vis/trains" class="navbar-desktop-dropdown-item" title="Calculate satellite train overflights for your location" data-astro-cid-37fxchfa> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" data-astro-cid-37fxchfa></path> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v8a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1h-1M6 16h2M6 8h6" data-astro-cid-37fxchfa></path> </svg> <span class="ml-2" data-astro-cid-37fxchfa>Trains</span> </a></li> <li data-astro-cid-37fxchfa><a href="/vis/sky-transits" class="navbar-desktop-dropdown-item" title="Calculate satellite overflights for your location" data-astro-cid-37fxchfa> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" data-astro-cid-37fxchfa></path> <circle cx="12" cy="10" r="3" data-astro-cid-37fxchfa></circle> </svg> <span class="ml-2" data-astro-cid-37fxchfa>Transits</span> </a></li> <li data-astro-cid-37fxchfa><a href="/vis/interference" class="navbar-desktop-dropdown-item" title="Find when other satellites interfere with line of sight" data-astro-cid-37fxchfa> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" data-astro-cid-37fxchfa></path> </svg> <span class="ml-2" data-astro-cid-37fxchfa>Interference</span> </a></li> <li data-astro-cid-37fxchfa><a href="/vis/altitude-history" class="navbar-desktop-dropdown-item" title="Track satellite orbital decay and altitude changes over time" data-astro-cid-37fxchfa> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" data-astro-cid-37fxchfa></path> </svg> <span class="ml-2" data-astro-cid-37fxchfa>Altitude History</span> </a></li> </ul> </div> </li> <!-- Apps Submenu --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Apps
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="absolute left-full top-0 hidden group-hover:block navbar-dropdown-menu" id="apps-submenu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/re-entries" class="navbar-desktop-dropdown-item" title="Monitor satellites at risk of re-entry" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" data-astro-cid-37fxchfa></path> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>Re-Entries</span> </a></li> <li data-astro-cid-37fxchfa><a href="/transit-finder" class="navbar-desktop-dropdown-item" title="Find when satellites transit the Sun, Moon or planets" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" data-astro-cid-37fxchfa></path> <circle cx="12" cy="12" r="5" data-astro-cid-37fxchfa></circle> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>Transit Finder</span> </a></li> <li data-astro-cid-37fxchfa><a href="/tle-calculator" class="navbar-desktop-dropdown-item" title="Parse and analyze Two-Line Element (TLE) orbital data" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" data-astro-cid-37fxchfa></path> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>TLE Analysis</span> </a></li> <li data-astro-cid-37fxchfa><a href="/satellite-photobomb" class="navbar-desktop-dropdown-item" title="Satellite photobomb simulator" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" data-astro-cid-37fxchfa></path> <circle cx="12" cy="13" r="3" data-astro-cid-37fxchfa></circle> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>Photo Simulator</span> </a></li> <li data-astro-cid-37fxchfa><a href="/satellite-collision-finding" class="navbar-desktop-dropdown-item" title="GPU-accelerated satellite conjunction search" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" data-astro-cid-37fxchfa></path> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>Close Approaches</span> </a></li> <li data-astro-cid-37fxchfa><a href="/amateur-radio" class="navbar-desktop-dropdown-item" title="Live amateur radio satellite tracking with sky view and frequencies" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.14 0M1.394 9.393c5.857-5.858 15.355-5.858 21.213 0" data-astro-cid-37fxchfa></path> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>SatNOGS Radio</span> </a></li> </ul> </div> </li> <!-- Constellations --> <li data-astro-cid-37fxchfa><a href="/constellations" class="navbar-desktop-dropdown-item" title="Browse and search constellations" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <circle cx="6" cy="6" r="1.5" fill="currentColor" data-astro-cid-37fxchfa></circle><circle cx="18" cy="6" r="1.5" fill="currentColor" data-astro-cid-37fxchfa></circle><circle cx="12" cy="18" r="1.5" fill="currentColor" data-astro-cid-37fxchfa></circle><circle cx="6" cy="14" r="1.5" fill="currentColor" data-astro-cid-37fxchfa></circle> <line x1="6" y1="6" x2="18" y2="6" stroke="currentColor" stroke-width="1" data-astro-cid-37fxchfa></line><line x1="18" y1="6" x2="12" y2="18" stroke="currentColor" stroke-width="1" data-astro-cid-37fxchfa></line><line x1="12" y1="18" x2="6" y2="14" stroke="currentColor" stroke-width="1" data-astro-cid-37fxchfa></line><line x1="6" y1="14" x2="6" y2="6" stroke="currentColor" stroke-width="1" data-astro-cid-37fxchfa></line> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>Constellations</span> </a></li> <!-- Historical --> <li data-astro-cid-37fxchfa><a href="/leo-internet-treemap" class="navbar-desktop-dropdown-item" title="Orbital object treemap 鈥?growth over time" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2" data-astro-cid-37fxchfa></rect><rect x="14" y="3" width="7" height="4" rx="1" stroke-width="2" data-astro-cid-37fxchfa></rect><rect x="14" y="10" width="7" height="4" rx="1" stroke-width="2" data-astro-cid-37fxchfa></rect><rect x="3" y="13" width="7" height="8" rx="1" stroke-width="2" data-astro-cid-37fxchfa></rect><rect x="14" y="17" width="7" height="4" rx="1" stroke-width="2" data-astro-cid-37fxchfa></rect> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>Historical</span> </a></li> </ul> </div> </li> <!-- More Dropdown (with user status icon) --> <li class="relative flex items-center" data-astro-cid-37fxchfa> <button id="dropdownMoreLink" data-dropdown-toggle="dropdownMore" class="navbar-dropdown-button" data-astro-cid-37fxchfa> <!-- User Status Icon (inline with More) --> <span id="userStatusIcon" class="inline-flex items-center" title="User status" data-astro-cid-37fxchfa> <!-- Filled icon for verified users --> <svg id="userIconFilled" class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-astro-cid-37fxchfa> <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" data-astro-cid-37fxchfa></path> </svg> <!-- Outline icon for non-verified/logged-out users --> <svg id="userIconOutline" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" data-astro-cid-37fxchfa></path> </svg> </span> <span data-translate="more" data-astro-cid-37fxchfa>More</span> <svg class="w-2.5 h-2.5 ms-1 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6" data-astro-cid-37fxchfa> <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" data-astro-cid-37fxchfa></path> </svg> </button> <div id="dropdownMore" class="navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" aria-labelledby="dropdownMoreLink" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/settings" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Settings</a></li> <li data-astro-cid-37fxchfa><a href="/info" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Info & Updates</a></li> <li data-astro-cid-37fxchfa><a href="/feedback" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Feedback</a></li> <li data-astro-cid-37fxchfa><a href="/credits" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Credits</a></li> <li data-astro-cid-37fxchfa><a href="/space-track-status" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Space-track Status</a></li> </ul> </div> </li> </ul> </div> <!-- Spacer for desktop right margin --> <div class="navbar-desktop-spacer w-15" style="display: none;" data-astro-cid-37fxchfa></div> </div> </nav> <!-- Search trigger icon (appears on top right) --> <div id="search-trigger-icon" data-astro-cid-37fxchfa> <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" data-astro-cid-37fxchfa></path> </svg> </div> <!-- Mobile Slide-Out Menu - EXACT COPY from index.html --> <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 navbar-mobile-overlay opacity-0 pointer-events-none transition-opacity duration-300" data-astro-cid-37fxchfa></div> <div id="mobile-menu" class="navbar-mobile-menu transform -translate-x-full transition-transform duration-300 ease-in-out" data-astro-cid-37fxchfa> <div class="flex flex-col h-full" data-astro-cid-37fxchfa> <!-- Mobile menu items --> <div class="flex-1 overflow-y-auto py-4" data-astro-cid-37fxchfa> <!-- People in Space --> <a href="/people" data-route="/people" onclick="closeMobileMenu()" class="navbar-mobile-link" data-translate="people" data-astro-cid-37fxchfa>
+People
+</a> <!-- News --> <a href="/news" data-route="/news" onclick="closeMobileMenu()" class="navbar-mobile-link" data-translate="news" data-astro-cid-37fxchfa> Satellite News </a> <!-- Visualizer --> <a href="/" onclick="closeMobileMenu()" class="navbar-mobile-link" data-astro-cid-37fxchfa>
+Visualizer
+</a> <!-- Load --> <div class="border-b border-gray-700" data-astro-cid-37fxchfa> <button id="mobile-load-toggle" class="navbar-mobile-toggle" data-astro-cid-37fxchfa> <span data-astro-cid-37fxchfa>Load</span> <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-37fxchfa></path> </svg> </button> <div id="mobile-load-menu" class="navbar-mobile-submenu hidden" data-astro-cid-37fxchfa> <div class="px-2 py-2" data-astro-cid-37fxchfa> <!-- Types --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold" data-astro-cid-37fxchfa>Types</div> <a href="/vis/type/internet" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Internet</a> <a href="/vis/type/communications" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Communications</a> <a href="/vis/type/global-positioning" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Global Positioning</a> <a href="/vis/type/earth-observation" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Earth Observation</a> <a href="/vis/type/geostationary" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Geostationary</a> <a href="/vis/type/geosynchronous" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Geosynchronous</a> <a href="/vis/type/all-functional" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>All Functional</a> <a href="/vis/type/debris" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Debris</a> <a href="/vis/type/all" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>All</a> <hr class="my-2 border-gray-600" data-astro-cid-37fxchfa> <!-- Constellation Finder --> <a href="/constellations" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Finder</a> <hr class="my-2 border-gray-600" data-astro-cid-37fxchfa> <!-- Internet --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold" data-astro-cid-37fxchfa>Internet</div> <a href="/constellation/starlink" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Starlink</a> <a href="/constellation/amazon-leo" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Amazon Leo</a> <a href="/constellation/oneweb" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>OneWeb</a> <a href="/constellation/spacesail" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>SpaceSail (鍗冨竼)</a> <a href="/constellation/xingwang" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Guowang (鍥界綉)</a> <a href="/constellation/yinhe" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>GalaxySpace</a> <a href="/constellation/e-space" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>E-space</a> <a href="/constellation/rassvet" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Rassvet</a> <!-- Voice --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Voice</div> <a href="/constellation/iridium" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Iridium NEXT</a> <a href="/constellation/globalstar" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Globalstar</a> <a href="/constellation/lynk" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Lynk</a> <a href="/constellation/bluewalker" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Bluewalker</a> <!-- Positioning --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Positioning</div> <a href="/constellation/gps" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>GPS</a> <a href="/constellation/galileo" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Galileo</a> <a href="/constellation/glonass" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>GLONASS</a> <a href="/constellation/beidou" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>BeiDou</a> <a href="/constellation/parus" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Parus</a> <!-- Earth Obs --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Earth Obs</div> <a href="/constellation/planet" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Planet</a> <a href="/constellation/jilin-1" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Jilin-1</a> <a href="/constellation/satelog" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Satelog</a> <!-- Weather --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Weather</div> <a href="/constellation/spire" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Spire</a> <!-- Military --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Military</div> <a href="/constellation/strela-1m" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Strela-1m</a> <a href="/constellation/strela-3" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Strela-3</a> <!-- Science --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Science</div> <a href="/constellation/swarm" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Swarm</a> <!-- IoT --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>IoT</div> <a href="/constellation/orbcomm" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Orbcomm</a> <a href="/constellation/geespace" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Geespace</a> </div> </div> </div> <!-- Functions --> <div class="border-b border-gray-700" data-astro-cid-37fxchfa> <button id="mobile-functions-toggle" class="navbar-mobile-toggle" data-astro-cid-37fxchfa> <span data-translate="functions" data-astro-cid-37fxchfa>Functions</span> <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-37fxchfa></path> </svg> </button> <div id="mobile-functions-menu" class="navbar-mobile-submenu hidden" data-astro-cid-37fxchfa> <div class="px-2 py-2" data-astro-cid-37fxchfa> <a href="/vis/constellation/starlink/growth" class="block text-gray-400 hover:text-white px-2 py-2" data-astro-cid-37fxchfa>Constellation Data</a> <a href="/" class="block text-gray-400 hover:text-white px-2 py-2" data-astro-cid-37fxchfa>To Visualizer</a> <div class="border-t border-gray-600 pt-2 mt-2" data-astro-cid-37fxchfa> <button id="mobile-calculators-toggle" class="flex items-center justify-between w-full text-left text-gray-300 hover:text-white py-2" data-astro-cid-37fxchfa> <span data-translate="vis-calculators" data-astro-cid-37fxchfa>Vis Calculators</span> <svg class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-37fxchfa></path> </svg> </button> <div id="mobile-calculators-menu" class="hidden" data-astro-cid-37fxchfa> <a href="/vis/trains" data-route="/vis/trains" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Trains</a> <a href="/vis/sky-transits" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Transits</a> <a href="/vis/interference" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Interference</a> <a href="/vis/altitude-history" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Altitude History</a> </div> </div> <!-- Apps --> <div class="border-t border-gray-600 pt-2 mt-2" data-astro-cid-37fxchfa> <button id="mobile-apps-toggle" class="flex items-center justify-between w-full text-left text-gray-300 hover:text-white py-2" data-astro-cid-37fxchfa> <span data-astro-cid-37fxchfa>Apps</span> <svg class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-37fxchfa></path> </svg> </button> <div id="mobile-apps-menu" class="hidden" data-astro-cid-37fxchfa> <a href="/re-entries" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Re-Entries</a> <a href="/transit-finder" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Transit Finder</a> <a href="/tle-calculator" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>TLE Calculator</a> <a href="/satellite-photobomb" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Photo-bomb Sim</a> <a href="/satellite-collision-finding" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Close Approaches</a> <a href="/amateur-radio" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>SatNOGS Radio</a> </div> </div> <!-- Constellations --> <div class="border-t border-gray-600 pt-2 mt-2" data-astro-cid-37fxchfa> <a href="/constellations" class="block text-gray-400 hover:text-white px-2 py-2" data-astro-cid-37fxchfa>Constellations</a> <a href="/leo-internet-treemap" class="block text-gray-400 hover:text-white px-2 py-2" data-astro-cid-37fxchfa>Historical</a> </div> </div> </div> </div> <!-- More --> <div class="border-b border-gray-700" data-astro-cid-37fxchfa> <button id="mobile-more-toggle" class="navbar-mobile-toggle" data-astro-cid-37fxchfa> <span class="flex items-center gap-1.5" data-astro-cid-37fxchfa> <!-- User Status Icon (inline with More) --> <span id="mobile-userStatusIcon" class="inline-flex items-center" title="User status" data-astro-cid-37fxchfa> <!-- Filled icon for verified users --> <svg id="mobile-userIconFilled" class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-astro-cid-37fxchfa> <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" data-astro-cid-37fxchfa></path> </svg> <!-- Outline icon for non-verified/logged-out users --> <svg id="mobile-userIconOutline" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" data-astro-cid-37fxchfa></path> </svg> </span> <span data-translate="more" data-astro-cid-37fxchfa>More</span> </span> <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-37fxchfa></path> </svg> </button> <div id="mobile-more-menu" class="navbar-mobile-submenu hidden" data-astro-cid-37fxchfa> <div class="px-2 py-2" data-astro-cid-37fxchfa> <a href="/settings" class="navbar-mobile-dropdown-item" data-translate="settings" data-astro-cid-37fxchfa>Settings</a> <a href="/info" class="navbar-mobile-dropdown-item" data-translate="info" data-astro-cid-37fxchfa>Info</a> <a href="/feedback" class="navbar-mobile-dropdown-item" data-translate="feedback" data-astro-cid-37fxchfa>Feedback</a> <a href="/credits" data-route="/credits" onclick="closeMobileMenu()" class="navbar-mobile-dropdown-item" data-translate="credits" data-astro-cid-37fxchfa>Credits</a> <a href="/space-track-status" class="navbar-mobile-dropdown-item" data-translate="spaceTrackStatus" data-astro-cid-37fxchfa>Space-track Status</a> <!-- Admin links will be added here dynamically --> <div id="mobile-admin-links" data-astro-cid-37fxchfa></div> </div> </div> </div> </div> </div> </div> <!-- Main Content --> <main class="pt-10 min-h-screen bg-black" data-astro-cid-37fxchfa>  <div class="container mx-auto px-2 py-4 max-w-6xl" data-astro-cid-oaq4pwvw> <!-- Top Control Panel (Always visible) --> <div class="bg-gray-900 rounded-lg border border-gray-700 mb-4" data-astro-cid-oaq4pwvw> <div class="p-3 border-b border-gray-700" data-astro-cid-oaq4pwvw> <h1 class="text-lg font-semibold text-white" data-astro-cid-oaq4pwvw>What Satellites are in my camera picture?</h1> </div> <div class="p-3 flex items-center justify-between" data-astro-cid-oaq4pwvw> <div class="flex items-center gap-1" data-astro-cid-oaq4pwvw> <span class="text-xs text-gray-400 hidden sm:inline" data-astro-cid-oaq4pwvw>Filter:</span> <button id="no-starlink-btn" class="sat-filter-btn px-2 py-1 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded whitespace-nowrap" data-filter="no-starlink" data-astro-cid-oaq4pwvw>No Starlink</button> <button id="add-distant-btn" class="sat-filter-btn px-2 py-1 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded whitespace-nowrap" data-filter="add-distant" data-astro-cid-oaq4pwvw>+Distant</button> <button id="add-debris-btn" class="sat-filter-btn px-2 py-1 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded whitespace-nowrap" data-filter="add-debris" data-astro-cid-oaq4pwvw>+Debris</button> </div> <div class="flex items-center gap-2" data-astro-cid-oaq4pwvw> <div id="progress-indicator" class="hidden flex items-center gap-1 text-xs text-gray-400" data-astro-cid-oaq4pwvw> <div class="w-16 h-1.5 bg-gray-700 rounded-full overflow-hidden" data-astro-cid-oaq4pwvw> <div id="progress-bar" class="h-full bg-green-500 transition-all duration-300" style="width: 0%" data-astro-cid-oaq4pwvw></div> </div> <span id="progress-text" data-astro-cid-oaq4pwvw>0%</span> </div> <button id="simulate-btn" style="opacity:0.2" disabled class="relative px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded font-medium" data-astro-cid-oaq4pwvw> <span id="simulate-btn-text" data-astro-cid-oaq4pwvw>Start</span> <svg id="loading-spinner" class="hidden animate-spin h-4 w-4 text-white absolute inset-0 m-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" data-astro-cid-oaq4pwvw> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" data-astro-cid-oaq4pwvw></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" data-astro-cid-oaq4pwvw></path> </svg> </button> </div> </div> </div> <!-- Form + Help side-by-side --> <div class="mb-4 grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-4" data-astro-cid-oaq4pwvw> <!-- Help panel (above form on narrow, right column on wide) --> <div id="help-panel" class="lg:order-last max-w-[600px]" data-astro-cid-oaq4pwvw> <div class="rounded-xl border border-gray-700 bg-gray-900 text-sm text-gray-300 lg:sticky lg:top-4 mb-2" data-astro-cid-oaq4pwvw> <button id="help-toggle-inline" class="w-full p-3 pb-4 flex items-center justify-between text-left" data-astro-cid-oaq4pwvw> <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-400" data-astro-cid-oaq4pwvw>Help</h2> <svg id="help-chevron" class="w-4 h-4 text-gray-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-oaq4pwvw><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-oaq4pwvw></path></svg> </button> <div id="help-body" class="hidden px-4 pb-4 space-y-3" data-astro-cid-oaq4pwvw> <p data-astro-cid-oaq4pwvw><b data-astro-cid-oaq4pwvw>Satellite Photo-bomb Simulator</b> predicts whether satellites will cross through your camera's field of view (or reproduces a past picture!) at a given time and location.</p> <p data-astro-cid-oaq4pwvw><b data-astro-cid-oaq4pwvw>Setup:</b> Enter your location, camera pointing (azimuth/elevation), lens (focal length + sensor), and the date/time. Choose a capture mode:</p> <ul class="list-disc list-inside text-xs space-y-1 text-gray-400" data-astro-cid-oaq4pwvw> <li data-astro-cid-oaq4pwvw><b data-astro-cid-oaq4pwvw>Snap</b> 鈥?single moment, shows which satellites are in frame</li> <li data-astro-cid-oaq4pwvw><b data-astro-cid-oaq4pwvw>Long Exp.</b> 鈥?accumulates satellite trails over the duration</li> <li data-astro-cid-oaq4pwvw><b data-astro-cid-oaq4pwvw>Video</b> 鈥?records a simulated video sequence</li> <li data-astro-cid-oaq4pwvw><b data-astro-cid-oaq4pwvw>Timelapse</b> 鈥?captures frames at intervals with sidereal tracking option</li> </ul> <p data-astro-cid-oaq4pwvw>Press <b data-astro-cid-oaq4pwvw>Start</b> to generate. The simulator timewarps to your chosen time, fetches the correct TLEs, and renders the star field with satellite positions and trails.</p> <p class="text-xs text-gray-400" data-astro-cid-oaq4pwvw><b data-astro-cid-oaq4pwvw>Tips:</b> Satellites are only visible when sunlit against a dark sky 鈥?typically around dawn/dusk. Upload a real photo to overlay trails on your image. Use Toggle Portrait to match your camera orientation. Past times use historical orbital data.</p> </div> </div> <!-- Capture Settings Form --> <div id="controls-container" class="max-w-[600px]" data-astro-cid-oaq4pwvw> <div id="capture-form" class="rounded-xl border border-gray-700 bg-gray-900 p-4 sm:p-5" data-astro-cid-oaq4pwvw> <!-- Mode tabs --> <div class="mb-4 grid grid-cols-2 gap-1 rounded-lg border border-gray-700 bg-gray-800 p-1 sm:grid-cols-4" role="tablist" aria-label="Mode" data-astro-cid-oaq4pwvw> <button type="button" data-mode="longexp" class="capture-mode-btn mode-btn" aria-selected="true" data-astro-cid-oaq4pwvw>Long Exp.</button> <button type="button" data-mode="snapshot" class="capture-mode-btn mode-btn" data-astro-cid-oaq4pwvw>Snap</button> <button type="button" data-mode="video" class="capture-mode-btn mode-btn" data-astro-cid-oaq4pwvw>Video</button> <button type="button" data-mode="timelapse" class="capture-mode-btn mode-btn" data-astro-cid-oaq4pwvw>Timelapse</button> </div> <!-- Hidden select for JS compatibility --> <select id="capture-mode" class="hidden" data-astro-cid-oaq4pwvw> <option value="longexp" selected data-astro-cid-oaq4pwvw>Long Exposure</option> <option value="snapshot" data-astro-cid-oaq4pwvw>Snap</option> <option value="video" data-astro-cid-oaq4pwvw>Video</option> <option value="timelapse" data-astro-cid-oaq4pwvw>Timelapse</option> </select> <!-- Position --> <fieldset class="mb-3 rounded-lg border border-gray-700 bg-gray-900 p-3" data-astro-cid-oaq4pwvw> <legend class="px-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400" data-astro-cid-oaq4pwvw>Position</legend> <div class="grid grid-cols-3 gap-2" data-astro-cid-oaq4pwvw> <label class="block min-w-0" data-astro-cid-oaq4pwvw> <span class="field-label" data-astro-cid-oaq4pwvw>Latitude</span> <input type="number" step="any" id="local-lat" placeholder="0.0000" class="cap-input" value="40.7589" data-astro-cid-oaq4pwvw> </label> <label class="block min-w-0" data-astro-cid-oaq4pwvw> <span class="field-label" data-astro-cid-oaq4pwvw>Longitude</span> <input type="number" step="any" id="local-lon" placeholder="0.0000" class="cap-input" value="-73.9851" data-astro-cid-oaq4pwvw> </label> <label class="block min-w-0" data-astro-cid-oaq4pwvw> <span class="field-label" data-astro-cid-oaq4pwvw>Altitude <span class="text-gray-500" data-astro-cid-oaq4pwvw>(m)</span></span> <input type="number" step="any" id="local-altitude" placeholder="0" class="cap-input" value="10" data-astro-cid-oaq4pwvw> </label> </div> <div class="mt-2 grid grid-cols-[auto_1fr_1fr] gap-2 items-start" data-astro-cid-oaq4pwvw> <div data-astro-cid-oaq4pwvw> <span class="field-label" data-astro-cid-oaq4pwvw>Zone</span> <div class="flex items-center gap-0.5 rounded-md border border-gray-600 bg-gray-800 p-0.5 text-xs w-fit" role="tablist" aria-label="Time zone" data-astro-cid-oaq4pwvw> <button type="button" data-tz="UTC" class="tz-btn px-2 py-1 rounded" aria-selected="true" data-astro-cid-oaq4pwvw>UTC</button> <button type="button" data-tz="Local" class="tz-btn px-2 py-1 rounded" data-astro-cid-oaq4pwvw>Local</button> </div> <div id="time-zone-hint" class="text-xs text-gray-500 mt-0.5 hidden" data-astro-cid-oaq4pwvw></div> </div> <label class="block" data-astro-cid-oaq4pwvw> <span class="field-label" id="time-label" data-astro-cid-oaq4pwvw>Date <span class="text-gray-500" data-astro-cid-oaq4pwvw>(UTC)</span></span> <input type="date" id="utc-date" class="cap-input" data-astro-cid-oaq4pwvw> </label> <label class="block" data-astro-cid-oaq4pwvw> <span class="field-label" data-astro-cid-oaq4pwvw>Time <span class="text-gray-500" data-astro-cid-oaq4pwvw>(24h)</span></span> <input type="text" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" placeholder="HH:mm:ss" id="utc-time-field" class="cap-input" data-astro-cid-oaq4pwvw> </label> <input type="hidden" id="utc-time" data-astro-cid-oaq4pwvw> </div> </fieldset> <!-- Optics --> <fieldset class="mb-3 rounded-lg border border-gray-700 bg-gray-900 p-3" data-astro-cid-oaq4pwvw> <legend class="px-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400" data-astro-cid-oaq4pwvw>Optics</legend> <div class="grid grid-cols-2 gap-2" data-astro-cid-oaq4pwvw> <label class="block" data-astro-cid-oaq4pwvw> <span class="field-label" data-astro-cid-oaq4pwvw>Azimuth <span class="text-gray-500" data-astro-cid-oaq4pwvw>(掳)</span></span> <input type="number" step="any" id="local-azimuth" placeholder="0" class="cap-input" value="0" data-astro-cid-oaq4pwvw> </label> <label class="block" data-astro-cid-oaq4pwvw> <span class="field-label" data-astro-cid-oaq4pwvw>Elevation <span class="text-gray-500" data-astro-cid-oaq4pwvw>(掳)</span></span> <input type="number" step="any" id="local-elevation" placeholder="0" class="cap-input" value="30" data-astro-cid-oaq4pwvw> </label> <label class="block" data-astro-cid-oaq4pwvw> <span class="field-label" data-astro-cid-oaq4pwvw>Focal length <span class="text-gray-500" data-astro-cid-oaq4pwvw>(mm)</span></span> <input type="number" step="any" id="local-focal-length" placeholder="20" class="cap-input" value="20" data-astro-cid-oaq4pwvw> </label> <label class="block" data-astro-cid-oaq4pwvw> <span class="field-label" data-astro-cid-oaq4pwvw>Sensor size</span> <select id="local-sensor-size" class="cap-input" data-astro-cid-oaq4pwvw> <option value="full-frame" data-astro-cid-oaq4pwvw>Full Frame (36脳24mm)</option> <option value="aps-c" data-astro-cid-oaq4pwvw>APS-C (24脳16mm)</option> <option value="micro-four-thirds" data-astro-cid-oaq4pwvw>Micro 4/3 (17脳13mm)</option> <option value="1-inch" data-astro-cid-oaq4pwvw>1" (13脳9mm)</option> </select> </label> </div> </fieldset> <!-- Mode-specific fields --> <fieldset id="mode-fields" class="mb-3 rounded-lg border border-gray-700 bg-gray-900 p-3" data-astro-cid-oaq4pwvw> <legend class="px-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400" id="mode-legend" data-astro-cid-oaq4pwvw>Long Exposure</legend> <!-- Duration: longexp, video --> <div data-when="longexp video timelapse" hidden class="mb-2" data-astro-cid-oaq4pwvw> <span class="field-label" data-astro-cid-oaq4pwvw>Duration</span> <div class="grid grid-cols-2 gap-2" data-astro-cid-oaq4pwvw> <div class="relative" data-astro-cid-oaq4pwvw> <input type="number" min="0" step="1" id="capture-duration" placeholder="0" class="cap-input pr-10" value="0" data-astro-cid-oaq4pwvw> <span class="cap-suffix" data-astro-cid-oaq4pwvw>min</span> </div> <div class="relative" data-astro-cid-oaq4pwvw> <input type="number" min="0" max="59" step="1" id="capture-duration-seconds" placeholder="0" class="cap-input pr-10" value="30" data-astro-cid-oaq4pwvw> <span class="cap-suffix" data-astro-cid-oaq4pwvw>sec</span> </div> </div> </div> <!-- Speed: video only --> <label data-when="video" hidden class="block" data-astro-cid-oaq4pwvw> <span class="field-label" data-astro-cid-oaq4pwvw>Speed</span> <select id="capture-speed" class="cap-input" data-astro-cid-oaq4pwvw> <option value="1" data-astro-cid-oaq4pwvw>1x</option> <option value="10" data-astro-cid-oaq4pwvw>10x</option> <option value="60" selected data-astro-cid-oaq4pwvw>60x</option> </select> </label> <!-- Every: timelapse only --> <label data-when="timelapse" hidden class="block" data-astro-cid-oaq4pwvw> <span class="field-label" data-astro-cid-oaq4pwvw>Every</span> <div class="relative" data-astro-cid-oaq4pwvw> <input type="number" min="1" step="1" id="capture-every" placeholder="10" class="cap-input pr-12" value="10" data-astro-cid-oaq4pwvw> <span class="cap-suffix" data-astro-cid-oaq4pwvw>sec</span> </div> </label> <!-- Snap: nothing extra --> <p data-when="snapshot" class="text-xs text-gray-500" data-astro-cid-oaq4pwvw>Single frame capture at the specified time.</p> </fieldset> <!-- Visuals --> <fieldset class="mb-3 rounded-lg border border-gray-700 bg-gray-900 p-3" data-astro-cid-oaq4pwvw> <legend class="px-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400" data-astro-cid-oaq4pwvw>Visuals</legend> <div class="flex items-center gap-4 flex-wrap" data-astro-cid-oaq4pwvw> <label class="flex items-center gap-2 text-sm text-gray-300 cursor-pointer select-none" data-astro-cid-oaq4pwvw> <input type="checkbox" id="labels-toggle" checked class="h-4 w-4 rounded border-gray-600 bg-gray-800 text-blue-600 focus:ring-1 focus:ring-blue-500 focus:ring-offset-0" data-astro-cid-oaq4pwvw>
+Satellite labels
+</label> <label id="ref-frame-control" class="hidden flex items-center gap-2 text-sm text-gray-300 cursor-pointer select-none" data-astro-cid-oaq4pwvw> <input type="checkbox" id="sidereal-toggle" class="h-4 w-4 rounded border-gray-600 bg-gray-800 text-blue-600 focus:ring-1 focus:ring-blue-500 focus:ring-offset-0" data-astro-cid-oaq4pwvw>
+Equatorial mount
+</label> </div> </fieldset> </div> </div> </div> <!-- End of form + help grid --> <!-- Preview/Simulation Area --> <div class="bg-gray-900 rounded-lg border border-gray-700" data-astro-cid-oaq4pwvw> <!-- Preview Header --> <div class="flex items-center justify-between p-3 border-b border-gray-700" data-astro-cid-oaq4pwvw> <h2 class="text-sm font-medium text-white" data-astro-cid-oaq4pwvw>Simulation Preview</h2> <div class="flex items-center gap-2 mx-auto" data-astro-cid-oaq4pwvw> <label class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs rounded cursor-pointer whitespace-nowrap" data-astro-cid-oaq4pwvw>
+Upload Photo
+<input type="file" id="photo-upload" accept="image/*" class="hidden" data-astro-cid-oaq4pwvw> </label> <button id="photo-remove" class="px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 text-xs rounded hidden" data-astro-cid-oaq4pwvw>Remove</button> <span id="plate-solve-status" class="text-xs text-gray-500 hidden" data-astro-cid-oaq4pwvw></span> </div> <div class="flex items-center gap-1 text-xs text-gray-400" data-astro-cid-oaq4pwvw> <span id="satellite-count" data-astro-cid-oaq4pwvw>-</span> satellites detected
+</div> </div> <!-- FOV & Portrait --> <div class="flex flex-wrap items-center gap-3 px-3 pt-2 text-xs" data-astro-cid-oaq4pwvw> <span class="text-gray-400" data-astro-cid-oaq4pwvw>FOV:</span> <span id="local-fov-display" class="text-white" data-astro-cid-oaq4pwvw>H: 39.6掳 脳 V: 27.0掳</span> <button id="portrait-toggle" class="px-2 py-0.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded" data-astro-cid-oaq4pwvw>Toggle Portrait</button> <span id="overlay-opacity-control" class="hidden basis-full sm:basis-auto flex items-center gap-1" data-astro-cid-oaq4pwvw> <span class="text-gray-500" data-astro-cid-oaq4pwvw>Overlay:</span> <input type="range" id="overlay-opacity" min="0" max="100" value="50" class="w-20 h-1 accent-blue-500" data-astro-cid-oaq4pwvw> <span id="overlay-opacity-value" class="text-gray-500 w-6" data-astro-cid-oaq4pwvw>50%</span> <span class="text-gray-600 italic" data-astro-cid-oaq4pwvw>use handles to reposition</span> </span> </div> <!-- Preview Content --> <div class="p-4" style="min-height: 400px;" data-astro-cid-oaq4pwvw> <div class="grid grid-cols-1 lg:grid-cols-1 gap-4" style="min-height: 400px;" data-astro-cid-oaq4pwvw> <!-- Column 1: Wireframe Preview (hidden by default) --> <div class="relative bg-gray-950 rounded overflow-hidden hidden" style="padding-bottom: 100%;" data-astro-cid-oaq4pwvw> <div id="wireframe-preview" class="absolute inset-0 w-full h-full" data-astro-cid-oaq4pwvw> <canvas id="wireframe-canvas" class="w-full h-full" data-astro-cid-oaq4pwvw></canvas> </div> </div> <!-- Column 2: 3D Globe Plugin --> <div class="relative bg-black rounded overflow-hidden" style="padding-bottom: 100%;" data-astro-cid-oaq4pwvw> <div id="globe-preview" class="absolute inset-0 w-full h-full" data-astro-cid-oaq4pwvw> <div id="globe-container" class="w-full h-full bg-black rounded" style="aspect-ratio:1/1" data-astro-cid-oaq4pwvw> <!-- Loading state --> <div class="absolute inset-0 flex items-center justify-center" id="blueglobe-loading" data-astro-cid-oaq4pwvw> <div class="text-center space-y-2" data-astro-cid-oaq4pwvw> <div class="w-16 h-16 mx-auto rounded-full bg-blue-500/20 flex items-center justify-center" data-astro-cid-oaq4pwvw> <div class="animate-spin w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full" data-astro-cid-oaq4pwvw></div> </div> <p class="text-gray-400" data-astro-cid-oaq4pwvw>Loading 3D Globe...</p> </div> </div> <!-- Canvas for BlueGlobe --> <canvas id="photobombGlCanvas" class="w-full h-full rounded" data-astro-cid-oaq4pwvw></canvas> <!-- Photo overlay with drag/resize/rotate --> <div id="photo-overlay-wrap" class="absolute inset-0 w-full h-full hidden" style="pointer-events: none;" data-astro-cid-oaq4pwvw> <div id="photo-overlay-xform" class="absolute" style="left:0; top:0; width:100%; height:100%; transform-origin: center center;" data-astro-cid-oaq4pwvw> <img id="photo-overlay" class="w-full h-full object-cover rounded" style="opacity: 0.5; pointer-events: auto; cursor: move; touch-action: none;" data-astro-cid-oaq4pwvw> <!-- Corner resize handles --> <div class="photo-handle photo-handle-tl" data-corner="tl" data-astro-cid-oaq4pwvw></div> <div class="photo-handle photo-handle-tr" data-corner="tr" data-astro-cid-oaq4pwvw></div> <div class="photo-handle photo-handle-bl" data-corner="bl" data-astro-cid-oaq4pwvw></div> <div class="photo-handle photo-handle-br" data-corner="br" data-astro-cid-oaq4pwvw></div> <!-- Rotate handle --> <div class="photo-handle photo-handle-rotate" data-action="rotate" title="Rotate" data-astro-cid-oaq4pwvw></div> </div> </div> </div> </div> <!-- Future: Satellite trail overlays will be added here by actual simulation --> <div id="satellite-trails" class="absolute inset-0 pointer-events-none" data-astro-cid-oaq4pwvw> <!-- Will be populated by real satellite position calculation --> </div> </div> </div> </div> <!-- Plate-solve results (shown after successful solve) --> <div id="plate-solve-panel" class="hidden px-3 py-2 text-xs" data-astro-cid-oaq4pwvw> <div class="flex flex-wrap items-center gap-x-4 gap-y-1" data-astro-cid-oaq4pwvw> <span class="text-gray-500" data-astro-cid-oaq4pwvw>Plate solve:</span> <span class="text-gray-400" data-astro-cid-oaq4pwvw>FOV: <span id="ps-fov" class="text-white" data-astro-cid-oaq4pwvw>-</span></span> <span class="text-gray-400" data-astro-cid-oaq4pwvw>Focal: <span id="ps-focal" class="text-white" data-astro-cid-oaq4pwvw>-</span></span> <span class="text-gray-400" data-astro-cid-oaq4pwvw>Roll: <span id="ps-roll" class="text-white" data-astro-cid-oaq4pwvw>-</span></span> <button id="ps-apply-azel" class="px-2 py-0.5 bg-blue-700 hover:bg-blue-600 text-white rounded hidden" data-astro-cid-oaq4pwvw>Apply Az/El</button> <button id="ps-details-toggle" class="text-gray-500 hover:text-gray-300 cursor-pointer" data-astro-cid-oaq4pwvw>details</button> </div> <div id="ps-details" class="hidden mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-gray-400" data-astro-cid-oaq4pwvw> <span data-astro-cid-oaq4pwvw>RA/Dec: <span id="ps-radec" class="text-white" data-astro-cid-oaq4pwvw>-</span></span> <span data-astro-cid-oaq4pwvw>Rotation: <span id="ps-rotation" class="text-white" data-astro-cid-oaq4pwvw>-</span></span> <span data-astro-cid-oaq4pwvw>Pixscale: <span id="ps-pixscale" class="text-white" data-astro-cid-oaq4pwvw>-</span></span> </div> </div> <!-- Results Panel (shown after simulation, inside preview area) --> <div id="results-panel" class="border-t border-gray-700 hidden" data-astro-cid-oaq4pwvw> <div class="p-3" data-astro-cid-oaq4pwvw> <div class="grid grid-cols-1 md:grid-cols-2 gap-4" data-astro-cid-oaq4pwvw> <!-- Satellite List --> <div data-astro-cid-oaq4pwvw> <h3 class="text-xs font-medium text-gray-400 mb-2" data-astro-cid-oaq4pwvw>Satellites in Field of View</h3> <div id="satellite-results" class="space-y-1 max-h-40 overflow-y-auto" data-astro-cid-oaq4pwvw> <!-- Will be populated by simulation --> </div> </div> <!-- Export Options --> <div data-astro-cid-oaq4pwvw> <h3 class="text-xs font-medium text-gray-400 mb-2" data-astro-cid-oaq4pwvw>Export</h3> <div class="space-y-2" data-astro-cid-oaq4pwvw> <a id="download-btn" class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded block text-center hidden" download="" data-astro-cid-oaq4pwvw>Download</a> </div> </div> </div> </div> </div> </div> </div> <!-- Custom Styles -->  <!-- Include PhotobombSimulator directly --> <script type="module">
+    import { getApiEndpointClient } from '/scripts/api.js?h=888618fb';
+    import { SessionManager } from '../sessions.js';
+    import { plateSolveFile, raDecToAzEl, focalFromFov, horizonRoll } from '/scripts/plate-solve.js?h=b8fe0a26';
+
+    // Initialize session manager
+    const apiBase = getApiEndpointClient();
+    const sessionManager = new SessionManager(apiBase);
+
+    // Location Manager - single source of truth for lat/lon across all modes
+    const LocationManager = {
+      _lat: 40.7589,
+      _lon: -73.9851,
+      _inputIds: {
+        lat: ['local-lat', 'earth-lat', 'satellite-target-lat'],
+        lon: ['local-lon', 'earth-lon', 'satellite-target-lon']
+      },
+
+      setLocation(lat, lon) {
+        this._lat = lat;
+        this._lon = lon;
+        this._syncInputs();
+      },
+
+      _syncInputs() {
+        this._inputIds.lat.forEach(id => {
+          const input = document.getElementById(id);
+          if (input) input.value = this._lat;
+        });
+        this._inputIds.lon.forEach(id => {
+          const input = document.getElementById(id);
+          if (input) input.value = this._lon;
+        });
+      },
+
+      getLocation() {
+        return { lat: this._lat, lon: this._lon };
+      },
+
+      // Setup bidirectional sync on all inputs
+      init() {
+        [...this._inputIds.lat, ...this._inputIds.lon].forEach(id => {
+          const input = document.getElementById(id);
+          if (input) {
+            input.addEventListener('change', (e) => {
+              const isLat = this._inputIds.lat.includes(id);
+              if (isLat) {
+                this._lat = parseFloat(e.target.value) || 0;
+              } else {
+                this._lon = parseFloat(e.target.value) || 0;
+              }
+              this._syncInputs();
+            });
+          }
+        });
+      }
+    };
+
+    // Initialize session and apply user preferences
+    async function initializeSession() {
+      try {
+        await sessionManager.initialize(false);
+
+        // If user has location preferences set, use them as defaults
+        const d = sessionManager.getData();
+        if (d && d.preferences) {
+          const homeLat = d.preferences.homeLat;
+          const homeLon = d.preferences.homeLon;
+
+          if (homeLat !== undefined && homeLon !== undefined) {
+            LocationManager.setLocation(homeLat, homeLon);
+          }
+        }
+      } catch (error) {
+        console.log('Session initialization skipped:', error.message);
+        // Continue without session - not a critical error
+      }
+    }
+
+    // Parse URL parameters and apply them
+    window.showToast = function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `fixed top-20 right-4 z-50 p-3 rounded text-white text-sm transition-all duration-300 ${
+        type === 'success' ? 'bg-green-600' :
+        type === 'error' ? 'bg-red-600' :
+        'bg-blue-600'
+      }`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.style.opacity = '1', 10);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => document.body.removeChild(toast), 300);
+      }, 3000);
+    }
+
+    function applyURLParameters() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasParams = urlParams.toString() !== '';
+
+      // Hide controls if URL parameters are present
+      if (hasParams) {
+        const controlsContainer = document.getElementById('controls-container');
+        const toggleText = document.getElementById('controls-toggle-text');
+        if (controlsContainer) {
+          controlsContainer.classList.add('hidden');
+          if (toggleText) toggleText.textContent = 'Show Setup';
+        }
+      }
+
+      if (!hasParams) return; // No parameters to apply
+
+      // Camera mode
+      const mode = urlParams.get('mode');
+      if (mode) {
+        if (mode === 'localsky') {
+          document.getElementById('local-sky-mode-btn')?.click();
+        } else if (mode === 'earthastro') {
+          document.getElementById('earth-mode-btn')?.click();
+        } else if (mode === 'satelliteearth') {
+          document.getElementById('satellite-mode-btn')?.click();
+        }
+      }
+
+      // Get parameters
+      const lat = urlParams.get('lat');
+      const lon = urlParams.get('lon');
+      const alt = urlParams.get('alt');
+      const az = urlParams.get('az');
+      const elev = urlParams.get('elev');
+
+      // Apply location using LocationManager (syncs all modes)
+      if (lat && lon) {
+        LocationManager.setLocation(parseFloat(lat), parseFloat(lon));
+      }
+
+      // Apply mode-specific parameters
+      const actualMode = mode || 'localsky'; // Default to localsky if no mode specified
+
+      if (actualMode === 'localsky') {
+        if (alt) document.getElementById('local-altitude').value = alt;
+        if (az) document.getElementById('local-azimuth').value = az;
+        if (elev) document.getElementById('local-elevation').value = elev;
+      } else if (actualMode === 'earthastro') {
+        if (alt) document.getElementById('earth-altitude').value = alt;
+        if (az) document.getElementById('earth-azimuth').value = az;
+        if (elev) document.getElementById('earth-elevation').value = elev;
+      }
+
+      // Camera settings
+      const focal = urlParams.get('focal');
+      const sensor = urlParams.get('sensor');
+
+      if (focal) {
+        if (actualMode === 'localsky') {
+          const focalInput = document.getElementById('local-focal-length');
+          if (focalInput) focalInput.value = focal;
+        } else if (actualMode === 'earthastro') {
+          // For earth mode, find closest matching option
+          const earthFocalSelect = document.getElementById('earth-focal-length');
+          if (earthFocalSelect) {
+            const options = earthFocalSelect.options;
+            for (let i = 0; i < options.length; i++) {
+              if (options[i].value === focal) {
+                earthFocalSelect.value = focal;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      if (sensor) {
+        // Map sensor parameter to sensor size option
+        let sensorSize = 'full-frame';
+        switch(sensor) {
+          case '36':
+          case '24':
+            sensorSize = 'full-frame';
+            break;
+          case '17':
+            sensorSize = 'aps-c';
+            break;
+          case '13':
+            sensorSize = 'micro-four-thirds';
+            break;
+          default:
+            sensorSize = '1-inch';
+        }
+
+        if (actualMode === 'localsky') {
+          const sensorSelect = document.getElementById('local-sensor-size');
+          if (sensorSelect) sensorSelect.value = sensorSize;
+        } else if (actualMode === 'earthastro') {
+          const sensorSelect = document.getElementById('earth-sensor-size');
+          if (sensorSelect) sensorSelect.value = sensorSize;
+        }
+      }
+
+      // Time parameter
+      const utc = urlParams.get('utc');
+      if (utc) {
+        // Convert UTC format if needed (handle both ISO and custom formats)
+        let utcValue = utc.replace('Z', '');
+        if (utcValue.includes('T')) {
+          // Already in correct format
+          document.getElementById('utc-time').value = utcValue.substring(0, 16);
+        } else {
+          // Convert yyyy-mm-ddZhh:mm:ss to yyyy-mm-ddThh:mm
+          const match = utcValue.match(/(\d{4}-\d{2}-\d{2})[\sZ]?(\d{2}:\d{2})/);
+          if (match) {
+            document.getElementById('utc-time').value = match[1] + 'T' + match[2];
+          }
+        }
+      }
+
+      // Capture mode
+      const cmode = urlParams.get('cmode');
+      if (cmode) {
+        let captureMode = 'snapshot';
+        switch(cmode) {
+          case 'single':
+            captureMode = 'snapshot';
+            break;
+          case 'long':      // entry from telescope icon
+            captureMode = 'longexp';
+            break;
+          case 'video':
+            captureMode = 'video';
+            break;
+          case 'timelapse':
+            captureMode = 'timelapse';
+            break;
+        }
+        document.getElementById('capture-mode').value = captureMode;
+        // Trigger change event to update UI
+        document.getElementById('capture-mode').dispatchEvent(new Event('change'));
+      }
+
+      // Duration
+      const dur = urlParams.get('dur');
+      if (dur) {
+        document.getElementById('capture-duration').value = dur;
+      }
+
+      // Every (seconds) for time-lapse interval mode
+      const every = urlParams.get('e');
+      if (every) {
+        document.getElementById('capture-every').value = every;
+      }
+
+      // NORAD ID for satellite mode
+      const norad = urlParams.get('norad');
+      if (norad && actualMode === 'satelliteearth') {
+        const noradInput = document.getElementById('satellite-observer');
+        if (noradInput) noradInput.value = norad;
+      }
+
+      // Update preview after setting all parameters
+      if (typeof updatePreview === 'function') {
+        updatePreview();
+      }
+
+      // Auto-start simulation if go=yes
+      const go = urlParams.get('go');
+      if (go === 'yes') {
+        // Wait a bit for everything to initialize, then start
+        //setTimeout(() => {
+        //  const simulateBtn = document.getElementById('simulate-btn');
+        //  if (simulateBtn && !simulateBtn.disabled) {
+        //    simulateBtn.click();
+        //  }
+        //}, 1000);
+      }
+    }
+
+    // Make functions and managers globally available
+    window.applyURLParameters = applyURLParameters;
+    window.initializeSession = initializeSession;
+    window.LocationManager = LocationManager;
+
+    // Initialize LocationManager to sync all lat/lon inputs
+    LocationManager.init();
+
+    // PhotobombSimulator class embedded directly
+    class PhotobombSimulator {
+      constructor() {
+        this.canvas = null;
+        this.ctx = null;
+        this.currentParams = {};
+        this.rotation = { x: 0, y: 0, z: 0 }; // Rotation angles in degrees
+        this.animationId = null;
+        this.lastFrameTime = 0;
+        this.rotationSpeed = 10; // degrees per second
+        
+        this.init();
+      }
+      
+      // Coordinate transformation functions for reference frame tracking
+      
+      // Convert UTC date to Julian Date
+      julianDate(date) {
+        const year = date.getUTCFullYear();
+        const month = date.getUTCMonth() + 1;
+        const day = date.getUTCDate();
+        const hour = date.getUTCHours();
+        const minute = date.getUTCMinutes();
+        const second = date.getUTCSeconds();
+        
+        const a = Math.floor((14 - month) / 12);
+        const y = year - a;
+        const m = month + 12 * a - 3;
+        
+        const jdn = day + Math.floor((153 * m + 2) / 5) + 365 * y + 
+                   Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) + 1721119;
+        const jd = jdn + (hour - 12) / 24 + minute / 1440 + second / 86400;
+        
+        return jd;
+      }
+      
+      // Calculate Greenwich Mean Sidereal Time from Julian Date
+      greenwichSiderealTime(jd) {
+        // Days since J2000.0
+        const d = jd - 2451545.0;
+        
+        // GMST in degrees
+        const gmst = (280.161 + 360.9856235 * d) % 360;
+        
+        return gmst;
+      }
+      
+      // Convert azimuth/elevation to unit vector in topocentric frame
+      azelToVector(az, el) {
+        const azRad = az * Math.PI / 180;
+        const elRad = el * Math.PI / 180;
+        
+        return {
+          x: Math.cos(elRad) * Math.sin(azRad),  // East
+          y: Math.cos(elRad) * Math.cos(azRad),  // North
+          z: Math.sin(elRad)                     // Up
+        };
+      }
+      
+      // Convert vector back to azimuth/elevation
+      vectorToAzEl(v) {
+        const el = Math.asin(v.z) * 180 / Math.PI;
+        const az = Math.atan2(v.x, v.y) * 180 / Math.PI;
+        
+        return { az: (az + 360) % 360, el };
+      }
+      
+      // Convert horizon coordinates to equatorial (RA/Dec)
+      horizonToEquatorial(vTopo, latDeg, lstDeg) {
+        const lat = latDeg * Math.PI / 180;
+        const lst = lstDeg * Math.PI / 180;
+        
+        const sinLat = Math.sin(lat);
+        const cosLat = Math.cos(lat);
+        
+        // Transform using standard formulas
+        // vTopo: x=East, y=North, z=Up
+        // Standard transformation matrix
+        const sinDec = -sinLat * vTopo.y + cosLat * vTopo.z;
+        const dec = Math.asin(sinDec);
+        const cosDec = Math.cos(dec);
+        
+        // Avoid division by zero at poles
+        if (Math.abs(cosDec) < 0.001) {
+          return { x: 1, y: 0, z: sinDec };
+        }
+        
+        // Hour angle from topocentric coordinates  
+        const cosHA = (cosLat * vTopo.y + sinLat * vTopo.z) / cosDec;
+        const sinHA = -vTopo.x / cosDec;
+        const ha = Math.atan2(sinHA, cosHA);
+        
+        // Right ascension
+        const ra = lst - ha;
+        
+        // Return unit vector in equatorial frame
+        return {
+          x: Math.cos(dec) * Math.cos(ra),
+          y: Math.cos(dec) * Math.sin(ra),
+          z: Math.sin(dec)
+        };
+      }
+      
+      // Convert equatorial to horizon coordinates
+      equatorialToHorizon(vEq, latDeg, lstDeg) {
+        const lat = latDeg * Math.PI / 180;
+        const lst = lstDeg * Math.PI / 180;
+        
+        // Extract RA/Dec from unit vector
+        const dec = Math.asin(vEq.z);
+        const ra = Math.atan2(vEq.y, vEq.x);
+        
+        // Hour angle
+        const ha = lst - ra;
+        
+        const sinLat = Math.sin(lat);
+        const cosLat = Math.cos(lat);
+        const sinDec = Math.sin(dec);
+        const cosDec = Math.cos(dec);
+        const sinHA = Math.sin(ha);
+        const cosHA = Math.cos(ha);
+        
+        // Transform back to horizon using standard formulas
+        // x = East, y = North, z = Up
+        const x = -cosDec * sinHA;
+        const y = -sinLat * sinDec + cosLat * cosDec * cosHA;
+        const z = cosLat * sinDec + sinLat * cosDec * cosHA;
+        
+        return { x, y, z };
+      }
+      
+      // Convert equatorial (J2000) to galactic coordinates
+      equatorialToGalactic(vEq) {
+        // Galactic north pole (J2000): RA = 192.859508掳, Dec = 27.128336掳
+        // Galactic center (J2000): RA = 266.405掳, Dec = -28.936掳
+        // Rotation matrix from J2000 equatorial to galactic
+        
+        // Pre-computed rotation matrix elements
+        const T11 = -0.054875539390;
+        const T12 = -0.873437104725;
+        const T13 = -0.483834991775;
+        const T21 = +0.494109453633;
+        const T22 = -0.444829594298;
+        const T23 = +0.746982248696;
+        const T31 = -0.867666135681;
+        const T32 = -0.198076389622;
+        const T33 = +0.455983794523;
+        
+        return {
+          x: T11 * vEq.x + T12 * vEq.y + T13 * vEq.z,
+          y: T21 * vEq.x + T22 * vEq.y + T23 * vEq.z,
+          z: T31 * vEq.x + T32 * vEq.y + T33 * vEq.z
+        };
+      }
+      
+      // Convert galactic to equatorial (J2000) coordinates
+      galacticToEquatorial(vGal) {
+        // Inverse transformation (transpose of the rotation matrix)
+        const T11 = -0.054875539390;
+        const T12 = +0.494109453633;
+        const T13 = -0.867666135681;
+        const T21 = -0.873437104725;
+        const T22 = -0.444829594298;
+        const T23 = -0.198076389622;
+        const T31 = -0.483834991775;
+        const T32 = +0.746982248696;
+        const T33 = +0.455983794523;
+        
+        return {
+          x: T11 * vGal.x + T12 * vGal.y + T13 * vGal.z,
+          y: T21 * vGal.x + T22 * vGal.y + T23 * vGal.z,
+          z: T31 * vGal.x + T32 * vGal.y + T33 * vGal.z
+        };
+      }
+      
+      // Lock view direction to galactic coordinates
+      lockToGalactic(lat, lon, alt, utc0, az0, el0) {
+        const vTopo = this.azelToVector(az0, el0);
+        
+        const jd0 = this.julianDate(utc0);
+        const gmst0 = this.greenwichSiderealTime(jd0);
+        const lst0 = gmst0 + lon;
+        
+        // Test the transformation pipeline
+        const vEq = this.horizonToEquatorial(vTopo, lat, lst0);
+        const vTopoTest = this.equatorialToHorizon(vEq, lat, lst0);
+        const testAzEl = this.vectorToAzEl(vTopoTest);
+        
+        // Check if we get back the same values
+        if (Math.abs(testAzEl.az - az0) > 0.1 || Math.abs(testAzEl.el - el0) > 0.1) {
+          console.warn(`Transform not inverse: Input (${az0}, ${el0}) -> Test (${testAzEl.az.toFixed(1)}, ${testAzEl.el.toFixed(1)})`);
+          console.log('vTopo:', vTopo, 'vTopoTest:', vTopoTest);
+        }
+        
+        const vGal = this.equatorialToGalactic(vEq);
+        
+        return vGal; // This stays fixed in galactic frame
+      }
+      
+      // Get azimuth/elevation at a given time for galactic-locked direction
+      azelAtTime(vGal, lat, lon, t) {
+        const jd = this.julianDate(t);
+        const gmst = this.greenwichSiderealTime(jd);
+        const lst = gmst + lon;
+        
+        const vEq = this.galacticToEquatorial(vGal);
+        const vTopo = this.equatorialToHorizon(vEq, lat, lst);
+        
+        return this.vectorToAzEl(vTopo);
+      }
+
+      init() {
+        this.canvas = document.getElementById('wireframe-canvas');
+        console.log('Canvas found:', this.canvas);
+        if (this.canvas) {
+          this.ctx = this.canvas.getContext('2d');
+          console.log('Context created:', this.ctx);
+          this.setupCanvas();
+        } else {
+          console.error('Canvas not found!');
+        }
+
+        this.setupKeyboardControls();
+        this.startAnimation();
+        
+        // Test coordinate transformation pipeline
+        this.testGalacticTracking();
+      }
+      
+      testGalacticTracking() {
+        console.log('=== Testing Galactic Tracking Coordinate Transformations ===');
+        
+        // Test parameters
+        const lat = 0;      // Equator
+        const lon = 0;      // Prime meridian
+        const alt = 0;      // Sea level
+        const az0 = 0;      // North
+        const el0 = 45;     // 45 degrees elevation
+        const startTime = new Date('2025-01-01T00:00:00Z');
+        
+        console.log('Test parameters:');
+        console.log(`  Location: lat=${lat}掳, lon=${lon}掳, alt=${alt}m`);
+        console.log(`  Initial pointing: az=${az0}掳, el=${el0}掳`);
+        console.log(`  Start time: ${startTime.toISOString()}`);
+        
+        // Lock to galactic coordinates
+        const vGal = this.lockToGalactic(lat, lon, alt, startTime, az0, el0);
+        console.log('Galactic vector:', vGal);
+        
+        // Test over 1 minute at 10-second intervals
+        console.log('\nAz/El changes over 1 minute:');
+        console.log('Time (s) | Azimuth (掳) | Elevation (掳) | 螖Az (掳) | 螖El (掳)');
+        console.log('---------|-------------|---------------|---------|--------');
+        
+        for (let seconds = 0; seconds <= 60; seconds += 10) {
+          const testTime = new Date(startTime.getTime() + seconds * 1000);
+          const result = this.azelAtTime(vGal, lat, lon, testTime);
+          
+          const deltaAz = result.az - az0;
+          const deltaEl = result.el - el0;
+          
+          console.log(
+            `${seconds.toString().padStart(8)} | ` +
+            `${result.az.toFixed(4).padStart(11)} | ` +
+            `${result.el.toFixed(4).padStart(13)} | ` +
+            `${deltaAz >= 0 ? '+' : ''}${deltaAz.toFixed(4).padStart(7)} | ` +
+            `${deltaEl >= 0 ? '+' : ''}${deltaEl.toFixed(4).padStart(7)}`
+          );
+        }
+        
+        // Expected: Earth rotates ~15掳/hour = 0.25掳/minute in sidereal time
+        // So azimuth should change by about 0.25掳 over 1 minute
+        console.log('\nExpected: ~0.25掳 azimuth change per minute (Earth rotation rate)');
+        console.log('=== End Test ===\n');
+      }
+      
+      startAnimation() {
+        // Check which mode is active and start/stop animation accordingly
+        const animate = (currentTime) => {
+          if (!this.lastFrameTime) {
+            this.lastFrameTime = currentTime;
+          }
+          
+          const deltaTime = (currentTime - this.lastFrameTime) / 1000; // Convert to seconds
+          this.lastFrameTime = currentTime;
+          
+          // Check if we should rotate (Earth鈫扐stro or Satellite鈫扙arth modes)
+          const localSkyControls = document.getElementById('local-sky-controls');
+          const isLocalSkyMode = localSkyControls && !localSkyControls.classList.contains('hidden');
+          
+          if (!isLocalSkyMode) {
+            // Always rotate Y axis at 10 degrees per second (continuous rotation)
+            this.rotation.y += this.rotationSpeed * deltaTime;
+            this.rotation.y = ((this.rotation.y % 360) + 360) % 360;
+            this.drawWireframe();
+          }
+          
+          // Continue animation at ~30fps (33ms per frame)
+          this.animationId = requestAnimationFrame(animate);
+        };
+        
+        this.animationId = requestAnimationFrame(animate);
+      }
+      
+      stopAnimation() {
+        if (this.animationId) {
+          cancelAnimationFrame(this.animationId);
+          this.animationId = null;
+          this.lastFrameTime = 0;
+        }
+      }
+
+      setupCanvas() {
+        const resizeCanvas = () => {
+          const container = this.canvas.parentElement;
+          const containerRect = container.getBoundingClientRect();
+          console.log('Container rect:', containerRect);
+          
+          // For square aspect ratio, use the smaller dimension
+          const size = Math.min(containerRect.width, containerRect.height);
+          const finalSize = Math.max(size, 300); // Minimum 300px
+          
+          console.log('Setting canvas size to:', finalSize);
+          console.log('Device pixel ratio:', window.devicePixelRatio);
+          
+          this.canvas.width = finalSize * window.devicePixelRatio;
+          this.canvas.height = finalSize * window.devicePixelRatio;
+          
+          console.log('Canvas actual size:', this.canvas.width, this.canvas.height);
+          
+          // Set canvas display size to be square
+          this.canvas.style.width = finalSize + 'px';
+          this.canvas.style.height = finalSize + 'px';
+          
+          // Reset scale and apply new scale
+          this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+          this.ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+          
+          console.log('About to call drawWireframe');
+          this.drawWireframe();
+        };
+
+        window.addEventListener('resize', resizeCanvas);
+        // Delay the initial resize to ensure the container has rendered
+        setTimeout(resizeCanvas, 100);
+        // Also try a longer delay in case CSS is still loading
+        setTimeout(resizeCanvas, 500);
+      }
+
+      drawWireframe() {
+        if (!this.ctx) return;
+
+        // Get the display dimensions (same calculation as in setupCanvas)
+        const container = this.canvas.parentElement;
+        const containerRect = container.getBoundingClientRect();
+        const size = Math.min(containerRect.width, containerRect.height);
+        const finalSize = Math.max(size, 300);
+        
+        const width = finalSize;
+        const height = finalSize;
+        
+
+        // Clear canvas
+        this.ctx.clearRect(0, 0, width, height);
+
+        // Draw based on active mode
+        const localSkyControls = document.getElementById('local-sky-controls');
+        const earthControls = document.getElementById('earth-controls');
+        const satelliteControls = document.getElementById('satellite-controls');
+        
+        // Determine which mode is active
+        const isLocalSkyMode = localSkyControls && !localSkyControls.classList.contains('hidden');
+        
+        // Only draw axes for Earth->Astro and Satellite->Earth modes
+        if (!isLocalSkyMode) {
+          this.drawAxes(width, height);
+        }
+        
+        if (isLocalSkyMode) {
+          this.drawLocalSkyView(width, height);
+        } else if (earthControls && !earthControls.classList.contains('hidden')) {
+          this.drawEarthGlobeView(width, height);
+        } else if (satelliteControls && !satelliteControls.classList.contains('hidden')) {
+          this.drawSatelliteView(width, height);
+        } else {
+          // Default to Local-Sky
+          this.drawLocalSkyView(width, height);
+        }
+      }
+
+      drawGrid(width, height) {
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        this.ctx.lineWidth = 1;
+
+        const gridSize = 40;
+        
+        // Vertical lines
+        for (let x = 0; x <= width; x += gridSize) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(x, 0);
+          this.ctx.lineTo(x, height);
+          this.ctx.stroke();
+        }
+
+        // Horizontal lines
+        for (let y = 0; y <= height; y += gridSize) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(0, y);
+          this.ctx.lineTo(width, y);
+          this.ctx.stroke();
+        }
+      }
+
+      // 3D rotation utilities
+      rotatePoint3D(x, y, z, rotX, rotY, rotZ) {
+        // Convert degrees to radians
+        const rx = rotX * Math.PI / 180;
+        const ry = rotY * Math.PI / 180;
+        const rz = rotZ * Math.PI / 180;
+
+        // Rotation around X axis
+        let y1 = y * Math.cos(rx) - z * Math.sin(rx);
+        let z1 = y * Math.sin(rx) + z * Math.cos(rx);
+
+        // Rotation around Y axis
+        let x1 = x * Math.cos(ry) + z1 * Math.sin(ry);
+        z1 = -x * Math.sin(ry) + z1 * Math.cos(ry);
+
+        // Rotation around Z axis
+        let x2 = x1 * Math.cos(rz) - y1 * Math.sin(rz);
+        let y2 = x1 * Math.sin(rz) + y1 * Math.cos(rz);
+
+        return { x: x2, y: y2, z: z1 };
+      }
+
+      // Matrix multiplication utilities for lat/lon grid
+      matMulVec(m, v) {
+        return [
+          m[0]*v[0] + m[1]*v[1] + m[2]*v[2],
+          m[3]*v[0] + m[4]*v[1] + m[5]*v[2],
+          m[6]*v[0] + m[7]*v[1] + m[8]*v[2]
+        ];
+      }
+
+      rotXMat(a) {
+        const c = Math.cos(a), s = Math.sin(a);
+        return [1,0,0, 0,c,-s, 0,s,c];
+      }
+
+      rotYMat(a) {
+        const c = Math.cos(a), s = Math.sin(a);
+        return [c,0,s, 0,1,0, -s,0,c];
+      }
+
+      rotZMat(a) {
+        const c = Math.cos(a), s = Math.sin(a);
+        return [c,-s,0, s,c,0, 0,0,1];
+      }
+
+      matMul(a, b) {
+        const out = new Array(9);
+        for (let r=0; r<3; ++r) {
+          for (let c=0; c<3; ++c) {
+            out[r*3 + c] = 0;
+            for (let k=0; k<3; ++k) out[r*3 + c] += a[r*3 + k] * b[k*3 + c];
+          }
+        }
+        return out;
+      }
+
+      latLonToUnit(latDeg, lonDeg) {
+        const lat = latDeg * Math.PI / 180;
+        const lon = lonDeg * Math.PI / 180;
+        const cosLat = Math.cos(lat);
+        return [
+          cosLat * Math.cos(lon),
+          cosLat * Math.sin(lon),
+          Math.sin(lat)
+        ];
+      }
+
+      strokePoints(ctx, pts, style) {
+        if (!pts || pts.length < 2) return;
+        ctx.save();
+        if (style.lineDash) ctx.setLineDash(style.lineDash);
+        ctx.lineWidth = style.lineWidth ?? 1;
+        ctx.strokeStyle = style.strokeStyle ?? 'rgba(0,0,0,1)';
+        ctx.beginPath();
+        ctx.moveTo(pts[0][0], pts[0][1]);
+        for (let i=1; i<pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      drawLatLonGrid(ctx, centerX, centerY, radius, options = {}) {
+        const {
+          yawDeg = 0,
+          pitchDeg = 0,
+          rollDeg = 0,
+          meridianStepDeg = 30,
+          parallelStepDeg = 30,
+          samplesPerLine = 180,
+          frontStyle = { strokeStyle: 'rgba(255, 255, 255, 0.3)', lineWidth: 1, lineDash: [] },
+          backStyle = { strokeStyle: 'rgba(255, 255, 255, 0.1)', lineWidth: 1, lineDash: [4,4] }
+        } = options;
+
+        // Build rotation matrix
+        const yaw = yawDeg * Math.PI / 180;
+        const pitch = pitchDeg * Math.PI / 180;
+        const roll = rollDeg * Math.PI / 180;
+        
+        const Rz_yaw = this.rotZMat(yaw);
+        const Rx_pitch = this.rotXMat(pitch);
+        const Rz_roll = this.rotZMat(roll);
+        const Rtemp = this.matMul(Rx_pitch, Rz_yaw);
+        const Rmat = this.matMul(Rz_roll, Rtemp);
+
+        const projectLatLon = (lat, lon) => {
+          const p = this.latLonToUnit(lat, lon);
+          const p_rot = this.matMulVec(Rmat, p);
+          return {
+            x2: centerX + p_rot[0] * radius,
+            y2: centerY - p_rot[1] * radius,
+            zcam: p_rot[2]
+          };
+        };
+
+        // Draw meridians (constant lon, varying lat)
+        for (let lon = -180; lon < 180; lon += meridianStepDeg) {
+          const ptsFront = [];
+          const ptsBack = [];
+          let currentArr = null;
+          
+          for (let i = 0; i <= samplesPerLine; ++i) {
+            const frac = i / samplesPerLine;
+            const lat = -90 + frac * 180;
+            const p = projectLatLon(lat, lon);
+            
+            if (p.zcam > 1e-9) {
+              if (currentArr !== ptsFront) {
+                currentArr = ptsFront;
+                currentArr.push([p.x2, p.y2]);
+              } else {
+                currentArr.push([p.x2, p.y2]);
+              }
+            } else {
+              if (currentArr !== ptsBack) {
+                currentArr = ptsBack;
+                currentArr.push([p.x2, p.y2]);
+              } else {
+                currentArr.push([p.x2, p.y2]);
+              }
+            }
+          }
+          
+          this.strokePoints(ctx, ptsFront, frontStyle);
+          this.strokePoints(ctx, ptsBack, backStyle);
+        }
+
+        // Draw parallels (constant lat, varying lon)
+        for (let lat = -90 + parallelStepDeg; lat < 90; lat += parallelStepDeg) {
+          const ptsFront = [];
+          const ptsBack = [];
+          let currentArr = null;
+          
+          for (let i = 0; i <= samplesPerLine; ++i) {
+            const frac = i / samplesPerLine;
+            const lon = -180 + frac * 360;
+            const p = projectLatLon(lat, lon);
+            
+            if (p.zcam > 1e-9) {
+              if (currentArr !== ptsFront) {
+                currentArr = ptsFront;
+                currentArr.push([p.x2, p.y2]);
+              } else {
+                currentArr.push([p.x2, p.y2]);
+              }
+            } else {
+              if (currentArr !== ptsBack) {
+                currentArr = ptsBack;
+                currentArr.push([p.x2, p.y2]);
+              } else {
+                currentArr.push([p.x2, p.y2]);
+              }
+            }
+          }
+          
+          this.strokePoints(ctx, ptsFront, frontStyle);
+          this.strokePoints(ctx, ptsBack, backStyle);
+        }
+      }
+
+      project3DTo2D(x, y, z, centerX, centerY) {
+        // Simple orthographic projection with some perspective
+        const distance = 1000; // Virtual camera distance
+        const scale = distance / (distance + z);
+        
+        return {
+          x: centerX + x * scale,
+          y: centerY - y * scale // Flip Y for screen coordinates
+        };
+      }
+
+      drawAxes(width, height) {
+        // Position in top-right corner
+        const centerX = width - 60;
+        const centerY = 60;
+        const axisLength = 30; // Much smaller
+
+        // Define axis endpoints in 3D space
+        const axes = [
+          // X axis (red)
+          { start: {x: 0, y: 0, z: 0}, end: {x: axisLength, y: 0, z: 0}, color: '#ef4444', label: 'X' },
+          // Y axis (green) 
+          { start: {x: 0, y: 0, z: 0}, end: {x: 0, y: axisLength, z: 0}, color: '#22c55e', label: 'Y' },
+          // Z axis (blue)
+          { start: {x: 0, y: 0, z: 0}, end: {x: 0, y: 0, z: axisLength}, color: '#3b82f6', label: 'Z' }
+        ];
+
+        axes.forEach(axis => {
+          // Apply rotation
+          const rotatedStart = this.rotatePoint3D(
+            axis.start.x, axis.start.y, axis.start.z,
+            this.rotation.x, this.rotation.y, this.rotation.z
+          );
+          const rotatedEnd = this.rotatePoint3D(
+            axis.end.x, axis.end.y, axis.end.z,
+            this.rotation.x, this.rotation.y, this.rotation.z
+          );
+
+          // Project to 2D (use small scale factor)
+          const scale = 1;
+          const start2D = {
+            x: centerX + rotatedStart.x * scale,
+            y: centerY - rotatedStart.y * scale
+          };
+          const end2D = {
+            x: centerX + rotatedEnd.x * scale,
+            y: centerY - rotatedEnd.y * scale
+          };
+
+          // Draw axis line
+          this.ctx.strokeStyle = axis.color;
+          this.ctx.lineWidth = 2;
+          this.ctx.beginPath();
+          this.ctx.moveTo(start2D.x, start2D.y);
+          this.ctx.lineTo(end2D.x, end2D.y);
+          this.ctx.stroke();
+
+          // Draw smaller arrowhead
+          const angle = Math.atan2(end2D.y - start2D.y, end2D.x - start2D.x);
+          const headLength = 5;
+          
+          this.ctx.beginPath();
+          this.ctx.moveTo(end2D.x, end2D.y);
+          this.ctx.lineTo(
+            end2D.x - headLength * Math.cos(angle - Math.PI / 6),
+            end2D.y - headLength * Math.sin(angle - Math.PI / 6)
+          );
+          this.ctx.moveTo(end2D.x, end2D.y);
+          this.ctx.lineTo(
+            end2D.x - headLength * Math.cos(angle + Math.PI / 6),
+            end2D.y - headLength * Math.sin(angle + Math.PI / 6)
+          );
+          this.ctx.stroke();
+
+          // Draw label
+          this.ctx.fillStyle = axis.color;
+          this.ctx.font = '10px Arial';
+          this.ctx.fillText(axis.label, end2D.x + 3, end2D.y - 3);
+        });
+
+        // Draw rotation info at bottom left
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = '10px Arial';
+        this.ctx.fillText(`Rotation: X:${this.rotation.x.toFixed(1)}掳 Y:${this.rotation.y.toFixed(1)}掳 Z:${this.rotation.z.toFixed(1)}掳`, 10, height - 80);
+        this.ctx.fillText('Controls: Q/A (X), W/S (Y), E/D (Z), R (Reset)', 10, height - 65);
+      }
+
+      drawLocalSkyView(width, height) {
+        // Local sky view shows horizon line with flat grid and FOV square
+        const horizonY = height * 0.6; // Horizon line at 60% down
+        
+        this.ctx.save();
+        
+        // 1. Draw ground plane grid first (proper perspective grid)
+        this.ctx.strokeStyle = 'rgba(16, 185, 129, 0.3)';
+        this.ctx.lineWidth = 1;
+        
+        // Grid parameters
+        const vanishingX = width / 2;
+        const vanishingY = horizonY - 20; // Vanishing point 20px above horizon
+        const spacing = 80; // Much wider spacing for more square-like cells
+        const numDepthLines = 15; // horizontal lines receding into distance
+        
+        // Vertical lines (converging to vanishing point)
+        // Need many more lines extending far beyond canvas to create near-horizontal lines at edges
+        const maxLines = Math.ceil(width / spacing) + 60; // Many more lines for even wider coverage
+        
+        for (let i = -maxLines; i <= maxLines; i++) {
+          // Calculate where line intersects bottom of canvas
+          // Line equation from vanishing point (vanishingX, vanishingY) through point at bottom
+          const xBottom = vanishingX + i * spacing;
+          
+          // Calculate where this line would intersect the bottom edge of canvas
+          // Using similar triangles: (x - vanishingX) / (height - vanishingY) = constant
+          const slope = (xBottom - vanishingX) / (height - vanishingY);
+          const xAtBottom = vanishingX + slope * (height - vanishingY);
+          
+          // Draw all lines that go below horizon (vanishingY is horizon, height is bottom)
+          this.ctx.beginPath();
+          this.ctx.moveTo(xAtBottom, height);
+          this.ctx.lineTo(vanishingX, vanishingY);
+          this.ctx.stroke();
+        }
+        
+        // Horizontal lines (rows receding into distance)
+        // Use geometric progression to mimic foreshortening
+        let z = 1;
+        for (let n = 0; n < numDepthLines; n++) {
+          // Row position: horizon + (height - horizon) / z
+          const y = horizonY + (height - horizonY) / z;
+          if (y <= height) { // Only draw if within canvas
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, y);
+            this.ctx.lineTo(width, y);
+            this.ctx.stroke();
+          }
+          z *= 1.4; // Spacing increases multiplicatively for perspective effect
+        }
+        
+        // 2. Draw black sky rectangle to cover grid above horizon
+        this.ctx.fillStyle = 'black';
+        this.ctx.fillRect(0, 0, width, horizonY);
+        
+        // 3. Draw blue horizon line
+        this.ctx.strokeStyle = 'rgba(59, 130, 246, 0.8)'; // Blue color
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, horizonY);
+        this.ctx.lineTo(width, horizonY);
+        this.ctx.stroke();
+        
+        // Get camera parameters
+        const azimuth = parseFloat(document.getElementById('local-azimuth')?.value || 0);
+        const elevation = parseFloat(document.getElementById('local-elevation')?.value || 45);
+        const focalLength = parseFloat(document.getElementById('local-focal-length')?.value || 50);
+        const sensorSize = document.getElementById('local-sensor-size')?.value || 'full-frame';
+        
+        // Calculate FOV
+        const sensorDims = this.getSensorDimensions(sensorSize);
+        const hFOV = 2 * Math.atan(sensorDims.width / (2 * focalLength)) * 180 / Math.PI;
+        const vFOV = 2 * Math.atan(sensorDims.height / (2 * focalLength)) * 180 / Math.PI;
+        
+        // Draw FOV square based on elevation
+        const centerX = width / 2;
+        const centerY = horizonY - (elevation / 90) * horizonY;
+        const fovWidth = (hFOV / 90) * width;  // Changed from 180 to 90 degrees
+        const fovHeight = (vFOV / 90) * height; // Changed to use full height for 90 degree scaling
+        
+        this.ctx.strokeStyle = '#ef4444';
+        this.ctx.lineWidth = 2;
+        this.ctx.setLineDash([5, 5]);
+        this.ctx.strokeRect(
+          centerX - fovWidth / 2,
+          centerY - fovHeight / 2,
+          fovWidth,
+          fovHeight
+        );
+        this.ctx.setLineDash([]);
+        
+        // Draw center crosshair
+        this.ctx.strokeStyle = '#ef4444';
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        this.ctx.moveTo(centerX - 10, centerY);
+        this.ctx.lineTo(centerX + 10, centerY);
+        this.ctx.stroke();
+        this.ctx.beginPath();
+        this.ctx.moveTo(centerX, centerY - 10);
+        this.ctx.lineTo(centerX, centerY + 10);
+        this.ctx.stroke();
+        
+        // Draw compass in corner
+        const compassX = width - 50;
+        const compassY = 50;
+        const compassRadius = 30;
+        
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        this.ctx.arc(compassX, compassY, compassRadius, 0, Math.PI * 2);
+        this.ctx.stroke();
+        
+        // Compass needle pointing to current azimuth
+        const needleAngle = (azimuth - 90) * Math.PI / 180;
+        this.ctx.strokeStyle = '#ef4444';
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.moveTo(compassX, compassY);
+        this.ctx.lineTo(
+          compassX + Math.cos(needleAngle) * compassRadius * 0.8,
+          compassY + Math.sin(needleAngle) * compassRadius * 0.8
+        );
+        this.ctx.stroke();
+        
+        // Compass labels
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = '10px Arial';
+        this.ctx.fillText('N', compassX - 4, compassY - compassRadius - 5);
+        this.ctx.fillText('E', compassX + compassRadius + 5, compassY + 3);
+        this.ctx.fillText('S', compassX - 4, compassY + compassRadius + 12);
+        this.ctx.fillText('W', compassX - compassRadius - 12, compassY + 3);
+        
+        // Info text
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = '11px Arial';
+        this.ctx.fillText(`Az: ${azimuth.toFixed(1)}掳 El: ${elevation.toFixed(1)}掳`, 10, height - 25);
+        this.ctx.fillText(`FOV: ${hFOV.toFixed(1)}掳 脳 ${vFOV.toFixed(1)}掳`, 10, height - 10);
+        
+        this.ctx.restore();
+      }
+
+      drawEarthGlobeView(width, height) {
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const earthRadius = Math.min(width, height) * 0.15;
+        
+        // Get parameters
+        const lat = parseFloat(document.getElementById('earth-lat')?.value || 40.7589);
+        const lon = parseFloat(document.getElementById('earth-lon')?.value || -73.9851);
+        const altitude = parseFloat(document.getElementById('earth-altitude')?.value || 100);
+        let azimuth = parseFloat(document.getElementById('earth-azimuth')?.value || 180);
+        let elevation = Math.min(89, parseFloat(document.getElementById('earth-elevation')?.value || 45));
+        const focalLength = parseFloat(document.getElementById('earth-focal-length')?.value || 50);
+        const sensorSize = document.getElementById('earth-sensor-size')?.value || 'full-frame';
+        
+        // Check if we're in time-lapse mode with any tracking reference frame
+        const captureMode = document.getElementById('capture-mode')?.value;
+        const isSiderealFrame = document.getElementById('ref-sidereal')?.classList.contains('bg-blue-600');
+        const isTimeLapse = captureMode === 'timelapse' || captureMode === 'video';
+        const durationMinutes = parseFloat(document.getElementById('capture-duration')?.value || 10) + parseFloat(document.getElementById('capture-duration-seconds')?.value || 0) / 60;
+        const durationHours = durationMinutes / 60; // Convert to hours for calculations
+        
+        // For animated tracking visualization
+        let currentSimTime = null;
+        let vGal = null;
+        
+        if (isTimeLapse && isSiderealFrame) {
+          // Get start time
+          const startTime = window.getPhotobombUTC ? window.getPhotobombUTC() : new Date();
+          
+          // Calculate animation cycle position (loops every 5 seconds of real time)
+          const animationCycleDuration = 5000; // 5 seconds to show full time-lapse
+          const cyclePosition = (Date.now() % animationCycleDuration) / animationCycleDuration;
+          
+          // Calculate current simulation time within the time-lapse period
+          const timeOffsetMs = cyclePosition * durationHours * 3600000;
+          currentSimTime = new Date(startTime.getTime() + timeOffsetMs);
+          
+          // Lock the initial view to sidereal coordinates (or other frame)
+          if (isSiderealFrame) {
+            // Use the input azimuth/elevation at start time
+            const inputAz = parseFloat(document.getElementById('earth-azimuth')?.value || 0);
+            const inputEl = Math.min(89, parseFloat(document.getElementById('earth-elevation')?.value || 45));
+            
+            // Lock to equatorial (RA/Dec) at the START time with the INPUT az/el
+            const vTopo = this.azelToVector(inputAz, inputEl);
+            const jd0 = this.julianDate(startTime);
+            const gmst0 = this.greenwichSiderealTime(jd0);
+            const lst0 = gmst0 + lon;
+            const vEq = this.horizonToEquatorial(vTopo, lat, lst0);
+            
+            // Get current az/el for animated time
+            const jd = this.julianDate(currentSimTime);
+            const gmst = this.greenwichSiderealTime(jd);
+            const lst = gmst + lon;
+            const vTopoNow = this.equatorialToHorizon(vEq, lat, lst);
+            const currentAzEl = this.vectorToAzEl(vTopoNow);
+            azimuth = currentAzEl.az;
+            elevation = currentAzEl.el;
+          }
+        }
+
+        // Draw Earth (circle outline - this stays as a circle regardless of rotation)
+        this.ctx.strokeStyle = '#10b981';
+        this.ctx.fillStyle = 'rgba(16, 185, 129, 0.05)'; // Very transparent
+        this.ctx.lineWidth = 2;
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, earthRadius, 0, 2 * Math.PI);
+        this.ctx.fill();
+        this.ctx.stroke();
+        
+        // Draw lat/lon grid (same as satellite view)
+        this.drawLatLonGrid(this.ctx, centerX, centerY, earthRadius, {
+          yawDeg: -this.rotation.y,
+          pitchDeg: -90 - this.rotation.x,  // Default -90掳 tilt to put north at top
+          rollDeg: -this.rotation.z,
+          meridianStepDeg: 30,
+          parallelStepDeg: 30,
+          samplesPerLine: 120,
+          frontStyle: { strokeStyle: 'rgba(255, 255, 255, 0.2)', lineWidth: 1, lineDash: [] },
+          backStyle: { strokeStyle: 'rgba(255, 255, 255, 0.05)', lineWidth: 1, lineDash: [3,3] }
+        });
+
+
+        // Calculate observer position on globe surface in 3D
+        const latRad = lat * Math.PI / 180;
+        const lonRad = lon * Math.PI / 180;
+        
+        // Observer position in 3D space (spherical to cartesian)
+        const obs3D = {
+          x: earthRadius * Math.cos(latRad) * Math.sin(lonRad),
+          y: earthRadius * Math.sin(latRad),
+          z: earthRadius * Math.cos(latRad) * Math.cos(lonRad)
+        };
+        
+        // Apply rotation to observer position
+        const rotatedObs = this.rotatePoint3D(obs3D.x, obs3D.y, obs3D.z, this.rotation.x, this.rotation.y, this.rotation.z);
+        
+        // Project to 2D
+        const obsProjected = this.project3DTo2D(rotatedObs.x, rotatedObs.y, rotatedObs.z, centerX, centerY);
+        const obsX = obsProjected.x;
+        const obsY = obsProjected.y;
+
+        // Draw observer position
+        this.ctx.fillStyle = '#ef4444';
+        this.ctx.beginPath();
+        this.ctx.arc(obsX, obsY, 4, 0, 2 * Math.PI);
+        this.ctx.fill();
+
+        // Observer label
+        this.ctx.fillStyle = '#ef4444';
+        this.ctx.font = '10px Arial';
+        this.ctx.fillText(`Observer`, obsX + 8, obsY - 8);
+        this.ctx.fillText(`${lat.toFixed(2)}掳, ${lon.toFixed(2)}掳`, obsX + 8, obsY + 2);
+
+        // Project FOV onto celestial sphere (visualization sphere - dotted lines extend beyond)
+        const celestialRadius = earthRadius * 4; // Visualization sphere, rays continue to infinity
+        const sensorDimensions = this.getSensorDimensions(sensorSize);
+        const hFov = 2 * Math.atan(sensorDimensions.width / (2 * focalLength)) * 180 / Math.PI;
+        const vFov = 2 * Math.atan(sensorDimensions.height / (2 * focalLength)) * 180 / Math.PI;
+        
+
+        // Convert azimuth/elevation to viewing direction (proper celestial coordinates)
+        const azRad = azimuth * Math.PI / 180;
+        const elRad = elevation * Math.PI / 180;
+        
+        // Calculate center point using ray-sphere intersection in local coordinates
+        // First, establish local coordinate system at observer position
+        const obsLatRad = lat * Math.PI / 180;
+        const obsLonRad = lon * Math.PI / 180;
+        
+        // Local coordinate system at observer position
+        // Up vector (local zenith): points away from Earth center at observer position
+        const localUp = {
+          x: Math.cos(obsLatRad) * Math.sin(obsLonRad),
+          y: Math.sin(obsLatRad),
+          z: Math.cos(obsLatRad) * Math.cos(obsLonRad)
+        };
+        
+        // North vector (local north): tangent to Earth surface pointing toward north pole
+        const localNorth = {
+          x: -Math.sin(obsLatRad) * Math.sin(obsLonRad),
+          y: Math.cos(obsLatRad),
+          z: -Math.sin(obsLatRad) * Math.cos(obsLonRad)
+        };
+        
+        // East vector (local east): cross product of up and north
+        const localEast = {
+          x: localNorth.y * localUp.z - localNorth.z * localUp.y,
+          y: localNorth.z * localUp.x - localNorth.x * localUp.z,
+          z: localNorth.x * localUp.y - localNorth.y * localUp.x
+        };
+        
+        // Convert azimuth/elevation to ray direction in local coordinates
+        // Azimuth 0 = North, 90 = East, 180 = South, 270 = West
+        // Elevation 0 = horizon, 90 = zenith
+        const cosEl = Math.cos(elRad);
+        const sinEl = Math.sin(elRad);
+        const cosAz = Math.cos(azRad);
+        const sinAz = Math.sin(azRad);
+        
+        // Ray direction in local coordinate system
+        const centerRayDir = {
+          x: cosEl * sinAz * localEast.x + cosEl * cosAz * localNorth.x + sinEl * localUp.x,
+          y: cosEl * sinAz * localEast.y + cosEl * cosAz * localNorth.y + sinEl * localUp.y,
+          z: cosEl * sinAz * localEast.z + cosEl * cosAz * localNorth.z + sinEl * localUp.z
+        };
+        
+        // Ray-sphere intersection for center line
+        const a_center = centerRayDir.x * centerRayDir.x + centerRayDir.y * centerRayDir.y + centerRayDir.z * centerRayDir.z;
+        const b_center = 2 * (obs3D.x * centerRayDir.x + obs3D.y * centerRayDir.y + obs3D.z * centerRayDir.z);
+        const c_center = obs3D.x * obs3D.x + obs3D.y * obs3D.y + obs3D.z * obs3D.z - celestialRadius * celestialRadius;
+        
+        const discriminant_center = b_center * b_center - 4 * a_center * c_center;
+        let centerPoint3D;
+        
+        if (discriminant_center >= 0) {
+          const t1_center = (-b_center + Math.sqrt(discriminant_center)) / (2 * a_center);
+          const t2_center = (-b_center - Math.sqrt(discriminant_center)) / (2 * a_center);
+          
+          // Choose the positive t that represents the ray going outward from observer
+          let t_center;
+          if (t1_center > 0 && t2_center > 0) {
+            t_center = Math.min(t1_center, t2_center); // Take the closer positive intersection
+          } else if (t1_center > 0) {
+            t_center = t1_center;
+          } else if (t2_center > 0) {
+            t_center = t2_center;
+          } else {
+            t_center = Math.max(t1_center, t2_center); // Fallback
+          }
+          
+          centerPoint3D = {
+            x: obs3D.x + t_center * centerRayDir.x,
+            y: obs3D.y + t_center * centerRayDir.y,
+            z: obs3D.z + t_center * centerRayDir.z
+          };
+        } else {
+          // Fallback
+          centerPoint3D = {
+            x: obs3D.x + celestialRadius * centerRayDir.x,
+            y: obs3D.y + celestialRadius * centerRayDir.y,
+            z: obs3D.z + celestialRadius * centerRayDir.z
+          };
+        }
+        
+        // Apply rotation to center point
+        const rotatedCenter = this.rotatePoint3D(centerPoint3D.x, centerPoint3D.y, centerPoint3D.z, this.rotation.x, this.rotation.y, this.rotation.z);
+        
+        // Project center to 2D screen coordinates
+        const centerProjected = this.project3DTo2D(rotatedCenter.x, rotatedCenter.y, rotatedCenter.z, centerX, centerY);
+        const frustumCenterX = centerProjected.x;
+        const frustumCenterY = centerProjected.y;
+
+        // Use pinhole camera projection with tangent plane (ChatGPT's suggestion)
+        const hFovRad = hFov * Math.PI / 180;
+        const vFovRad = vFov * Math.PI / 180;
+        
+        // Helper function to normalize vector
+        const normalize = (v) => {
+          const length = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+          if (length === 0) return v;
+          return { x: v.x / length, y: v.y / length, z: v.z / length };
+        };
+        
+        // Build camera coordinate system
+        // Python: right = cross(d_center, Up)
+        let right = normalize({
+          x: centerRayDir.y * localUp.z - centerRayDir.z * localUp.y,
+          y: centerRayDir.z * localUp.x - centerRayDir.x * localUp.z,
+          z: centerRayDir.x * localUp.y - centerRayDir.y * localUp.x
+        });
+        
+        // Handle degenerate case when centerRayDir is collinear with localUp
+        const rightLength = Math.sqrt(right.x * right.x + right.y * right.y + right.z * right.z);
+        if (rightLength < 1e-12) {
+          // Fallback: use cross product with [1,0,0]
+          right = normalize({
+            x: localUp.y * 0 - localUp.z * 0,
+            y: localUp.z * 1 - localUp.x * 0,
+            z: localUp.x * 0 - localUp.y * 1
+          });
+        }
+        
+        // Python: true_up = cross(right, d_center)
+        const trueUp = normalize({
+          x: right.y * centerRayDir.z - right.z * centerRayDir.y,
+          y: right.z * centerRayDir.x - right.x * centerRayDir.z,
+          z: right.x * centerRayDir.y - right.y * centerRayDir.x
+        });
+        
+        // Tangent plane projection (like pinhole camera)
+        const hx = Math.tan(hFovRad / 2);
+        const hy = Math.tan(vFovRad / 2);
+        
+        // Define corner offsets in tangent plane coordinates
+        const cornerDefs = [
+          { sx: -1, sy: -1, name: 'bottom-left' },
+          { sx: -1, sy: +1, name: 'top-left' },
+          { sx: +1, sy: +1, name: 'top-right' },
+          { sx: +1, sy: -1, name: 'bottom-right' }
+        ];
+        
+        
+        // DIAGNOSTIC 1: Check ray directions
+        // Get left and right corner ray directions
+        const leftCornerDef = cornerDefs[0];  // bottom-left: sx=-1, sy=-1
+        const rightCornerDef = cornerDefs[3]; // bottom-right: sx=+1, sy=-1
+        
+        const d_left = normalize({
+          x: centerRayDir.x + leftCornerDef.sx * hx * right.x + leftCornerDef.sy * hy * trueUp.x,
+          y: centerRayDir.y + leftCornerDef.sx * hx * right.y + leftCornerDef.sy * hy * trueUp.y,
+          z: centerRayDir.z + leftCornerDef.sx * hx * right.z + leftCornerDef.sy * hy * trueUp.z
+        });
+        
+        const d_right = normalize({
+          x: centerRayDir.x + rightCornerDef.sx * hx * right.x + rightCornerDef.sy * hy * trueUp.x,
+          y: centerRayDir.y + rightCornerDef.sx * hx * right.y + rightCornerDef.sy * hy * trueUp.y,
+          z: centerRayDir.z + rightCornerDef.sx * hx * right.z + rightCornerDef.sy * hy * trueUp.z
+        });
+        
+        // Measure angle between ray directions
+        const dot_dirs = d_left.x * d_right.x + d_left.y * d_right.y + d_left.z * d_right.z;
+        const ang_dirs = Math.acos(Math.max(-1, Math.min(1, dot_dirs))) * 180/Math.PI;
+        
+        // DIAGNOSTIC 2: Check hit points on celestial sphere
+        // Calculate intersections for left and right rays
+        const calcSphereHit = (rayDir) => {
+          const od = obs3D.x * rayDir.x + obs3D.y * rayDir.y + obs3D.z * rayDir.z;
+          const oo = obs3D.x * obs3D.x + obs3D.y * obs3D.y + obs3D.z * obs3D.z;
+          const discriminant = od * od - (oo - celestialRadius * celestialRadius);
+          const t = -od + Math.sqrt(discriminant);
+          return {
+            x: obs3D.x + t * rayDir.x,
+            y: obs3D.y + t * rayDir.y,
+            z: obs3D.z + t * rayDir.z
+          };
+        };
+        
+        const P_left = calcSphereHit(d_left);
+        const P_right = calcSphereHit(d_right);
+        
+        // Measure central angle between hit points
+        const dot_hits = (P_left.x * P_right.x + P_left.y * P_right.y + P_left.z * P_right.z) / (celestialRadius * celestialRadius);
+        const ang_hits = Math.acos(Math.max(-1, Math.min(1, dot_hits))) * 180/Math.PI;
+        
+        // Calculate corner directions using tangent plane projection
+        const cornerPoints = cornerDefs.map(corner => {
+          // d = d_center + sx*hx*right + sy*hy*true_up
+          const d = {
+            x: centerRayDir.x + corner.sx * hx * right.x + corner.sy * hy * trueUp.x,
+            y: centerRayDir.y + corner.sx * hx * right.y + corner.sy * hy * trueUp.y,
+            z: centerRayDir.z + corner.sx * hx * right.z + corner.sy * hy * trueUp.z
+          };
+          const normalizedRayDir = normalize(d);
+          
+          // Use Python-style ray-sphere intersection (cleaner math)
+          const od = obs3D.x * normalizedRayDir.x + obs3D.y * normalizedRayDir.y + obs3D.z * normalizedRayDir.z;
+          const oo = obs3D.x * obs3D.x + obs3D.y * obs3D.y + obs3D.z * obs3D.z;
+          const discriminant = od * od - (oo - celestialRadius * celestialRadius);
+          
+          if (discriminant < 0) {
+            throw new Error("No intersection - check celestialRadius > observer distance");
+          }
+          
+          // Take positive root (farther intersection, like Python code)
+          const t = -od + Math.sqrt(discriminant);
+          
+          const intersectionPoint = {
+            x: obs3D.x + t * normalizedRayDir.x,
+            y: obs3D.y + t * normalizedRayDir.y,
+            z: obs3D.z + t * normalizedRayDir.z
+          };
+          
+          // Apply rotation for visualization
+          const rotatedPoint = this.rotatePoint3D(intersectionPoint.x, intersectionPoint.y, intersectionPoint.z, this.rotation.x, this.rotation.y, this.rotation.z);
+          
+          // Project to 2D screen coordinates
+          return this.project3DTo2D(rotatedPoint.x, rotatedPoint.y, rotatedPoint.z, centerX, centerY);
+        });
+        
+        const [bottomLeft, topLeft, topRight, bottomRight] = cornerPoints;
+
+        // Draw extended lines from observer through sphere intersections to show rays continue beyond
+        this.ctx.strokeStyle = '#3b82f6';
+        this.ctx.lineWidth = 1;
+        this.ctx.setLineDash([2, 4]);
+        
+        // Calculate extended points beyond the sphere intersections
+        const extendRay = (corner2D, rayDir3D) => {
+          // Extend the ray to a much larger distance to show it continues beyond sphere
+          const extendDistance = celestialRadius * 2; // Extend to twice the sphere radius
+          const extendedPoint3D = {
+            x: obs3D.x + extendDistance * rayDir3D.x,
+            y: obs3D.y + extendDistance * rayDir3D.y,
+            z: obs3D.z + extendDistance * rayDir3D.z
+          };
+          
+          const rotatedExtended = this.rotatePoint3D(extendedPoint3D.x, extendedPoint3D.y, extendedPoint3D.z, this.rotation.x, this.rotation.y, this.rotation.z);
+          return this.project3DTo2D(rotatedExtended.x, rotatedExtended.y, rotatedExtended.z, centerX, centerY);
+        };
+        
+        // Get the ray directions for extension
+        const rayDirs = cornerDefs.map(corner => {
+          const d = {
+            x: centerRayDir.x + corner.sx * hx * right.x + corner.sy * hy * trueUp.x,
+            y: centerRayDir.y + corner.sx * hx * right.y + corner.sy * hy * trueUp.y,
+            z: centerRayDir.z + corner.sx * hx * right.z + corner.sy * hy * trueUp.z
+          };
+          return normalize(d);
+        });
+        
+        // Draw extended rays from observer through sphere intersections and beyond
+        const extendedPoints = [
+          extendRay(bottomLeft, rayDirs[0]),  // bottom-left
+          extendRay(topLeft, rayDirs[1]),     // top-left  
+          extendRay(topRight, rayDirs[2]),    // top-right
+          extendRay(bottomRight, rayDirs[3])  // bottom-right
+        ];
+        
+        // Four extended frustum edge lines
+        this.ctx.beginPath();
+        this.ctx.moveTo(obsX, obsY);
+        this.ctx.lineTo(extendedPoints[1].x, extendedPoints[1].y); // topLeft
+        this.ctx.stroke();
+        
+        this.ctx.beginPath();
+        this.ctx.moveTo(obsX, obsY);
+        this.ctx.lineTo(extendedPoints[2].x, extendedPoints[2].y); // topRight
+        this.ctx.stroke();
+        
+        this.ctx.beginPath();
+        this.ctx.moveTo(obsX, obsY);
+        this.ctx.lineTo(extendedPoints[0].x, extendedPoints[0].y); // bottomLeft
+        this.ctx.stroke();
+        
+        this.ctx.beginPath();
+        this.ctx.moveTo(obsX, obsY);
+        this.ctx.lineTo(extendedPoints[3].x, extendedPoints[3].y); // bottomRight
+        this.ctx.stroke();
+        
+        this.ctx.setLineDash([]);
+
+        // Draw FOV boundary on celestial sphere (connect the four corners with curved lines)
+        this.ctx.strokeStyle = '#3b82f6';
+        this.ctx.lineWidth = 2;
+        
+        // Helper function to draw great circle arc between two points on sphere surface
+        const drawSphericalArc = (point1_3D, point2_3D, numSamples = 20) => {
+          // Both points should be on the celestial sphere surface
+          // Interpolate along the great circle connecting them
+          
+          for (let i = 0; i <= numSamples; i++) {
+            const t = i / numSamples;
+            
+            // Spherical linear interpolation (slerp) between two points on sphere
+            // First normalize the points to be on unit sphere
+            const p1_norm = {
+              x: point1_3D.x / celestialRadius,
+              y: point1_3D.y / celestialRadius, 
+              z: point1_3D.z / celestialRadius
+            };
+            const p2_norm = {
+              x: point2_3D.x / celestialRadius,
+              y: point2_3D.y / celestialRadius,
+              z: point2_3D.z / celestialRadius
+            };
+            
+            // Calculate angle between points
+            const dot = p1_norm.x * p2_norm.x + p1_norm.y * p2_norm.y + p1_norm.z * p2_norm.z;
+            const angle = Math.acos(Math.max(-1, Math.min(1, dot))); // Clamp to avoid numerical errors
+            
+            let interpPoint;
+            if (angle < 0.001) {
+              // Points are very close, use linear interpolation
+              interpPoint = {
+                x: p1_norm.x * (1 - t) + p2_norm.x * t,
+                y: p1_norm.y * (1 - t) + p2_norm.y * t,
+                z: p1_norm.z * (1 - t) + p2_norm.z * t
+              };
+            } else {
+              // Use spherical interpolation
+              const sinAngle = Math.sin(angle);
+              const a = Math.sin((1 - t) * angle) / sinAngle;
+              const b = Math.sin(t * angle) / sinAngle;
+              
+              interpPoint = {
+                x: a * p1_norm.x + b * p2_norm.x,
+                y: a * p1_norm.y + b * p2_norm.y,
+                z: a * p1_norm.z + b * p2_norm.z
+              };
+            }
+            
+            // Scale back to celestial sphere radius
+            const spherePoint = {
+              x: interpPoint.x * celestialRadius,
+              y: interpPoint.y * celestialRadius,
+              z: interpPoint.z * celestialRadius
+            };
+            
+            // Apply rotation and project to screen
+            const rotatedPoint = this.rotatePoint3D(spherePoint.x, spherePoint.y, spherePoint.z, this.rotation.x, this.rotation.y, this.rotation.z);
+            const projected = this.project3DTo2D(rotatedPoint.x, rotatedPoint.y, rotatedPoint.z, centerX, centerY);
+            
+            if (i === 0) {
+              this.ctx.beginPath();
+              this.ctx.moveTo(projected.x, projected.y);
+            } else {
+              this.ctx.lineTo(projected.x, projected.y);
+            }
+          }
+          this.ctx.stroke();
+        };
+        
+        // Get 3D positions of corners - use corrected FOV for intersection calculations
+        const correctionFactor = 1 / 0.82; // Compensate for finite sphere effect
+        const hx_corrected = Math.tan((hFovRad * correctionFactor) / 2);
+        const hy_corrected = Math.tan((vFovRad * correctionFactor) / 2);
+        
+        const corners3D = cornerDefs.map(corner => {
+          // Use corrected tangent values for intersection calculations only
+          const d = {
+            x: centerRayDir.x + corner.sx * hx_corrected * right.x + corner.sy * hy_corrected * trueUp.x,
+            y: centerRayDir.y + corner.sx * hx_corrected * right.y + corner.sy * hy_corrected * trueUp.y,
+            z: centerRayDir.z + corner.sx * hx_corrected * right.z + corner.sy * hy_corrected * trueUp.z
+          };
+          const normalizedRayDir = normalize(d);
+          
+          // Calculate intersection with celestial sphere
+          const od = obs3D.x * normalizedRayDir.x + obs3D.y * normalizedRayDir.y + obs3D.z * normalizedRayDir.z;
+          const oo = obs3D.x * obs3D.x + obs3D.y * obs3D.y + obs3D.z * obs3D.z;
+          const discriminant = od * od - (oo - celestialRadius * celestialRadius);
+          const t = -od + Math.sqrt(discriminant);
+          
+          return {
+            x: obs3D.x + t * normalizedRayDir.x,
+            y: obs3D.y + t * normalizedRayDir.y,
+            z: obs3D.z + t * normalizedRayDir.z
+          };
+        });
+        
+        const [bottomLeft3D, topLeft3D, topRight3D, bottomRight3D] = corners3D;
+        
+        // Draw the four sides of the rectangle as curved arcs
+        drawSphericalArc(topLeft3D, topRight3D);     // Top edge
+        drawSphericalArc(topRight3D, bottomRight3D); // Right edge  
+        drawSphericalArc(bottomRight3D, bottomLeft3D); // Bottom edge
+        drawSphericalArc(bottomLeft3D, topLeft3D);   // Left edge
+
+        // Draw center sight line (thicker, different dash pattern)
+        this.ctx.strokeStyle = '#60a5fa';
+        this.ctx.lineWidth = 2;
+        this.ctx.setLineDash([6, 3]);
+        this.ctx.beginPath();
+        this.ctx.moveTo(obsX, obsY);
+        this.ctx.lineTo(frustumCenterX, frustumCenterY);
+        this.ctx.stroke();
+        this.ctx.setLineDash([]);
+
+        // Frustum label
+        this.ctx.fillStyle = '#3b82f6';
+        this.ctx.font = '10px Arial';
+        this.ctx.fillText(
+          `FOV: ${hFov.toFixed(1)}掳 脳 ${vFov.toFixed(1)}掳`,
+          topLeft.x,
+          topLeft.y - 8
+        );
+        this.ctx.fillText(
+          `Az: ${azimuth.toFixed(1)}掳 El: ${elevation.toFixed(1)}掳`,
+          bottomLeft.x,
+          bottomLeft.y + 15
+        );
+
+        // Draw altitude indicator if significant
+        if (altitude > 1000) {
+          const altRadius = earthRadius + (altitude / 10000) * earthRadius * 0.3; // Scale altitude
+          this.ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+          this.ctx.lineWidth = 1;
+          this.ctx.setLineDash([2, 2]);
+          this.ctx.beginPath();
+          this.ctx.arc(centerX, centerY, altRadius, 0, 2 * Math.PI);
+          this.ctx.stroke();
+          this.ctx.setLineDash([]);
+          
+          this.ctx.fillStyle = '#ef4444';
+          this.ctx.font = '9px Arial';
+          this.ctx.fillText(`${altitude}m`, centerX + altRadius + 5, centerY);
+        }
+
+        // Display time-lapse animation info if applicable
+        if (currentSimTime && isTimeLapse) {
+          // Display current simulation time
+          this.ctx.fillStyle = '#fbbf24';
+          this.ctx.font = '12px Arial';
+          this.ctx.fillText(`Simulation Time: ${currentSimTime.toISOString().replace('T', ' ').slice(0, -5)} UTC`, 10, 20);
+          
+          // Display tracking mode
+          let trackingMode = 'Earth-fixed';
+          if (isSiderealFrame) trackingMode = 'Sidereal';
+          
+          this.ctx.fillText(`Tracking: ${trackingMode}`, 10, 35);
+          this.ctx.fillText(`Az: ${azimuth.toFixed(1)}掳 El: ${elevation.toFixed(1)}掳`, 10, 50);
+          const durationDisplay = durationMinutes >= 60 
+            ? `${(durationMinutes / 60).toFixed(1)}h` 
+            : `${durationMinutes.toFixed(1)}min`;
+          this.ctx.fillText(`Duration: ${durationDisplay} (looping)`, 10, 65);
+        }
+        
+        // Add legend
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = '10px Arial';
+        this.ctx.fillText('馃煝 Earth', 10, height - 40);
+        this.ctx.fillText('馃敶 Observer position', 10, height - 25);
+        this.ctx.fillText('馃數 FOV rays 鈫?celestial sphere', 10, height - 10);
+      }
+
+      drawSatelliteView(width, height) {
+        const targetLat = parseFloat(document.getElementById('satellite-target-lat')?.value || 0);
+        const targetLon = parseFloat(document.getElementById('satellite-target-lon')?.value || 0);
+        
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const radius = Math.min(width, height) * 0.35;
+        
+        // Clear and setup
+        this.ctx.save();
+        
+        // Draw Earth globe (transparent)
+        this.ctx.strokeStyle = '#10b981';
+        this.ctx.fillStyle = 'rgba(16, 185, 129, 0.05)'; // Very transparent
+        this.ctx.lineWidth = 2;
+        
+        // Earth circle
+        this.ctx.beginPath();
+        this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.stroke();
+        
+        // Draw lat/lon grid (add default -90掳 pitch to put north at top)
+        this.drawLatLonGrid(this.ctx, centerX, centerY, radius, {
+          yawDeg: -this.rotation.y,
+          pitchDeg: -90 - this.rotation.x,  // Default -90掳 tilt to put north at top
+          rollDeg: -this.rotation.z,
+          meridianStepDeg: 30,
+          parallelStepDeg: 30,
+          samplesPerLine: 120,
+          frontStyle: { strokeStyle: 'rgba(255, 255, 255, 0.2)', lineWidth: 1, lineDash: [] },
+          backStyle: { strokeStyle: 'rgba(255, 255, 255, 0.05)', lineWidth: 1, lineDash: [3,3] }
+        });
+        
+        // Draw target point
+        // Convert lat/lon to 3D coordinates
+        const phi = (90 - targetLat) * Math.PI / 180;
+        const theta = targetLon * Math.PI / 180;
+        
+        let x = radius * Math.sin(phi) * Math.cos(theta);
+        let y = radius * Math.cos(phi);
+        let z = radius * Math.sin(phi) * Math.sin(theta);
+        
+        // Apply rotation
+        const rotated = this.rotatePoint3D(x, y, z, this.rotation.x, this.rotation.y, this.rotation.z);
+        
+        // Always draw the target (transparent globe shows both sides)
+        const projX = centerX + rotated.x;
+        const projY = centerY - rotated.y; // Negative because canvas Y is inverted
+        
+        // Adjust opacity based on which side (front = z > 0)
+        const opacity = rotated.z > 0 ? 1.0 : 0.5;
+        
+        // Draw target marker (smaller)
+        this.ctx.fillStyle = `rgba(239, 68, 68, ${opacity})`;
+        this.ctx.strokeStyle = `rgba(239, 68, 68, ${opacity})`;
+        this.ctx.lineWidth = 2;
+        
+        // Draw filled circle at target
+        this.ctx.beginPath();
+        this.ctx.arc(projX, projY, 4, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Draw small crosshair
+        this.ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        this.ctx.moveTo(projX - 8, projY);
+        this.ctx.lineTo(projX + 8, projY);
+        this.ctx.stroke();
+        
+        this.ctx.beginPath();
+        this.ctx.moveTo(projX, projY - 8);
+        this.ctx.lineTo(projX, projY + 8);
+        this.ctx.stroke();
+        
+        // Label
+        this.ctx.fillStyle = `rgba(239, 68, 68, ${opacity})`;
+        this.ctx.font = '11px Arial';
+        this.ctx.fillText(
+          `${targetLat.toFixed(1)}掳, ${targetLon.toFixed(1)}掳`,
+          projX + 10,
+          projY - 8
+        );
+        
+        // Legend
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = '11px Arial';
+        this.ctx.fillText('馃煝 Earth', 10, height - 20);
+        this.ctx.fillText('馃敶 Satellite target point', 10, height -5);
+        
+        this.ctx.restore();
+      }
+
+
+      getSensorDimensions(sensorSize) {
+        const dimensions = {
+          'full-frame': { width: 36, height: 24 },
+          'aps-c': { width: 23.6, height: 15.6 },
+          'micro-43': { width: 17.3, height: 13 },
+          '1-inch': { width: 13.2, height: 8.8 },
+          'astro-cooled': { width: 36, height: 24 }
+        };
+        return dimensions[sensorSize] || dimensions['full-frame'];
+      }
+
+      setupControlHandlers() {
+        // Controls toggle
+        document.getElementById('controls-toggle-btn')?.addEventListener('click', () => {
+          const controlsContainer = document.getElementById('controls-container');
+          const toggleText = document.getElementById('controls-toggle-text');
+
+          if (controlsContainer) {
+            controlsContainer.classList.toggle('hidden');
+            if (controlsContainer.classList.contains('hidden')) {
+              if (toggleText) toggleText.textContent = 'Show Setup';
+            } else {
+              if (toggleText) toggleText.textContent = 'Hide Setup';
+            }
+          }
+        });
+
+        // Help toggle (click title to expand/collapse)
+        document.getElementById('help-toggle-inline')?.addEventListener('click', () => {
+          const helpBody = document.getElementById('help-body');
+          const chevron = document.getElementById('help-chevron');
+          if (helpBody) {
+            helpBody.classList.toggle('hidden');
+            if (chevron) chevron.classList.toggle('rotate-180');
+          }
+        });
+      }
+
+      showToast(message, type = 'info') {
+        showToast(message, type);
+      }
+
+      updatePreview(params) {
+        this.currentParams = params;
+        this.drawWireframe();
+      }
+
+      setupKeyboardControls() {
+        document.addEventListener('keydown', (e) => {
+          // Only handle keys when canvas is focused or no input is focused
+          const activeElement = document.activeElement;
+          const isInputFocused = activeElement && (
+            activeElement.tagName === 'INPUT' || 
+            activeElement.tagName === 'TEXTAREA' ||
+            activeElement.tagName === 'SELECT'
+          );
+          
+          if (isInputFocused) return;
+
+          // Calculate current horizontal FOV for rotation step
+          const focalLength = parseFloat(document.getElementById('earth-focal-length')?.value || 50);
+          const sensorSize = document.getElementById('earth-sensor-size')?.value || 'full-frame';
+          const sensorDimensions = window.photobombSimulator?.getSensorDimensions(sensorSize) || { width: 36, height: 24 };
+          const hFov = 2 * Math.atan(sensorDimensions.width / (2 * focalLength)) * 180 / Math.PI;
+          const rotationStep = hFov; // degrees - matches current horizontal FOV
+          let needsRedraw = false;
+
+          switch(e.key.toLowerCase()) {
+            case 'q': // Rotate X axis positive
+              this.rotation.x += rotationStep;
+              needsRedraw = true;
+              break;
+            case 'a': // Rotate X axis negative
+              this.rotation.x -= rotationStep;
+              needsRedraw = true;
+              break;
+            case 'w': // Rotate Y axis positive
+              this.rotation.y += rotationStep;
+              needsRedraw = true;
+              break;
+            case 's': // Rotate Y axis negative
+              this.rotation.y -= rotationStep;
+              needsRedraw = true;
+              break;
+            case 'e': // Rotate Z axis positive
+              this.rotation.z += rotationStep;
+              needsRedraw = true;
+              break;
+            case 'd': // Rotate Z axis negative
+              this.rotation.z -= rotationStep;
+              needsRedraw = true;
+              break;
+            case 'r': // Reset rotation
+              this.rotation = { x: 0, y: 0, z: 0 };
+              needsRedraw = true;
+              break;
+            default:
+              return; // Don't prevent default for other keys
+          }
+
+          if (needsRedraw) {
+            e.preventDefault();
+            
+            // Keep rotations within 0-360 degrees
+            this.rotation.x = ((this.rotation.x % 360) + 360) % 360;
+            this.rotation.y = ((this.rotation.y % 360) + 360) % 360;
+            this.rotation.z = ((this.rotation.z % 360) + 360) % 360;
+            
+            this.drawWireframe();
+          }
+        });
+      }
+    }
+    
+    // Initialize simulator when page loads
+    let simulator = null;
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      simulator = new PhotobombSimulator();
+      window.photobombSimulator = simulator;
+      simulator.setupControlHandlers();
+
+      // Clean up animation on page unload
+      window.addEventListener('beforeunload', () => {
+        if (simulator) {
+          simulator.stopAnimation();
+        }
+      });
+      
+      // Add event listeners to ALL inputs to update visualization
+      // Local-Sky mode inputs
+      const localSkyInputs = [
+        'local-lat', 'local-lon', 'local-altitude',
+        'local-azimuth', 'local-elevation',
+        'local-focal-length', 'local-sensor-size',
+        'local-time'
+      ];
+      
+      // Earth mode inputs
+      const earthInputs = [
+        'earth-lat', 'earth-lon', 'earth-altitude',
+        'earth-azimuth', 'earth-elevation',
+        'earth-focal-length', 'earth-sensor-size',
+        'earth-time'
+      ];
+      
+      // Satellite mode inputs
+      const satelliteInputs = [
+        'satellite-norad-id',
+        'satellite-target-lat', 'satellite-target-lon',
+        'satellite-fov-width', 'satellite-fov-height',
+        'satellite-time'
+      ];
+      
+      // Combine all inputs
+      const allInputs = [...localSkyInputs, ...earthInputs, ...satelliteInputs];
+      
+      allInputs.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+          // Use 'input' event for immediate feedback on typing/changing
+          input.addEventListener('input', () => {
+            // Special validation for elevation field
+            if (id === 'earth-elevation' && parseFloat(input.value) > 89) {
+              input.value = 89;
+            }
+            if (window.photobombSimulator) {
+              window.photobombSimulator.drawWireframe();
+            }
+          });
+          
+          // Also listen for 'change' event for select dropdowns
+          if (input.tagName === 'SELECT') {
+            input.addEventListener('change', () => {
+              if (window.photobombSimulator) {
+                window.photobombSimulator.drawWireframe();
+              }
+            });
+          }
+        }
+      });
+    });
+
+    // 鈹€鈹€ Plate-solve wiring (uses imported module) 鈹€鈹€
+    const SENSOR_WIDTHS = { 'full-frame': 36, 'aps-c': 24, 'micro-four-thirds': 17, '1-inch': 13 };
+
+    // Details toggle
+    document.getElementById('ps-details-toggle')?.addEventListener('click', () => {
+      const details = document.getElementById('ps-details');
+      const btn = document.getElementById('ps-details-toggle');
+      details.classList.toggle('hidden');
+      btn.textContent = details.classList.contains('hidden') ? 'details' : 'hide';
+    });
+
+    function displayPlateSolveResult(result) {
+      const panelEl = document.getElementById('plate-solve-panel');
+      document.getElementById('ps-radec').textContent = result.ra_hms + ' / ' + result.dec_dms;
+      document.getElementById('ps-fov').textContent = result.field_w.toFixed(1) + '\u00b0 \u00d7 ' + result.field_h.toFixed(1) + '\u00b0';
+      document.getElementById('ps-rotation').textContent = result.rotation.toFixed(1) + '\u00b0';
+      document.getElementById('ps-pixscale').textContent = result.pixscale ? result.pixscale.toFixed(1) + '"/px' : '-';
+
+      const sensorSelect = document.getElementById('local-sensor-size');
+      const sensorW = SENSOR_WIDTHS[sensorSelect.value] || 36;
+      if (result.pixscale) {
+        document.getElementById('ps-focal').textContent = focalFromFov(result.field_w, sensorW).toFixed(0) + 'mm';
+      }
+
+      document.getElementById('ps-roll').textContent = '-';
+      panelEl.classList.remove('hidden');
+
+      const applyBtn = document.getElementById('ps-apply-azel');
+      applyBtn.classList.remove('hidden');
+      applyBtn.onclick = () => {
+        const lat = parseFloat(document.getElementById('local-lat').value);
+        const lon = parseFloat(document.getElementById('local-lon').value);
+        const utc = window.getPhotobombUTC ? window.getPhotobombUTC() : new Date();
+        if (isNaN(lat) || isNaN(lon)) return;
+        const { az, el, parallactic } = raDecToAzEl(result.ra, result.dec, lat, lon, utc);
+        document.getElementById('ps-roll').textContent = horizonRoll(result.rotation, parallactic).toFixed(1) + '\u00b0';
+        document.getElementById('local-azimuth').value = az.toFixed(2);
+        document.getElementById('local-elevation').value = el.toFixed(2);
+        document.getElementById('local-focal-length').value = focalFromFov(result.field_w, SENSOR_WIDTHS[sensorSelect.value] || 36).toFixed(0);
+        ['local-azimuth', 'local-elevation', 'local-focal-length'].forEach(id => {
+          document.getElementById(id).dispatchEvent(new Event('input', { bubbles: true }));
+        });
+        applyBtn.textContent = 'Applied';
+        setTimeout(() => { applyBtn.textContent = 'Apply Az/El'; }, 1500);
+      };
+    }
+
+    window._plateSolveImage = async function(file) {
+      const statusEl = document.getElementById('plate-solve-status');
+      statusEl.classList.remove('hidden');
+      try {
+        const result = await plateSolveFile(apiBase, file, msg => { statusEl.textContent = msg; });
+        if (result.solved) {
+          displayPlateSolveResult(result);
+          statusEl.classList.add('hidden');
+        } else {
+          statusEl.textContent = result.error || 'No solution found';
+        }
+      } catch (err) {
+        statusEl.textContent = 'Solve failed: ' + err.message;
+      }
+    };
+  </script> <!-- JavaScript --> <script type="module" src="/_astro/satellite-photobomb.astro_astro_type_script_index_0_lang.JFvYoY58.js"></script> </div>  <script type="module">
+    import { getApiEndpointClient } from '/scripts/api.js?h=888618fb';
+
+    async function loadPhotobombBlueGlobe() {
+      const canvas = document.getElementById('photobombGlCanvas');
+      const loadingElement = document.getElementById('blueglobe-loading');
+      
+      if (!canvas || !loadingElement) return;
+
+      try {
+        // Dynamically import BlueGlobe plugin
+        const isDev = window.location.hostname === 'localhost';
+        // Cache bust using day number (changes once per day)
+        const dayNumber = Math.floor(Date.now() / (24 * 60 * 60 * 1000))+1;
+        const blueglobeUrl = isDev
+          ? `/blueglobe.js?h=a2a04a9d?v=${dayNumber}`
+          : `/blueglobe.js?h=a2a04a9d?v=${dayNumber}`;
+
+        const module = await import(blueglobeUrl);
+        const { BlueGlobe } = module;
+        
+        if (!BlueGlobe) {
+          throw new Error('BlueGlobe class not found in imported module');
+        }
+
+        // Configure options for photobomb simulator
+        const options = {
+          // API configuration
+          apiBaseUrl: getApiEndpointClient(),
+          // Compact mode for embedded use
+          compactMode: true,
+          noFocus: true,
+          noPauseIcon: true,
+          onReady: () => {
+          // Suppress 20掳 elevation line and Clarke belt for clean photo simulation
+          window.photobombGlobe.render_suppress |= 128 | 2048; // RS_HORIZON_20 | RS_CLARKE
+
+          // Always include ISS (NORAD 25544)
+          // if (window.photobombGlobe.addSatellites) {
+            // console.warn('globe.addSatellites exists, calling it now...');
+            // window.photobombGlobe.addSatellites(undefined, undefined, [25544]);
+            // console.warn('Added ISS (25544) to the view');
+          // } 
+
+            document.getElementById('simulate-btn').disabled = false;
+            document.getElementById('simulate-btn').style.opacity = '1.0';
+            // Hide loading spinner
+            const loadingSpinner = document.getElementById('loading-spinner');
+            if (loadingSpinner) {
+              loadingSpinner.classList.add('hidden');
+            }
+          },
+          // Hide UI elements for clean simulation view
+          // hideElements: ['search', 'filters-panel', 'info-panel', 'controls'],
+          // Start with no satellites loaded
+          // skipInitialLoad: true,
+          // Disable auto-rotation
+          // autoRotate: false
+        };
+    
+        const urlParams = new URLSearchParams(window.location.search);
+        const norad = urlParams.get('norad');
+        if (norad) {
+            // Parse as comma-separated list of NORAD IDs
+            options.initialNoradIdL = norad.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n));
+        } else {
+            options.initialNoradIdL = [];
+        }
+        options.initialConstellation = undefined;
+        options.initialType = undefined;
+
+        console.log('Initializing Photobomb BlueGlobe with options:', options);
+        
+        // Initialize BlueGlobe
+        const globe = new BlueGlobe(canvas, options);
+        
+        // Initialize and wait for ready
+        await globe.init();
+
+        globe.show_texstyle = 0;
+        globe.show_clouds = true;
+        globe.show_skybox = 2;    // no clarke belt or horizon line
+        window._disableFovRubberBand = true;
+        // Hide loading spinner once initialized
+        loadingElement.style.display = 'none';
+
+        // Make globe available globally for the simulator
+        window.photobombGlobe = globe;
+        
+        // Set initial camera position based on observer location
+        updateGlobeView();
+        
+        console.log('Photobomb BlueGlobe initialized successfully');
+        
+      } catch (error) {
+        console.error('Failed to load BlueGlobe:', error);
+        loadingElement.innerHTML = `
+          <div class="text-center space-y-2">
+            <div class="w-16 h-16 mx-auto rounded-full bg-red-500/20 flex items-center justify-center">
+              <svg class="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <p class="text-gray-400">Failed to load 3D Globe</p>
+            <p class="text-xs text-gray-500">Please refresh to try again</p>
+          </div>
+        `;
+      }
+    }
+
+    // Function to update globe view based on observer parameters
+    function updateGlobeView() {
+      const globe = window.photobombGlobe;
+      if (!globe) return;
+
+      // Get observer parameters
+      const lat = parseFloat(document.getElementById('earth-lat')?.value || 0);
+      const lon = parseFloat(document.getElementById('earth-lon')?.value || 0);
+
+      // Set camera to look at observer location
+      if (globe.setCameraPosition) {
+        globe.setCameraPosition(lat, lon, 2.5); // 2.5 earth radii distance
+      }
+    }
+
+    // Setup constellation button handlers
+    function setupConstellationButtons() {
+      // Satellite load buttons 鈥?just toggle selection, loading happens on Start
+      // Filter buttons are toggles 鈥?toggling clears satellites ready for reload
+      const satFilterBtns = document.querySelectorAll('.sat-filter-btn');
+      satFilterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const isActive = btn.classList.contains('bg-blue-600');
+          if (isActive) {
+            btn.classList.remove('bg-blue-600');
+            btn.classList.add('bg-gray-700');
+          } else {
+            btn.classList.add('bg-blue-600');
+            btn.classList.remove('bg-gray-700');
+          }
+          const globe = window.photobombGlobe;
+          if (globe) {
+            globe._tleSimTimeAt = null;
+            globe._tleCache = new Map();
+            if (globe.clearSatellites) globe.clearSatellites();
+          }
+        });
+      });
+
+      function isFilterActive(id) {
+        return document.getElementById(id)?.classList.contains('bg-blue-600') || false;
+      }
+
+      // Load satellites based on filter state, then purge unwanted ones
+      window.loadSelectedSatellites = async function() {
+        const globe = window.photobombGlobe;
+        if (!globe || !globe.setSatellites) return;
+
+        // Clear TLE cache so historical TLEs are fetched fresh for the current wallclock time
+        globe._tleCache = new Map();
+
+        const includeDebris = isFilterActive('add-debris-btn');
+        const noStarlink = isFilterActive('no-starlink-btn');
+        const addDistant = isFilterActive('add-distant-btn');
+
+        // Choose base set: if debris selected, load all; otherwise all-functional
+        const type = includeDebris ? 'all' : 'all_functional';
+        await globe.setSatellites(undefined, type, undefined);
+
+        // Purge unwanted satellites
+        globe.purgeSatellites((sat) => {
+          const meta = sat.metadata || {};
+          const oe = sat.tleData?.orbital_elements || {};
+
+          // Detect GEO: period ~1436 min (sidereal day) 卤 tolerance
+          const period = parseFloat(oe.period) || 0;
+          const isGeo = period > 1400 && period < 1500;
+
+          // Exclude GEO unless +Distant is active
+          if (isGeo && !addDistant) return false;
+
+          // Exclude Starlink if No Starlink is active
+          if (noStarlink) {
+            const name = (sat.name || sat.sat_name || '').toUpperCase();
+            const constellation = (meta.constellation_name || '').toUpperCase();
+            if (name.includes('STARLINK') || constellation === 'STARLINK') return false;
+          }
+
+          return true; // keep
+        });
+      };
+    }
+
+    // Setup Local Sky Observer parameter handlers
+    function setupLocalSkyParameterHandlers() {
+      const globe = window.photobombGlobe;
+      if (!globe) return;
+
+      // Handle latitude/longitude changes
+      const localLat = document.getElementById('local-lat');
+      const localLon = document.getElementById('local-lon');
+      const localAltitude = document.getElementById('local-altitude');
+
+      const updateHomeLocation = () => {
+        const globe = window.photobombGlobe;
+        if (!globe || !globe.setHome) return;
+
+        const lat = parseFloat(localLat?.value || 0);
+        const lon = parseFloat(localLon?.value || 0);
+        const alt = parseFloat(localAltitude?.value || 0);
+
+        // Set home location
+        globe.setHome({ lat, lon, alt }, 'Observer');
+
+        // Land the camera at the new location
+        if (globe.landHome) {
+          globe.landHome();
+        }
+      };
+
+      if (localLat) localLat.addEventListener('change', updateHomeLocation);
+      if (localLon) localLon.addEventListener('change', updateHomeLocation);
+      if (localAltitude) localAltitude.addEventListener('change', updateHomeLocation);
+
+      // Handle azimuth/elevation changes
+      const localAzimuth = document.getElementById('local-azimuth');
+      const localElevation = document.getElementById('local-elevation');
+
+      const updateLookAngles = () => {
+        const globe = window.photobombGlobe;
+        if (!globe || !globe.setLookAngles) return;
+
+        const azimuth = parseFloat(localAzimuth?.value || 0);
+        const elevation = parseFloat(localElevation?.value || 45);
+
+        // Set camera look angles
+        globe.setLookAngles({ azimuth, elevation });
+      };
+
+      if (localAzimuth) localAzimuth.addEventListener('change', updateLookAngles);
+      if (localElevation) localElevation.addEventListener('change', updateLookAngles);
+
+      // Also handle Earth mode parameters
+      const earthLat = document.getElementById('earth-lat');
+      const earthLon = document.getElementById('earth-lon');
+      const earthAltitude = document.getElementById('earth-altitude');
+
+      const updateEarthHomeLocation = () => {
+        const globe = window.photobombGlobe;
+        if (!globe || !globe.setHome) return;
+
+        const lat = parseFloat(earthLat?.value || 0);
+        const lon = parseFloat(earthLon?.value || 0);
+        const alt = parseFloat(earthAltitude?.value || 0);
+
+        // Set home location
+        globe.setHome({ lat, lon, alt }, 'Observer');
+
+        // Land the camera at the new location
+        if (globe.landHome) {
+          globe.landHome();
+        }
+      };
+
+      if (earthLat) earthLat.addEventListener('change', updateEarthHomeLocation);
+      if (earthLon) earthLon.addEventListener('change', updateEarthHomeLocation);
+      if (earthAltitude) earthAltitude.addEventListener('change', updateEarthHomeLocation);
+
+      // Handle Earth mode azimuth/elevation changes
+      const earthAzimuth = document.getElementById('earth-azimuth');
+      const earthElevation = document.getElementById('earth-elevation');
+
+      const updateEarthLookAngles = () => {
+        const globe = window.photobombGlobe;
+        if (!globe || !globe.setLookAngles) return;
+
+        const azimuth = parseFloat(earthAzimuth?.value || 0);
+        const elevation = parseFloat(earthElevation?.value || 45);
+
+        // Set camera look angles
+        globe.setLookAngles({ azimuth, elevation });
+      };
+
+      if (earthAzimuth) earthAzimuth.addEventListener('change', updateEarthLookAngles);
+      if (earthElevation) earthElevation.addEventListener('change', updateEarthLookAngles);
+    }
+
+    // Wait for globe to be ready then set up handlers
+    function waitForGlobeAndSetup() {
+      if (window.photobombGlobe) {
+        setupConstellationButtons();
+        setupLocalSkyParameterHandlers();
+      } else {
+        setTimeout(waitForGlobeAndSetup, 100);
+      }
+    }
+
+    // Load BlueGlobe when the page loads
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        loadPhotobombBlueGlobe();
+        waitForGlobeAndSetup();
+      });
+    } else {
+      loadPhotobombBlueGlobe();
+      waitForGlobeAndSetup();
+    }
+
+    // Update globe view when observer parameters change
+    document.addEventListener('DOMContentLoaded', () => {
+      const observerInputs = ['earth-lat', 'earth-lon'];
+      observerInputs.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+          input.addEventListener('input', updateGlobeView);
+        }
+      });
+    });
+  </script>  </main> <!-- Development API Toggle Footer (localhost only) --> <div id="api-toggle-footer" class="fixed bottom-4 right-4 z-30 bg-gray-800/90 backdrop-blur-sm rounded-lg p-3 border border-gray-600 text-sm hidden" data-astro-cid-37fxchfa> <div class="flex items-center gap-2" data-astro-cid-37fxchfa> <span class="text-gray-300" data-astro-cid-37fxchfa>API:</span> <button id="api-toggle-btn" class="px-2 py-1 rounded text-xs font-mono border transition-colors" data-astro-cid-37fxchfa> <!-- Will be populated by JavaScript --> </button> <button id="api-toggle-close" class="text-gray-400 hover:text-white ml-2" title="Hide" data-astro-cid-37fxchfa>脳</button> </div> </div> <script type="module" src="/_astro/BaseLayout.astro_astro_type_script_index_0_lang.CWhBtdny.js"></script> <!-- App peek moved to session init block (only shown to non-logged-in users) --> <!-- Navbar styles are now in global.css --> </body></html>

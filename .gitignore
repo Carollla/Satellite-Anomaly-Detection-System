@@ -1,0 +1,10 @@
+spaceman-ai.config.json
+server.err.log
+server.out.log
+data/spaceman-db.json
+dist-pages/
+.codex/
+.agents/
+.git-upload/
+data/git-upload/
+视频.mp4

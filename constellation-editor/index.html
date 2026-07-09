@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>星座编辑器 | SPACEMAN</title>
+  <link rel="icon" type="image/png" href="/favicon-96x96.png?v5" sizes="96x96">
+  <link rel="stylesheet" crossorigin href="/assets/main.Bo4yuzhq.css">
+  <link rel="stylesheet" href="/assets/spaceman-feature-page.css">
+  <link rel="stylesheet" href="/assets/spaceman-nav-unifier.css">
+  <link rel="stylesheet" href="/assets/spaceman-constellation-editor.css">
+  <link rel="stylesheet" href="/assets/spaceman-assistant.css">
+</head>
+<body style="-webkit-user-select: none;">
+  <div id="spaceman-nav-host"></div>
+  <main class="spaceman-page-shell">
+    <section class="editor-shell">
+      <header class="editor-toolbar">
+        <div class="editor-scene-title">
+          <span>SPACEMAN / 数字孪生</span>
+          <input id="editorSceneName" value="SPACEMAN 默认 450 星座">
+        </div>
+        <div class="editor-toolbar-status">
+          <strong id="editorTotalSatellites">450</strong>
+          <span>颗卫星</span>
+          <em id="editorSavedAt">未保存</em>
+        </div>
+        <div class="editor-toolbar-actions">
+          <button id="editorExportJson" type="button">导出 JSON</button>
+          <button id="editorBindApi" type="button">绑定 API</button>
+          <button id="editorRestoreDefault" type="button" class="danger">恢复默认</button>
+          <button id="editorSave" type="button" class="primary">保存场景</button>
+        </div>
+      </header>
+
+      <section class="editor-workbench">
+        <aside class="editor-assets">
+          <div class="editor-panel-head">
+            <div>
+              <h2>卫星资产库</h2>
+              <p>壳层、单星、模板</p>
+            </div>
+            <button id="editorAddSatellite" type="button" title="添加卫星">+</button>
+          </div>
+
+          <div class="editor-search">
+            <input id="editorSearch" type="search" placeholder="搜索卫星 ID / 名称">
+          </div>
+
+          <section class="editor-section">
+            <h3>壳层数量</h3>
+            <div id="editorShellList" class="editor-shell-list"></div>
+          </section>
+
+          <section class="editor-section">
+            <h3>模板批量生成</h3>
+            <div class="editor-template-grid">
+              <button type="button" data-template="walker-delta">Walker-Delta</button>
+              <button type="button" data-template="polar">极地星座</button>
+            </div>
+          </section>
+
+          <section class="editor-section editor-sat-section">
+            <h3>卫星列表</h3>
+            <div id="editorSatelliteList" class="editor-satellite-list"></div>
+          </section>
+        </aside>
+
+        <section class="editor-viewport-panel">
+          <div class="editor-viewport-top">
+            <div>
+              <strong id="editorViewportTitle">三维视口</strong>
+              <span id="editorViewportSubtitle">点击卫星可在右侧编辑参数</span>
+            </div>
+            <div class="editor-view-toggles">
+              <button id="editorPlayToggle" type="button">暂停</button>
+              <select id="editorSpeed">
+                <option value="1">1x</option>
+                <option value="10" selected>10x</option>
+                <option value="100">100x</option>
+              </select>
+            </div>
+          </div>
+          <div id="editorViewport" class="editor-viewport">
+            <iframe
+              id="editorMainPreview"
+              title="SPACEMAN 主视图预览"
+              src="/?spaceman-preview=1&editor-preview=1"
+              loading="eager"
+            ></iframe>
+            <div class="editor-preview-overlay">
+              <span>真实主视图</span>
+              <strong id="editorPreviewCount">450 颗卫星</strong>
+            </div>
+            <div id="editorContextMenu" class="editor-context-menu hidden">
+              <button type="button" data-context-action="add">在当前高度添加卫星</button>
+              <button type="button" data-context-action="clear">取消</button>
+            </div>
+          </div>
+        </section>
+
+        <aside class="editor-inspector">
+          <div class="editor-panel-head">
+            <div>
+              <h2>属性检查器</h2>
+              <p id="editorInspectorHint">请选择一颗卫星</p>
+            </div>
+          </div>
+
+          <div class="editor-tabs">
+            <button type="button" class="active" data-editor-tab="orbit">轨道根数</button>
+            <button type="button" data-editor-tab="payload">有效载荷</button>
+          </div>
+
+          <form id="editorInspectorForm" class="editor-inspector-form">
+            <label>
+              卫星名称
+              <input id="inspectorName" type="text" disabled>
+            </label>
+            <label>
+              所属壳层
+              <select id="inspectorShell" disabled></select>
+            </label>
+            <div class="editor-tab-panel active" data-editor-panel="orbit">
+              <label>
+                轨道高度 km
+                <input id="inspectorAltitude" type="number" min="160" max="40000" disabled>
+              </label>
+              <label>
+                倾角 °
+                <input id="inspectorInclination" type="range" min="0" max="120" step="0.1" disabled>
+                <input id="inspectorInclinationNumber" type="number" min="0" max="120" step="0.1" disabled>
+              </label>
+              <label>
+                偏心率
+                <input id="inspectorEccentricity" type="number" min="0" max="0.8" step="0.0001" disabled>
+              </label>
+              <label>
+                RAAN °
+                <input id="inspectorRaan" type="number" min="0" max="360" step="0.1" disabled>
+              </label>
+            </div>
+            <div class="editor-tab-panel" data-editor-panel="payload">
+              <label>
+                API 配置
+                <select id="inspectorPayloadApi" disabled></select>
+              </label>
+              <label class="editor-toggle-line">
+                <input id="inspectorVisible" type="checkbox" disabled>
+                <span>视口可见</span>
+              </label>
+              <label class="editor-toggle-line">
+                <input id="inspectorLaser" type="checkbox" disabled>
+                <span>激光终端</span>
+              </label>
+            </div>
+            <div class="editor-inspector-actions">
+              <button id="inspectorClone" type="button" disabled>复制</button>
+              <button id="inspectorRemove" type="button" class="danger" disabled>移除</button>
+              <button id="inspectorApply" type="submit" class="primary" disabled>应用修改</button>
+            </div>
+          </form>
+
+          <section class="editor-section editor-history-section">
+            <h3>修改记录</h3>
+            <div id="editorHistory" class="editor-history"></div>
+          </section>
+
+          <section class="editor-section editor-snapshot-section">
+            <h3>保存快照</h3>
+            <div id="editorSnapshots" class="editor-snapshots"></div>
+          </section>
+        </aside>
+      </section>
+
+      <footer class="editor-timeline">
+        <div class="editor-time-controls">
+          <button id="editorStepBack" type="button">-</button>
+          <input id="editorTimeRange" type="range" min="0" max="1440" value="360">
+          <button id="editorStepForward" type="button">+</button>
+        </div>
+        <div class="editor-stream">
+          <span id="editorSimTime">T+06:00</span>
+          <span id="editorCollisionStatus">碰撞预警：未触发</span>
+          <span id="editorDbStatus">数据库：data/spaceman-db.json</span>
+        </div>
+      </footer>
+    </section>
+
+    <div id="editorQuickCreate" class="editor-modal hidden">
+      <div class="editor-modal-backdrop"></div>
+      <article class="editor-modal-card">
+        <h3>快速创建卫星</h3>
+        <label>卫星名称<input id="quickName" type="text" placeholder="CUSTOM-SAT-001"></label>
+        <label>所属壳层<select id="quickShell"></select></label>
+        <label>轨道高度 km<input id="quickAltitude" type="number" value="550"></label>
+        <label>倾角 °<input id="quickInclination" type="number" value="53"></label>
+        <div>
+          <button type="button" data-close-modal>取消</button>
+          <button id="quickCreateConfirm" type="button" class="primary">创建</button>
+        </div>
+      </article>
+    </div>
+
+    <div id="editorDeleteModal" class="editor-modal hidden">
+      <div class="editor-modal-backdrop"></div>
+      <article class="editor-modal-card">
+        <h3>确认移除卫星</h3>
+        <p>一次移除超过 3 颗时需要输入 DELETE。该操作会写入修改记录。</p>
+        <div id="deletePreviewList" class="delete-preview-list"></div>
+        <input id="deleteConfirmInput" type="text" placeholder="输入 DELETE">
+        <div>
+          <button type="button" data-close-modal>取消</button>
+          <button id="deleteConfirmBtn" type="button" class="danger">确认移除</button>
+        </div>
+      </article>
+    </div>
+
+    <div id="editorToast" class="editor-toast hidden"></div>
+  </main>
+  <script src="/assets/spaceman-feature-page.js" defer></script>
+  <script src="/assets/spaceman-constellation-editor.js" defer></script>
+  <script src="/assets/spaceman-assistant.js" defer></script>
+  <script src="/assets/spaceman-localization.js" defer></script>
+</body>
+</html>
