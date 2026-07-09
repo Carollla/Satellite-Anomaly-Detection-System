@@ -30,7 +30,7 @@ jobs:
           node-version: 20
 
       - name: Build static Pages bundle
-        run: npm run build:pages
+        run: node scripts/build-github-pages.mjs
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
