@@ -36,7 +36,10 @@ for (const file of listFiles(out)) {
   html = html
     .replace(/(href|src)="\/(?!\/)/g, `$1="${repoBase}/`)
     .replace(/url\(\/(?!\/)/g, `url(${repoBase}/`);
-  if (!html.includes("spaceman-pages-adapter.js")) {
+  html = html.replace(/\s*<script\s+src=["'][^"']*spaceman-pages-adapter\.js["']><\/script>/g, "");
+  if (html.includes("assets/main.localfix3.js")) {
+    html = html.replace(/(\s*<script\b(?=[^>]*assets\/main\.localfix3\.js)[^>]*><\/script>)/, `\n  ${adapter}$1`);
+  } else {
     html = html.includes("</head>") ? html.replace("</head>", `${adapter}</head>`) : `${adapter}${html}`;
   }
   writeFileSync(file, html, "utf8");
