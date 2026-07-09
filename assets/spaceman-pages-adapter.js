@@ -3,6 +3,11 @@
   if (!isPages) return;
 
   const base = "/Satellite-Anomaly-Detection-System";
+  const withBase = (url) => {
+    if (typeof url !== "string") return url;
+    if (!url.startsWith("/") || url.startsWith("//") || url.startsWith(base + "/")) return url;
+    return base + url;
+  };
   const originalFetch = window.fetch.bind(window);
 
   window.fetch = function spacemanPagesFetch(input, init) {
@@ -42,6 +47,45 @@
         error: "GitHub Pages is static. Run npm start locally for this API."
       }), { status: 501, headers: { "content-type": "application/json" } }));
     }
+    if (typeof input === "string") {
+      return originalFetch(withBase(input), init);
+    }
+    if (input instanceof Request && input.url && new URL(input.url).origin === location.origin) {
+      const path = new URL(input.url).pathname;
+      if (path.startsWith("/") && !path.startsWith(base + "/")) {
+        return originalFetch(new Request(withBase(path) + new URL(input.url).search, input), init);
+      }
+    }
     return originalFetch(input, init);
+  };
+
+  const originalOpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function spacemanPagesOpen(method, url, ...rest) {
+    return originalOpen.call(this, method, withBase(url), ...rest);
+  };
+
+  const patchUrlProperty = (proto, property) => {
+    const descriptor = Object.getOwnPropertyDescriptor(proto, property);
+    if (!descriptor || !descriptor.set) return;
+    Object.defineProperty(proto, property, {
+      configurable: true,
+      enumerable: descriptor.enumerable,
+      get: descriptor.get,
+      set(value) {
+        descriptor.set.call(this, withBase(value));
+      }
+    });
+  };
+
+  patchUrlProperty(HTMLImageElement.prototype, "src");
+  patchUrlProperty(HTMLLinkElement.prototype, "href");
+
+  const originalSetAttribute = Element.prototype.setAttribute;
+  Element.prototype.setAttribute = function spacemanPagesSetAttribute(name, value) {
+    const lower = String(name).toLowerCase();
+    if ((lower === "src" || lower === "href") && typeof value === "string") {
+      return originalSetAttribute.call(this, name, withBase(value));
+    }
+    return originalSetAttribute.call(this, name, value);
   };
 })();
