@@ -1,0 +1,1669 @@
+﻿#spaceman-assistant-panel {
+  --spaceman-assistant-rgb: 24, 24, 24;
+  --spaceman-assistant-alpha: .94;
+  --spaceman-assistant-surface: rgba(var(--spaceman-assistant-rgb), var(--spaceman-assistant-alpha));
+  --spaceman-assistant-border: rgba(80, 80, 80, .72);
+  position: fixed;
+  left: 24px;
+  top: 17vh;
+  width: min(25vw, 430px);
+  min-width: 320px;
+  height: 66vh;
+  min-height: 420px;
+  max-width: calc(100vw - 48px);
+  max-height: calc(100vh - 88px);
+  resize: both;
+  overflow: hidden;
+  z-index: 80;
+  display: none;
+  flex-direction: column;
+  color: #d4d4d4;
+  background: var(--spaceman-assistant-surface);
+  border: 1px solid var(--spaceman-assistant-border);
+  box-shadow: 0 18px 54px rgba(0, 0, 0, .55);
+  font-family: Consolas, "SFMono-Regular", Menlo, Monaco, "Courier New", monospace;
+  user-select: text;
+}
+
+#spaceman-assistant-panel.open {
+  display: flex;
+}
+
+#spaceman-assistant-panel.dragging {
+  user-select: none;
+  cursor: move;
+}
+
+.spaceman-assistant-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  flex: 0 0 36px;
+  padding: 0 8px 0 12px;
+  color: #cccccc;
+  background: var(--spaceman-assistant-surface);
+  border-bottom: 1px solid var(--spaceman-assistant-border);
+  cursor: move;
+}
+
+.spaceman-assistant-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 12px;
+  letter-spacing: .02em;
+}
+
+.spaceman-assistant-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #10a37f;
+  box-shadow: 0 0 12px rgba(16, 163, 127, .8);
+}
+
+.spaceman-assistant-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.spaceman-assistant-icon {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: #c5c5c5;
+  cursor: pointer;
+}
+
+.spaceman-assistant-icon:hover {
+  background: #2a2d2e;
+  color: #ffffff;
+}
+
+.spaceman-assistant-settings {
+  display: none;
+  gap: 12px;
+  align-items: center;
+  position: relative;
+  padding: 8px 12px;
+  background: var(--spaceman-assistant-surface);
+  border-bottom: 1px solid var(--spaceman-assistant-border);
+  font-size: 12px;
+}
+
+.spaceman-assistant-settings.open {
+  display: flex;
+}
+
+.spaceman-assistant-settings label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #a7a7a7;
+  white-space: nowrap;
+}
+
+.spaceman-assistant-settings input[type="range"] {
+  width: 92px;
+  accent-color: #10a37f;
+}
+
+.spaceman-assistant-setting {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  position: relative;
+  color: #a7a7a7;
+  white-space: nowrap;
+}
+
+.spaceman-assistant-color-button {
+  width: 28px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background: #050505;
+  cursor: pointer;
+}
+
+.spaceman-assistant-color-button:hover {
+  border-color: #7c7c7c;
+}
+
+.spaceman-assistant-color-swatch {
+  width: 18px;
+  height: 12px;
+  border-radius: 2px;
+  background: rgb(var(--spaceman-assistant-rgb));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22);
+}
+
+.spaceman-assistant-color-popover {
+  display: none;
+  position: fixed;
+  width: 188px;
+  padding: 9px;
+  border: 1px solid #343434;
+  border-radius: 6px;
+  background: #050505;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, .72);
+  z-index: 9999;
+}
+
+.spaceman-assistant-color-popover.open {
+  display: block;
+}
+
+.spaceman-assistant-color-field {
+  position: relative;
+  width: 170px;
+  height: 104px;
+  overflow: hidden;
+  border: 1px solid #303030;
+  border-radius: 4px;
+  background: #000;
+  cursor: crosshair;
+}
+
+#spaceman-assistant-color-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.spaceman-assistant-color-thumb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 11px;
+  height: 11px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px #000, 0 2px 8px rgba(0, 0, 0, .8);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.spaceman-assistant-color-reset {
+  width: 100%;
+  height: 28px;
+  margin-top: 8px;
+  border: 1px solid #343434;
+  border-radius: 4px;
+  background: #0b0b0b;
+  color: #d4d4d4;
+  font: 12px Consolas, "SFMono-Regular", Menlo, Monaco, "Courier New", monospace;
+  cursor: pointer;
+}
+
+.spaceman-assistant-color-reset:hover {
+  background: #171717;
+  border-color: #555;
+  color: #ffffff;
+}
+
+.spaceman-assistant-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 14px 12px;
+  background:
+    linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+    var(--spaceman-assistant-surface);
+  background-size: 100% 28px;
+}
+
+.spaceman-assistant-message {
+  margin-bottom: 12px;
+  padding-left: 10px;
+  border-left: 2px solid #3c3c3c;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #d4d4d4;
+}
+
+.spaceman-assistant-message.assistant {
+  border-left-color: #10a37f;
+}
+
+.spaceman-assistant-message.user {
+  border-left-color: #3794ff;
+}
+
+.spaceman-assistant-role {
+  display: block;
+  margin-bottom: 3px;
+  color: #858585;
+  font-size: 11px;
+}
+
+.spaceman-assistant-footer {
+  flex: 0 0 auto;
+  padding: 10px;
+  background: var(--spaceman-assistant-surface);
+  border-top: 1px solid var(--spaceman-assistant-border);
+}
+
+.spaceman-assistant-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+#spaceman-assistant-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #3c3c3c;
+  outline: none;
+  color: #d4d4d4;
+  background: #111111;
+  font: 12px Consolas, "SFMono-Regular", Menlo, Monaco, "Courier New", monospace;
+}
+
+#spaceman-assistant-input:focus {
+  border-color: #3794ff;
+}
+
+.spaceman-assistant-send {
+  flex: 0 0 34px;
+  height: 34px;
+  border: 1px solid #3c3c3c;
+  background: #0e639c;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.spaceman-assistant-send:hover {
+  background: #1177bb;
+}
+
+.spaceman-assistant-resize-hint {
+  position: absolute;
+  right: 5px;
+  bottom: 3px;
+  color: #777;
+  font-size: 11px;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  #spaceman-assistant-panel {
+    left: 12px;
+    top: 76px;
+    width: calc(100vw - 24px);
+    height: calc(100vh - 112px);
+    min-width: 280px;
+    min-height: 320px;
+  }
+}
+
+#spaceman-assistant-panel {
+  --spaceman-assistant-control: rgba(8, 8, 8, var(--spaceman-assistant-alpha));
+  width: min(27vw, 460px);
+  min-width: 340px;
+  min-height: 440px;
+  box-shadow: 0 18px 54px rgba(0, 0, 0, .56);
+}
+
+.spaceman-assistant-header {
+  height: 38px;
+  flex-basis: 38px;
+  padding: 0 7px 0 10px;
+}
+
+.spaceman-assistant-title {
+  gap: 8px;
+  letter-spacing: 0;
+}
+
+.spaceman-assistant-mark {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  border: 1px solid #626262;
+  border-radius: 3px;
+  background: linear-gradient(135deg, #10a37f, #3794ff);
+}
+
+.spaceman-assistant-title-text {
+  min-width: 0;
+}
+
+.spaceman-assistant-name {
+  overflow: hidden;
+  color: #e6e6e6;
+  font-size: 12px;
+  line-height: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spaceman-assistant-subtitle {
+  overflow: hidden;
+  color: #858585;
+  font-size: 10px;
+  line-height: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spaceman-assistant-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+  padding: 0 7px;
+  border: 1px solid #2d3d34;
+  border-radius: 4px;
+  color: #9fd9c2;
+  background: rgba(16, 163, 127, .08);
+  font-size: 10px;
+}
+
+.spaceman-assistant-status::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #10a37f;
+  box-shadow: 0 0 8px rgba(16, 163, 127, .8);
+}
+
+.spaceman-assistant-icon {
+  border: 0;
+  background: transparent;
+}
+
+.spaceman-assistant-settings {
+  flex-wrap: wrap;
+  padding: 9px 10px;
+}
+
+.spaceman-assistant-settings input[type="range"] {
+  width: 116px;
+}
+
+.spaceman-assistant-tabs {
+  display: flex;
+  flex: 0 0 32px;
+  height: 32px;
+  background: var(--spaceman-assistant-surface);
+  border-bottom: 1px solid var(--spaceman-assistant-border);
+}
+
+.spaceman-assistant-tab {
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-right: 1px solid rgba(65, 65, 65, .7);
+  color: #9d9d9d;
+  background: transparent;
+  font: 11px Consolas, "SFMono-Regular", Menlo, Monaco, "Courier New", monospace;
+  cursor: pointer;
+}
+
+.spaceman-assistant-tab:hover,
+.spaceman-assistant-tab.active {
+  color: #fff;
+  background: rgba(255, 255, 255, .06);
+}
+
+.spaceman-assistant-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  background: var(--spaceman-assistant-surface);
+}
+
+.spaceman-assistant-view {
+  display: none;
+  padding: 10px;
+}
+
+.spaceman-assistant-view.active {
+  display: block;
+}
+
+.spaceman-assistant-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.spaceman-assistant-kv,
+.spaceman-assistant-card,
+.spaceman-assistant-step,
+.spaceman-assistant-change {
+  border: 1px solid rgba(66, 66, 66, .86);
+  border-radius: 5px;
+  background: rgba(10, 10, 10, calc(var(--spaceman-assistant-alpha) * .58));
+}
+
+.spaceman-assistant-kv {
+  min-width: 0;
+  padding: 7px 8px;
+}
+
+.spaceman-assistant-kv span,
+.spaceman-assistant-card-title,
+.spaceman-assistant-change-meta {
+  display: block;
+  color: #858585;
+  font-size: 10px;
+  line-height: 13px;
+}
+
+.spaceman-assistant-kv strong {
+  display: block;
+  overflow: hidden;
+  color: #d7d7d7;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spaceman-assistant-card {
+  margin-bottom: 9px;
+  padding: 9px;
+}
+
+.spaceman-assistant-card-title {
+  margin-bottom: 7px;
+  color: #9c9c9c;
+}
+
+.spaceman-assistant-message {
+  padding: 9px 10px;
+  border: 1px solid rgba(66, 66, 66, .86);
+  border-left-width: 2px;
+  border-radius: 5px;
+  background: rgba(10, 10, 10, calc(var(--spaceman-assistant-alpha) * .58));
+}
+
+.spaceman-assistant-step {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 8px;
+  align-items: start;
+  margin-bottom: 6px;
+  padding: 7px;
+  color: #d5d5d5;
+  font-size: 11px;
+}
+
+.spaceman-assistant-step-dot {
+  width: 10px;
+  height: 10px;
+  margin: 3px 0 0 3px;
+  border-radius: 999px;
+  background: #10a37f;
+  box-shadow: 0 0 8px rgba(16, 163, 127, .55);
+}
+
+.spaceman-assistant-step-dot.muted {
+  background: #6b7280;
+  box-shadow: none;
+}
+
+.spaceman-assistant-file-list {
+  display: grid;
+  gap: 6px;
+}
+
+.spaceman-assistant-file,
+.spaceman-assistant-pill {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid #343434;
+  border-radius: 4px;
+  color: #cfcfcf;
+  background: rgba(0, 0, 0, .36);
+  font-size: 11px;
+}
+
+.spaceman-assistant-file {
+  justify-content: space-between;
+}
+
+.spaceman-assistant-file span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spaceman-assistant-file span:last-child {
+  flex: 0 0 auto;
+  color: #858585;
+}
+
+.spaceman-assistant-pill-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.spaceman-assistant-change {
+  margin-bottom: 7px;
+  padding: 8px;
+  color: #d6d6d6;
+  font-size: 11px;
+}
+
+.spaceman-assistant-change-name {
+  margin-bottom: 3px;
+  color: #e2e2e2;
+}
+
+.spaceman-assistant-footer {
+  padding: 8px;
+}
+
+.spaceman-assistant-tools {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 7px;
+}
+
+.spaceman-assistant-tool {
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid #343434;
+  border-radius: 4px;
+  color: #bdbdbd;
+  background: rgba(0, 0, 0, .28);
+  font: 11px Consolas, "SFMono-Regular", Menlo, Monaco, "Courier New", monospace;
+  cursor: pointer;
+}
+
+.spaceman-assistant-tool:hover {
+  color: #fff;
+  border-color: #555;
+  background: rgba(255, 255, 255, .06);
+}
+
+.spaceman-assistant-input-row {
+  display: grid;
+  grid-template-columns: 1fr 34px;
+  gap: 7px;
+  align-items: end;
+}
+
+#spaceman-assistant-input {
+  min-width: 0;
+  min-height: 42px;
+  max-height: 98px;
+  height: auto;
+  padding: 8px 9px;
+  resize: vertical;
+  border-radius: 5px;
+  background: rgba(8, 8, 8, var(--spaceman-assistant-alpha));
+  font: 12px/1.45 Consolas, "SFMono-Regular", Menlo, Monaco, "Courier New", monospace;
+}
+
+.spaceman-assistant-send {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  color: #0f1115;
+  background: rgba(245, 245, 245, .92);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .18);
+}
+
+.spaceman-assistant-send:hover {
+  background: #ffffff;
+}
+
+.spaceman-assistant-send svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+}
+
+@media (max-width: 768px) {
+  .spaceman-assistant-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Compact Codex-style assistant surface */
+#spaceman-assistant-panel {
+  --spaceman-assistant-rgb: 8, 10, 12;
+  --spaceman-assistant-alpha: .94;
+  --spaceman-assistant-surface: rgba(var(--spaceman-assistant-rgb), var(--spaceman-assistant-alpha));
+  --spaceman-assistant-border: rgba(255, 255, 255, .10);
+  width: min(26vw, 430px);
+  min-width: 340px;
+  border-radius: 18px;
+  color: #e5e7eb;
+  background: var(--spaceman-assistant-surface);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .58);
+}
+
+.spaceman-assistant-header {
+  height: 44px;
+  flex-basis: 44px;
+  padding: 0 10px 0 16px;
+  border-bottom: 0;
+  background: transparent;
+}
+
+.spaceman-assistant-top-tabs {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.spaceman-assistant-top-tab {
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  color: rgba(229, 231, 235, .72);
+  background: transparent;
+  font: 500 14px/34px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  cursor: pointer;
+}
+
+.spaceman-assistant-top-tab.active {
+  color: #f9fafb;
+  border-bottom-color: #f9fafb;
+}
+
+.spaceman-assistant-actions {
+  gap: 4px;
+}
+
+.spaceman-assistant-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: rgba(229, 231, 235, .72);
+  font: 18px/1 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+#spaceman-assistant-more svg,
+#spaceman-assistant-refresh svg,
+#spaceman-assistant-new svg,
+#spaceman-assistant-close svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.65;
+}
+
+#spaceman-assistant-more svg circle,
+#spaceman-assistant-refresh svg circle,
+#spaceman-assistant-new svg circle,
+#spaceman-assistant-close svg circle {
+  fill: currentColor;
+  stroke: none;
+}
+
+.spaceman-assistant-icon:hover {
+  background: rgba(255, 255, 255, .08);
+}
+
+.spaceman-more-menu {
+  display: none;
+  position: absolute;
+  width: 300px;
+  padding: 8px 0;
+  border: 1px solid rgba(0, 0, 0, .10);
+  border-radius: 20px;
+  color: #252525;
+  background: rgba(250, 250, 250, .96);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, .28);
+  z-index: 90;
+}
+
+.spaceman-more-menu.open {
+  display: block;
+}
+
+.spaceman-more-menu button {
+  width: 100%;
+  min-height: 40px;
+  display: grid;
+  grid-template-columns: 24px 1fr 18px;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border: 0;
+  color: #2d2d2d;
+  background: transparent;
+  font: 15px/1.3 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+
+.spaceman-more-menu button:hover,
+.spaceman-more-menu button:focus-visible {
+  background: rgba(0, 0, 0, .055);
+  outline: none;
+}
+
+.spaceman-more-menu button > svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: #5f6368;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.spaceman-more-menu button span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spaceman-more-chevron {
+  justify-self: end;
+  opacity: .52;
+}
+
+.spaceman-more-divider {
+  height: 1px;
+  margin: 7px 16px;
+  background: rgba(0, 0, 0, .14);
+}
+
+.spaceman-more-submenu {
+  display: none;
+  margin: 0 8px 4px 48px;
+  padding: 4px 0;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, .045);
+}
+
+.spaceman-more-menu .has-submenu:hover + .spaceman-more-submenu,
+.spaceman-more-submenu:hover {
+  display: block;
+}
+
+.spaceman-more-submenu button {
+  min-height: 32px;
+  display: block;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.spaceman-assistant-settings {
+  padding: 10px 16px;
+  border-top: 1px solid var(--spaceman-assistant-border);
+  border-bottom: 1px solid var(--spaceman-assistant-border);
+  background: rgba(0, 0, 0, .18);
+  font-family: inherit;
+}
+
+.spaceman-assistant-settings input[type="range"] {
+  width: 128px;
+}
+
+.spaceman-assistant-color-reset,
+.spaceman-assistant-color-popover {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.spaceman-assistant-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 16px;
+  background: transparent;
+}
+
+.spaceman-assistant-history {
+  flex: 0 0 auto;
+  padding-top: 4px;
+}
+
+.spaceman-assistant-section-title {
+  margin: 6px 0 12px;
+  color: rgba(229, 231, 235, .62);
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.spaceman-assistant-history-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  width: 100%;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  color: #f3f4f6;
+  background: transparent;
+  font: 15px/28px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+
+.spaceman-assistant-history-row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spaceman-assistant-history-row time {
+  color: rgba(229, 231, 235, .58);
+  font-size: 14px;
+}
+
+.spaceman-assistant-history-row:hover span,
+.spaceman-assistant-history-row.active span {
+  color: #fff;
+}
+
+.spaceman-assistant-view-all {
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  color: rgba(229, 231, 235, .48);
+  background: transparent;
+  font: 14px/22px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  cursor: pointer;
+}
+
+.spaceman-assistant-no-history {
+  padding: 2px 0 8px;
+  color: rgba(229, 231, 235, .42);
+  font-size: 14px;
+  line-height: 24px;
+}
+
+.spaceman-assistant-chat-stage {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 190px;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+}
+
+.spaceman-assistant-empty-mark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border: 3px solid rgba(229, 231, 235, .18);
+  border-radius: 16px;
+  color: rgba(229, 231, 235, .30);
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.spaceman-assistant-history-opened {
+  width: 100%;
+  padding: 12px 0;
+  color: #f3f4f6;
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.spaceman-assistant-message {
+  width: 100%;
+  margin: 8px 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 12px;
+  color: #f3f4f6;
+  background: rgba(255, 255, 255, .05);
+  font: 14px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.spaceman-assistant-role {
+  color: rgba(229, 231, 235, .55);
+  font-family: inherit;
+}
+
+.spaceman-assistant-footer {
+  padding: 12px 16px 14px;
+  border-top: 0;
+  background: transparent;
+}
+
+.spaceman-assistant-composer {
+  position: relative;
+  padding: 12px 14px 10px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 20px;
+  background: rgba(0, 0, 0, .54);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .22);
+}
+
+#spaceman-assistant-input {
+  width: 100%;
+  min-height: 48px;
+  max-height: 120px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: #f9fafb;
+  background: transparent;
+  resize: none;
+  font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+#spaceman-assistant-input::placeholder {
+  color: rgba(229, 231, 235, .40);
+}
+
+#spaceman-assistant-input:focus {
+  border: 0;
+}
+
+.spaceman-assistant-composer-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.spaceman-assistant-composer-left,
+.spaceman-assistant-composer-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.spaceman-assistant-mini-btn,
+.spaceman-assistant-approval,
+.spaceman-assistant-chip {
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  color: rgba(229, 231, 235, .74);
+  background: transparent;
+  font: 13px/28px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  cursor: pointer;
+}
+
+.spaceman-assistant-approval svg,
+.spaceman-assistant-chip svg {
+  width: 10px;
+  height: 6px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  opacity: .82;
+}
+
+.spaceman-assistant-mini-btn {
+  width: 28px;
+  font-size: 22px;
+}
+
+.spaceman-assistant-chip {
+  max-width: 92px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spaceman-assistant-chip.active {
+  color: #f3f4f6;
+}
+
+.spaceman-command-menu {
+  display: none;
+  position: absolute;
+  width: min(330px, calc(100% - 32px));
+  max-height: 250px;
+  overflow: auto;
+  padding: 8px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 16px;
+  background: rgba(10, 10, 10, .98);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, .44);
+  z-index: 4;
+}
+
+.spaceman-command-menu.open {
+  display: block;
+}
+
+.spaceman-command-menu.compact {
+  width: min(310px, calc(100% - 32px));
+}
+
+.spaceman-model-menu {
+  width: min(314px, calc(100% - 32px));
+  max-height: min(480px, calc(100vh - 140px));
+  padding: 12px 12px 14px;
+  border-radius: 18px;
+}
+
+.spaceman-command-title {
+  padding: 7px 10px 8px;
+  color: rgba(229, 231, 235, .72);
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.spaceman-command-menu button {
+  width: 100%;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  color: #f3f4f6;
+  background: transparent;
+  font: 14px/1.35 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-align: left;
+  cursor: pointer;
+}
+
+.spaceman-command-menu button span {
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(229, 231, 235, .55);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spaceman-model-menu button {
+  min-height: 38px;
+  padding: 0 7px;
+  border-radius: 9px;
+  color: rgba(243, 244, 246, .92);
+  font-size: 15px;
+}
+
+.spaceman-model-menu .spaceman-command-title {
+  padding: 4px 7px 6px;
+  color: rgba(229, 231, 235, .58);
+  font-size: 14px;
+}
+
+.spaceman-model-menu .spaceman-model-section {
+  padding-top: 8px;
+}
+
+.spaceman-model-check {
+  width: 18px;
+  min-width: 18px !important;
+  color: rgba(243, 244, 246, .82) !important;
+  font-size: 18px;
+  line-height: 1;
+  text-align: center;
+}
+
+.spaceman-model-group {
+  display: none;
+}
+
+.spaceman-model-group.open {
+  display: block;
+}
+
+.spaceman-model-group-toggle svg {
+  width: 10px;
+  height: 6px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: rgba(229, 231, 235, .62);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  transition: transform .15s ease;
+}
+
+.spaceman-model-group-toggle.open svg {
+  transform: rotate(180deg);
+}
+
+.spaceman-model-menu button.selected {
+  color: #fff;
+}
+
+/* Codex task/detail flow refinements */
+.spaceman-assistant-back {
+  width: 26px;
+  height: 28px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  color: rgba(229, 231, 235, .72);
+  background: transparent;
+  cursor: pointer;
+}
+
+.spaceman-assistant-back svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.spaceman-assistant-back:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, .08);
+}
+
+.spaceman-assistant-chat-title {
+  display: none;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  color: #f9fafb;
+  font-size: 15px;
+  line-height: 28px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#spaceman-assistant-panel.chat-open .spaceman-assistant-back,
+#spaceman-assistant-panel.chat-open .spaceman-assistant-chat-title {
+  display: inline-flex;
+}
+
+#spaceman-assistant-panel.chat-open .spaceman-assistant-top-tabs {
+  display: none;
+}
+
+.spaceman-assistant-task-search {
+  height: 40px;
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .045);
+}
+
+#spaceman-assistant-panel:not(.history-expanded) .spaceman-assistant-task-search {
+  display: none;
+}
+
+#spaceman-assistant-panel.history-expanded .spaceman-assistant-section-title {
+  display: none;
+}
+
+.spaceman-assistant-task-search svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: rgba(229, 231, 235, .68);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.spaceman-assistant-task-search input {
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  color: #f3f4f6;
+  background: transparent;
+  font: 14px/38px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.spaceman-assistant-task-search input::placeholder {
+  color: rgba(229, 231, 235, .48);
+}
+
+#spaceman-assistant-panel:not(.chat-open) .spaceman-assistant-main {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+#spaceman-assistant-panel:not(.chat-open) .spaceman-assistant-history {
+  min-height: 0;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+#spaceman-assistant-panel:not(.chat-open) .spaceman-assistant-chat-stage {
+  display: none;
+}
+
+#spaceman-assistant-panel.chat-open .spaceman-assistant-history {
+  display: none;
+}
+
+#spaceman-assistant-panel.chat-open .spaceman-assistant-chat-stage {
+  display: block;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 8px 8px 18px;
+}
+
+.spaceman-assistant-history-list {
+  min-height: 0;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.spaceman-assistant-history-row {
+  min-height: 40px;
+  padding: 0 4px;
+}
+
+#spaceman-assistant-panel.history-expanded .spaceman-assistant-history-row {
+  min-height: 42px;
+}
+
+.spaceman-assistant-history-row span {
+  font-size: 15px;
+}
+
+.spaceman-assistant-empty-state {
+  padding: 30px 0;
+  color: rgba(229, 231, 235, .42);
+  font-size: 14px;
+  text-align: center;
+}
+
+.spaceman-assistant-message.user {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin: 10px 0 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.spaceman-user-bubble {
+  max-width: 86%;
+  padding: 10px 14px;
+  border-radius: 18px;
+  color: #f9fafb;
+  background: rgba(255, 255, 255, .10);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.spaceman-copy-btn,
+.spaceman-run-actions button {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  color: rgba(229, 231, 235, .58);
+  background: transparent;
+  cursor: pointer;
+}
+
+.spaceman-copy-btn svg,
+.spaceman-run-actions button svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.spaceman-copy-btn:hover,
+.spaceman-run-actions button:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, .08);
+}
+
+.spaceman-copy-btn.copied,
+.spaceman-run-actions button.copied {
+  color: #8ee6c0;
+}
+
+.spaceman-assistant-run {
+  width: 100%;
+  margin: 8px 0 22px;
+  color: #f3f4f6;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.spaceman-run-status,
+.spaceman-thinking {
+  color: rgba(229, 231, 235, .46);
+  font-size: 15px;
+}
+
+.spaceman-run-divider {
+  height: 1px;
+  margin: 10px 0 14px;
+  background: rgba(255, 255, 255, .10);
+}
+
+.spaceman-command-summary,
+.spaceman-command-row {
+  position: relative;
+  margin: 14px 0 8px;
+  padding-left: 28px;
+  color: rgba(229, 231, 235, .52);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.spaceman-command-summary::before,
+.spaceman-command-row::before {
+  content: "$";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(229, 231, 235, .35);
+  border-radius: 4px;
+  color: rgba(229, 231, 235, .52);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.spaceman-command-row {
+  color: rgba(229, 231, 235, .38);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spaceman-assistant-answer {
+  margin: 14px 0 12px;
+  color: #f4f4f5;
+  font-size: 15px;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+
+.spaceman-user-bubble,
+.spaceman-assistant-answer {
+  white-space: pre-wrap;
+}
+
+.spaceman-assistant-answer p {
+  margin: 0 0 10px;
+}
+
+.spaceman-assistant-answer p:last-child,
+.spaceman-assistant-answer ul:last-child,
+.spaceman-assistant-answer pre:last-child {
+  margin-bottom: 0;
+}
+
+.spaceman-assistant-answer ul {
+  margin: 6px 0 12px;
+  padding-left: 20px;
+}
+
+.spaceman-assistant-answer li {
+  margin: 3px 0;
+}
+
+.spaceman-assistant-answer h1,
+.spaceman-assistant-answer h2,
+.spaceman-assistant-answer h3 {
+  margin: 12px 0 7px;
+  color: #fff;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.spaceman-assistant-answer h1 {
+  font-size: 18px;
+}
+
+.spaceman-assistant-answer h2 {
+  font-size: 16px;
+}
+
+.spaceman-assistant-answer h3 {
+  font-size: 15px;
+}
+
+.spaceman-assistant-answer code {
+  padding: 1px 5px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 5px;
+  color: #e8e8e8;
+  background: rgba(255, 255, 255, .07);
+  font: 13px/1.5 Consolas, "SFMono-Regular", Menlo, Monaco, "Courier New", monospace;
+}
+
+.spaceman-assistant-answer pre {
+  max-width: 100%;
+  overflow: auto;
+  margin: 8px 0 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, .42);
+  white-space: pre;
+}
+
+.spaceman-assistant-answer pre code {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  white-space: pre;
+}
+
+.spaceman-assistant-answer a {
+  color: #8ab4ff;
+  text-decoration: none;
+}
+
+.spaceman-assistant-answer a:hover {
+  text-decoration: underline;
+}
+
+.spaceman-stream-cursor {
+  width: 7px;
+  height: 16px;
+  display: inline-block;
+  border-radius: 2px;
+  background: rgba(229, 231, 235, .68);
+  animation: spaceman-stream-blink 1s steps(2, start) infinite;
+  vertical-align: -2px;
+}
+
+@keyframes spaceman-stream-blink {
+  50% {
+    opacity: .25;
+  }
+}
+
+.spaceman-assistant-run.error .spaceman-assistant-answer {
+  color: #fecaca;
+}
+
+.spaceman-run-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.spaceman-command-menu button:hover {
+  background: rgba(255, 255, 255, .08);
+}
+
+.spaceman-command-muted {
+  padding: 12px 10px 4px;
+  color: rgba(229, 231, 235, .58);
+  font-size: 13px;
+}
+
+.spaceman-command-menu input {
+  width: 100%;
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  outline: none;
+  color: rgba(229, 231, 235, .58);
+  background: transparent;
+  font: 14px Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.spaceman-command-divider {
+  height: 1px;
+  margin: 6px 0;
+  background: rgba(255, 255, 255, .10);
+}
+
+.spaceman-attachment-list,
+.spaceman-message-attachments {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.spaceman-message-attachments {
+  margin: 8px 0 0;
+}
+
+.spaceman-attachment-chip {
+  max-width: 100%;
+  overflow: hidden;
+  padding: 4px 8px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 999px;
+  color: rgba(229, 231, 235, .78);
+  background: rgba(255, 255, 255, .06);
+  font-size: 12px;
+  line-height: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spaceman-status-card {
+  width: 100%;
+  margin: 8px 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .05);
+}
+
+.spaceman-status-title {
+  margin-bottom: 8px;
+  color: #f3f4f6;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.spaceman-status-rows {
+  display: grid;
+  gap: 5px;
+}
+
+.spaceman-status-rows div {
+  display: grid;
+  grid-template-columns: minmax(82px, auto) 1fr;
+  gap: 10px;
+  color: rgba(229, 231, 235, .62);
+  font-size: 12px;
+}
+
+.spaceman-status-rows strong {
+  overflow: hidden;
+  color: #e5e7eb;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spaceman-assistant-send {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  color: #111827;
+  background: rgba(243, 244, 246, .96);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .18);
+}
+
+.spaceman-assistant-send:hover {
+  background: #ffffff;
+}
+
+.spaceman-assistant-send svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+}
+
+@media (max-width: 768px) {
+  #spaceman-assistant-panel {
+    border-radius: 16px;
+    min-width: 280px;
+  }
+
+  .spaceman-assistant-composer-right {
+    display: none;
+  }
+}

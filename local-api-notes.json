@@ -1,0 +1,9 @@
+{
+  "mode": "offline-stub",
+  "description": "This folder contains a static mirror of satellitemap.space frontend assets. The live backend is replaced by server.mjs /local-api responses so the browser does not call external API hosts.",
+  "limitations": [
+    "Live satellite positions, TLE updates, login/session persistence, ADS-B aircraft data, and server-side search are not bundled.",
+    "Static Astro pages and downloaded images/scripts are available locally.",
+    "Dynamic visualizer data endpoints return empty successful JSON responses unless you add real local datasets."
+  ]
+}

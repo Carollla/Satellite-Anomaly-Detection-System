@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SPACEMAN 星座状态</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #000;
+      --nav: #111827;
+      --panel: rgba(15, 23, 42, .88);
+      --panel-strong: rgba(17, 24, 39, .96);
+      --line: rgba(148, 163, 184, .18);
+      --line-strong: rgba(148, 163, 184, .28);
+      --text: #f8fafc;
+      --muted: #a7b7ba;
+      --soft: #cbd5e1;
+      --blue: #60a5fa;
+      --cyan: #22d3ee;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --violet: #a78bfa;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 78% 0%, rgba(37, 99, 235, .22), transparent 34rem),
+        radial-gradient(circle at 6% 18%, rgba(34, 211, 238, .11), transparent 26rem),
+        linear-gradient(180deg, #020409 0%, var(--bg) 44%, #030509 100%);
+      color: var(--text);
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      border-bottom: 1px solid rgba(75, 85, 99, .85);
+      background: var(--nav);
+      backdrop-filter: blur(16px);
+    }
+
+    .nav-inner {
+      width: min(1240px, calc(100vw - 28px));
+      min-height: 46px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 22px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .brand svg { width: 24px; height: 24px; flex: 0 0 auto; }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .nav-links a { color: var(--muted); transition: color .16s ease; }
+    .nav-links a:hover { color: var(--blue); }
+
+    .page {
+      width: min(1240px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 34px 0 52px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 500px);
+      gap: 24px;
+      min-height: 392px;
+      margin-bottom: 18px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: linear-gradient(180deg, var(--panel-strong), rgba(7, 11, 18, .92));
+      box-shadow: 0 20px 70px rgba(0, 0, 0, .28);
+    }
+
+    .hero-copy {
+      position: relative;
+      overflow: hidden;
+      padding: 34px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .hero-copy::after {
+      content: "";
+      position: absolute;
+      right: -120px;
+      bottom: -150px;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      border: 1px solid rgba(96, 165, 250, .22);
+      box-shadow: 0 0 80px rgba(37, 99, 235, .18);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: max-content;
+      padding: 6px 10px;
+      border: 1px solid rgba(96, 165, 250, .24);
+      border-radius: 999px;
+      color: #bfdbfe;
+      background: rgba(30, 58, 138, .22);
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 18px rgba(52, 211, 153, .9);
+    }
+
+    h1 {
+      margin: 24px 0 10px;
+      font-size: clamp(38px, 7vw, 72px);
+      line-height: .95;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 720px;
+      margin: 0;
+      color: var(--soft);
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid rgba(148, 163, 184, .26);
+      border-radius: 8px;
+      background: rgba(15, 23, 42, .84);
+      color: #e5e7eb;
+      font-size: 13px;
+      transition: border-color .16s ease, background .16s ease, color .16s ease;
+    }
+
+    .btn:hover {
+      border-color: rgba(96, 165, 250, .70);
+      background: rgba(30, 41, 59, .96);
+      color: #fff;
+    }
+
+    .btn.primary {
+      border-color: rgba(37, 99, 235, .65);
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .orbit-panel { overflow: hidden; padding: 18px; }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .panel-title h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    .muted { color: var(--muted); font-size: 12px; }
+
+    .orbit-stage {
+      position: relative;
+      height: 310px;
+      display: grid;
+      place-items: center;
+      isolation: isolate;
+    }
+
+    .earth {
+      width: 112px;
+      height: 112px;
+      border-radius: 50%;
+      background:
+        linear-gradient(145deg, rgba(96, 165, 250, .55), rgba(15, 23, 42, .25) 45%, rgba(2, 6, 23, .92)),
+        radial-gradient(circle at 35% 35%, #38bdf8, #0f172a 58%, #020617 100%);
+      border: 1px solid rgba(147, 197, 253, .34);
+      box-shadow: 0 0 60px rgba(37, 99, 235, .40), inset -18px -18px 32px rgba(0, 0, 0, .54);
+      z-index: 3;
+    }
+
+    .orbit-ring {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      border: 1px solid rgba(125, 211, 252, .38);
+      border-radius: 50%;
+      transform: translate(-50%, -50%) rotateX(62deg) rotateZ(var(--rot, 0deg));
+      box-shadow: 0 0 18px rgba(59, 130, 246, .08);
+      opacity: .86;
+    }
+
+    .orbit-ring::after {
+      content: "";
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      top: 12%;
+      left: 18%;
+      background: #dbeafe;
+      box-shadow: 0 0 14px rgba(191, 219, 254, .9);
+    }
+
+    .leo-a { width: 196px; height: 196px; --rot: -23deg; border-color: rgba(34, 211, 238, .44); }
+    .leo-b { width: 224px; height: 224px; --rot: 44deg; border-color: rgba(52, 211, 153, .38); }
+    .meo { width: 276px; height: 276px; --rot: 0deg; border-color: rgba(167, 139, 250, .36); }
+    .geo { width: 334px; height: 334px; --rot: 90deg; border-color: rgba(251, 191, 36, .34); }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      color: var(--soft);
+      font-size: 12px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--dot, var(--blue));
+      box-shadow: 0 0 12px var(--dot, var(--blue));
+      flex: 0 0 auto;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(17, 24, 39, .94), rgba(7, 11, 18, .90));
+      box-shadow: 0 16px 50px rgba(0, 0, 0, .22);
+    }
+
+    .metric-label { color: var(--muted); font-size: 12px; }
+    .metric-value { margin-top: 8px; color: #fff; font-size: 32px; line-height: 1; font-weight: 750; }
+    .metric-note { margin-top: 10px; color: #8b9ca3; font-size: 12px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+      gap: 18px;
+    }
+
+    .section { padding: 20px; margin-bottom: 18px; }
+
+    .layer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .layer-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(2, 6, 23, .36);
+      padding: 16px;
+    }
+
+    .layer-head {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .layer-name { font-size: 16px; font-weight: 680; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 23px;
+      padding: 0 8px;
+      border: 1px solid rgba(96, 165, 250, .28);
+      border-radius: 999px;
+      color: #bfdbfe;
+      background: rgba(30, 58, 138, .18);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .kv span,
+    .source-row span,
+    .timeline-step span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .kv strong,
+    .source-row strong,
+    .timeline-step strong {
+      display: block;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+    }
+
+    .bar {
+      height: 8px;
+      margin-top: 14px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, .14);
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      width: var(--w, 20%);
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--c1, #60a5fa), var(--c2, #22d3ee));
+    }
+
+    .source-list,
+    .timeline { display: grid; gap: 10px; }
+
+    .source-row {
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .source-row:last-child { border-bottom: 0; }
+
+    code {
+      font-family: Consolas, "SFMono-Regular", Menlo, Monaco, monospace;
+      color: #dbeafe;
+      font-size: 12px;
+    }
+
+    .timeline-step {
+      position: relative;
+      padding-left: 24px;
+    }
+
+    .timeline-step::before {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--blue);
+      box-shadow: 0 0 14px rgba(96, 165, 250, .7);
+    }
+
+    .timeline-step::after {
+      content: "";
+      position: absolute;
+      left: 6px;
+      top: 18px;
+      bottom: -10px;
+      width: 1px;
+      background: var(--line);
+    }
+
+    .timeline-step:last-child::after { display: none; }
+
+    .error {
+      border: 1px solid rgba(251, 113, 133, .35);
+      border-radius: 10px;
+      padding: 14px;
+      color: #fecdd3;
+      background: rgba(127, 29, 29, .22);
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .layout { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 680px) {
+      .nav-links { gap: 12px; font-size: 12px; }
+      .nav-links .hide-mobile { display: none; }
+      .hero-copy { padding: 24px; }
+      .layer-grid,
+      .metrics { grid-template-columns: 1fr; }
+      .source-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="topbar">
+    <div class="nav-inner">
+      <a class="brand" href="/">
+        <svg viewBox="0 0 68 68" fill="none" aria-hidden="true">
+          <g transform="translate(34, 34)" stroke="#1a73e8" stroke-width="1.25" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="0" cy="0" r="8" fill="#1a73e8" stroke="#1ad7e8"></circle>
+            <ellipse rx="32" ry="8"></ellipse>
+            <ellipse rx="32" ry="8" transform="rotate(60)"></ellipse>
+            <ellipse rx="32" ry="8" transform="rotate(120)"></ellipse>
+            <ellipse rx="32" ry="8" transform="rotate(30)" stroke="#34a853"></ellipse>
+            <ellipse rx="32" ry="8" transform="rotate(90)"></ellipse>
+            <ellipse rx="32" ry="8" transform="rotate(150)"></ellipse>
+          </g>
+        </svg>
+        <span>SPACEMAN</span>
+      </a>
+      <div class="nav-links" aria-label="顶部导航">
+        <a class="hide-mobile" href="/">可视化</a>
+        <a class="hide-mobile" href="/constellations">星座数据</a>
+        <a href="/fault-injection">故障注入</a>
+        <a href="/security-audit">安全审计</a>
+        <a href="/model-config">模型配置</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="page">
+    <section class="hero">
+      <div class="panel hero-copy">
+        <div>
+          <div class="eyebrow"><i class="pulse"></i><span id="status-badge">本地星座状态</span></div>
+          <h1>SPACEMAN</h1>
+          <p class="lead" id="hero-lead">面向卫星任务与星座配置的本地数字孪生前端。当前页面读取本地状态接口，展示正在三维可视化、智能助手和后续运维功能中使用的星座配置。</p>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="/">进入三维可视化</a>
+          <a class="btn" href="/local-api/spaceman-status">查看本地状态接口</a>
+          <a class="btn" href="/constellations">返回星座列表</a>
+        </div>
+      </div>
+
+      <aside class="panel orbit-panel" aria-label="轨道壳层示意">
+        <div class="panel-title">
+          <h2>轨道壳层结构</h2>
+          <span class="muted" id="orbit-caption">LEO / MEO / GEO</span>
+        </div>
+        <div class="orbit-stage">
+          <div class="orbit-ring geo" title="GEO Compute"></div>
+          <div class="orbit-ring meo" title="MEO Backbone"></div>
+          <div class="orbit-ring leo-b" title="LEO Shell B"></div>
+          <div class="orbit-ring leo-a" title="LEO Shell A"></div>
+          <div class="earth" title="Earth"></div>
+        </div>
+        <div class="legend" id="orbit-legend">
+          <div class="legend-item"><i class="dot" style="--dot:#22d3ee"></i><span>LEO Shell A</span></div>
+          <div class="legend-item"><i class="dot" style="--dot:#34d399"></i><span>LEO Shell B</span></div>
+          <div class="legend-item"><i class="dot" style="--dot:#a78bfa"></i><span>MEO Backbone</span></div>
+          <div class="legend-item"><i class="dot" style="--dot:#fbbf24"></i><span>GEO Compute</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="metrics" aria-label="星座统计">
+      <div class="card"><div class="metric-label">卫星总数</div><div class="metric-value" id="sat-count">--</div><div class="metric-note">来自本地合成星座配置</div></div>
+      <div class="card"><div class="metric-label">活跃卫星</div><div class="metric-value" id="active-count">--</div><div class="metric-note">当前全部参与可视化</div></div>
+      <div class="card"><div class="metric-label">轨道壳层</div><div class="metric-value" id="shell-count">--</div><div class="metric-note">LEO、MEO、GEO 混合架构</div></div>
+      <div class="card"><div class="metric-label">TLE 行数</div><div class="metric-value" id="tle-lines">--</div><div class="metric-note">本地轨道传播数据</div></div>
+    </section>
+
+    <div class="layout">
+      <div>
+        <section class="panel section">
+          <div class="panel-title"><h2>轨道壳层</h2><span class="muted">Walker 参数 / 高度 / 倾角 / 数量</span></div>
+          <div class="layer-grid" id="layers"><div class="muted">正在读取本地状态...</div></div>
+        </section>
+
+        <section class="panel section">
+          <div class="panel-title"><h2>运维流程</h2><span class="muted">数字孪生能力入口</span></div>
+          <div class="timeline">
+            <div class="timeline-step"><span>读取当前状态</span><strong>从本地星座元数据和 TLE 文件获得卫星数量、壳层、轨道高度、倾角与相位参数。</strong></div>
+            <div class="timeline-step"><span>编辑配置</span><strong>后续可通过智能助手或模型配置页面修改卫星数量、高度、倾角、轨道面和 Walker 参数。</strong></div>
+            <div class="timeline-step"><span>重新生成</span><strong>由本地生成脚本写回星座 JSON 和 TLE，主页三维地球读取同一份本地数据。</strong></div>
+            <div class="timeline-step"><span>可视化验证</span><strong>回到三维可视化页面检查 LEO、MEO、GEO 壳层、轨道显示和卫星运行状态。</strong></div>
+          </div>
+        </section>
+      </div>
+
+      <aside>
+        <section class="panel section">
+          <div class="panel-title"><h2>数据来源</h2><span class="muted" id="source-type">本地</span></div>
+          <div class="source-list" id="sources"><div class="muted">正在读取本地状态...</div></div>
+        </section>
+
+        <section class="panel section">
+          <div class="panel-title"><h2>接口</h2><span class="muted">页面使用</span></div>
+          <div class="source-list">
+            <div class="source-row"><span>状态接口</span><strong><code>/local-api/spaceman-status</code></strong></div>
+            <div class="source-row"><span>健康检查</span><strong><code>/local-api/health</code></strong></div>
+            <div class="source-row"><span>主页面</span><strong><code>/</code></strong></div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    const fmt = new Intl.NumberFormat("zh-CN");
+    const colors = [["#22d3ee", "#60a5fa"], ["#34d399", "#22c55e"], ["#a78bfa", "#818cf8"], ["#fbbf24", "#f59e0b"]];
+
+    function byId(id) { return document.getElementById(id); }
+    function setText(id, value) { const el = byId(id); if (el) el.textContent = value; }
+    function text(value, fallback = "--") { return value === null || value === undefined || value === "" ? fallback : String(value); }
+    function layerKind(name) {
+      const value = String(name || "").toUpperCase();
+      if (value.includes("GEO")) return "GEO";
+      if (value.includes("MEO")) return "MEO";
+      return "LEO";
+    }
+
+    function renderLayer(layer, index, maxTotal) {
+      const [c1, c2] = colors[index % colors.length];
+      const total = Number(layer.total || 0);
+      const pct = maxTotal > 0 ? Math.max(4, Math.round((total / maxTotal) * 100)) : 10;
+      const walker = text(layer.walker);
+      const structure = walker.includes("Star") ? "Walker Star" : walker.includes("Geostationary") ? "静止轨道" : "Walker Delta";
+      return `
+        <article class="layer-card">
+          <div class="layer-head">
+            <div><div class="layer-name">${text(layer.name)}</div><div class="muted">${layerKind(layer.name)} mission shell</div></div>
+            <span class="badge">${walker}</span>
+          </div>
+          <div class="kv">
+            <div><span>卫星数量</span><strong>${fmt.format(total)}</strong></div>
+            <div><span>轨道面</span><strong>${text(layer.planes)}</strong></div>
+            <div><span>相位</span><strong>${text(layer.phasing)}</strong></div>
+            <div><span>高度</span><strong>${text(layer.altitudeKm)} km</strong></div>
+            <div><span>倾角</span><strong>${text(layer.inclinationDeg)}°</strong></div>
+            <div><span>结构</span><strong>${structure}</strong></div>
+          </div>
+          <div class="bar" title="壳层卫星数量占比"><i style="--w:${pct}%;--c1:${c1};--c2:${c2}"></i></div>
+        </article>`;
+    }
+
+    function renderSources(source, status) {
+      return [
+        ["元数据", source.metadataFile],
+        ["TLE 文件", source.tleFile],
+        ["生成脚本", source.generator],
+        ["数据类型", source.synthetic ? "本地合成星座" : "外部导入数据"],
+        ["Epoch", source.epoch],
+        ["TLE 行数", fmt.format(Number(status.tleLineCount || 0))]
+      ].map(([label, value]) => `<div class="source-row"><span>${label}</span><strong><code>${text(value)}</code></strong></div>`).join("");
+    }
+
+    fetch("/local-api/spaceman-status", { cache: "no-store" })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((payload) => {
+        const status = payload.data || {};
+        const constellation = status.constellation || {};
+        const layers = Array.isArray(constellation.layers) ? constellation.layers : [];
+        const source = status.dataSource || {};
+        const total = Number(constellation.totalSatellites || 0);
+        const active = Number(constellation.activeSatellites || 0);
+        const shellCount = Number(constellation.shellCount || layers.length || 0);
+        const tleLines = Number(status.tleLineCount || 0);
+        const maxLayerTotal = Math.max(1, ...layers.map((layer) => Number(layer.total || 0)));
+
+        setText("sat-count", fmt.format(total));
+        setText("active-count", fmt.format(active));
+        setText("shell-count", fmt.format(shellCount));
+        setText("tle-lines", fmt.format(tleLines));
+        setText("status-badge", source.synthetic ? "本地合成星座在线" : "星座状态在线");
+        setText("orbit-caption", `${shellCount} 个壳层 / ${fmt.format(active)} 颗活跃卫星`);
+        setText("source-type", source.synthetic ? "本地合成" : "外部导入");
+
+        const lead = byId("hero-lead");
+        if (lead) lead.textContent = `当前 SPACEMAN 星座包含 ${fmt.format(total)} 颗卫星，其中 ${fmt.format(active)} 颗处于活跃状态，按 ${shellCount} 个 LEO / MEO / GEO 壳层组织，并由本地 TLE 数据驱动三维可视化。`;
+
+        const layersEl = byId("layers");
+        if (layersEl) layersEl.innerHTML = layers.length ? layers.map((layer, index) => renderLayer(layer, index, maxLayerTotal)).join("") : `<div class="error">没有读取到轨道壳层数据。</div>`;
+
+        const legend = byId("orbit-legend");
+        if (legend && layers.length) {
+          legend.innerHTML = layers.map((layer, index) => `<div class="legend-item"><i class="dot" style="--dot:${colors[index % colors.length][0]}"></i><span>${text(layer.name)} · ${fmt.format(Number(layer.total || 0))}</span></div>`).join("");
+        }
+
+        const sourcesEl = byId("sources");
+        if (sourcesEl) sourcesEl.innerHTML = renderSources(source, status);
+      })
+      .catch((error) => {
+        const message = text(error && error.message, "未知错误");
+        const layersEl = byId("layers");
+        const sourcesEl = byId("sources");
+        if (layersEl) layersEl.innerHTML = `<div class="error">本地状态加载失败：${message}</div>`;
+        if (sourcesEl) sourcesEl.innerHTML = `<div class="error">无法读取 /local-api/spaceman-status。</div>`;
+      });
+  </script>
+</body>
+</html>

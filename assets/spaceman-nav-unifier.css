@@ -1,0 +1,190 @@
+/* Keep the shared SPACEMAN top navigation visually identical on every page. */
+nav.spaceman-unified-nav {
+  position: fixed !important;
+  top: 0 !important;
+  inset-inline-start: 0 !important;
+  z-index: 20 !important;
+  width: 100% !important;
+  border-bottom: 1px solid rgb(55 65 81) !important;
+  background-color: rgb(17 24 39) !important;
+  color: #fff !important;
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 16px !important;
+  line-height: 1.5 !important;
+}
+
+nav.spaceman-unified-nav *,
+nav.spaceman-unified-nav *::before,
+nav.spaceman-unified-nav *::after {
+  box-sizing: border-box;
+}
+
+nav.spaceman-unified-nav a {
+  color: inherit;
+  text-decoration: none;
+}
+
+nav.spaceman-unified-nav button {
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+nav.spaceman-unified-nav > div {
+  display: flex !important;
+  width: 100% !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0.25rem 0.5rem !important;
+  margin: 0 !important;
+}
+
+nav.spaceman-unified-nav .flex { display: flex !important; }
+nav.spaceman-unified-nav .inline-flex { display: inline-flex !important; }
+nav.spaceman-unified-nav .hidden { display: none !important; }
+nav.spaceman-unified-nav .relative { position: relative !important; }
+nav.spaceman-unified-nav .items-center { align-items: center !important; }
+nav.spaceman-unified-nav .justify-between { justify-content: space-between !important; }
+nav.spaceman-unified-nav .justify-center { justify-content: center !important; }
+nav.spaceman-unified-nav .w-full { width: 100% !important; }
+nav.spaceman-unified-nav .w-8 { width: 2rem !important; }
+nav.spaceman-unified-nav .h-8 { height: 2rem !important; }
+nav.spaceman-unified-nav .w-3 { width: 0.75rem !important; }
+nav.spaceman-unified-nav .h-3 { height: 0.75rem !important; }
+nav.spaceman-unified-nav .w-2\.5 { width: 0.625rem !important; }
+nav.spaceman-unified-nav .h-2\.5 { height: 0.625rem !important; }
+nav.spaceman-unified-nav .px-2 { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
+nav.spaceman-unified-nav .py-1 { padding-top: 0.25rem !important; padding-bottom: 0.25rem !important; }
+nav.spaceman-unified-nav .p-1\.5 { padding: 0.375rem !important; }
+nav.spaceman-unified-nav .px-\[1px\] { padding-left: 1px !important; padding-right: 1px !important; }
+nav.spaceman-unified-nav .mr-3 { margin-right: 0.75rem !important; }
+nav.spaceman-unified-nav .ms-1 { margin-inline-start: 0.25rem !important; }
+nav.spaceman-unified-nav .ml-2 { margin-left: 0.5rem !important; }
+nav.spaceman-unified-nav .my-1 { margin-top: 0.25rem !important; margin-bottom: 0.25rem !important; }
+nav.spaceman-unified-nav .text-sm { font-size: 0.875rem !important; line-height: 1.25rem !important; }
+nav.spaceman-unified-nav .text-lg { font-size: 1.125rem !important; line-height: 1.75rem !important; }
+nav.spaceman-unified-nav .font-medium { font-weight: 500 !important; }
+nav.spaceman-unified-nav .whitespace-nowrap { white-space: nowrap !important; }
+nav.spaceman-unified-nav .rounded-lg { border-radius: 0.5rem !important; }
+nav.spaceman-unified-nav .border-gray-600 { border-color: rgb(75 85 99) !important; }
+nav.spaceman-unified-nav .opacity-50 { opacity: 0.5 !important; }
+nav.spaceman-unified-nav .cursor-not-allowed { cursor: not-allowed !important; }
+nav.spaceman-unified-nav .text-white { color: #fff !important; }
+nav.spaceman-unified-nav .text-blue-400 { color: rgb(96 165 250) !important; }
+nav.spaceman-unified-nav .text-gray-400 { color: rgb(156 163 175) !important; }
+nav.spaceman-unified-nav .sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border-width: 0 !important;
+}
+nav.spaceman-unified-nav .space-x-2 > :not([hidden]) ~ :not([hidden]) { margin-left: 0.5rem !important; }
+nav.spaceman-unified-nav .space-x-8 > :not([hidden]) ~ :not([hidden]) { margin-left: 2rem !important; }
+
+nav.spaceman-unified-nav .navbar-link,
+nav.spaceman-unified-nav .navbar-dropdown-button {
+  display: flex !important;
+  align-items: center !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+  color: inherit !important;
+  font-size: 0.9em !important;
+}
+
+nav.spaceman-unified-nav .navbar-link:hover,
+nav.spaceman-unified-nav .navbar-dropdown-button:hover {
+  color: rgb(96 165 250) !important;
+}
+
+nav.spaceman-unified-nav .navbar-dropdown-menu {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  z-index: 10 !important;
+  display: none;
+  width: 11rem !important;
+  margin-top: -12px !important;
+  border-radius: 0.5rem !important;
+  background-color: rgb(17 24 39) !important;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
+  font-weight: 400 !important;
+}
+
+nav.spaceman-unified-nav .navbar-dropdown-list {
+  margin: 0 !important;
+  padding: 0.5rem 0 !important;
+  list-style: none !important;
+  color: rgb(229 231 235) !important;
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+}
+
+nav.spaceman-unified-nav .navbar-desktop-dropdown-item {
+  display: block !important;
+  padding: 0.25rem 0.7em !important;
+  color: rgb(156 163 175) !important;
+  font-size: 14px !important;
+}
+
+nav.spaceman-unified-nav .navbar-desktop-dropdown-item:hover {
+  background-color: rgb(75 85 99) !important;
+  color: #fff !important;
+}
+
+nav.spaceman-unified-nav .navbar-submenu-item {
+  display: flex !important;
+  width: 100% !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+nav.spaceman-unified-nav .navbar-submenu-item::after {
+  content: ">";
+  color: rgb(156 163 175);
+  font-size: 16px;
+}
+
+nav.spaceman-unified-nav .group:hover .group-hover\:block {
+  display: block !important;
+}
+
+nav.spaceman-unified-nav .hover\:bg-gray-700:hover {
+  background-color: rgb(55 65 81) !important;
+}
+
+@media (max-width: 1023px) {
+  nav.spaceman-unified-nav {
+    background-color: rgb(17 24 39 / 0.15) !important;
+  }
+
+  nav.spaceman-unified-nav span.text-lg {
+    opacity: 0.3 !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  nav.spaceman-unified-nav {
+    background-color: rgb(17 24 39) !important;
+  }
+
+  nav.spaceman-unified-nav .lg\:block {
+    display: block !important;
+  }
+
+  nav.spaceman-unified-nav .lg\:hidden {
+    display: none !important;
+  }
+
+  nav.spaceman-unified-nav .lg\:w-auto {
+    width: auto !important;
+  }
+}

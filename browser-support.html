@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WebGL Required 鈥?SatelliteMap.space</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background-color: #0f172a;
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      margin: 0;
+    }
+    .container {
+      max-width: 700px;
+      width: 100%;
+    }
+    h1 {
+      font-size: 1.6rem;
+      color: #f87171;
+      margin-bottom: 0.5rem;
+    }
+    h2 {
+      font-size: 1.1rem;
+      color: #e2e8f0;
+      margin: 2rem 0 0.75rem;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 0.4rem;
+    }
+    p {
+      line-height: 1.5;
+      margin: 0.5rem 0;
+    }
+    .subtitle {
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+    .link-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+    .link-grid a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 1rem;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: #60a5fa;
+      text-decoration: none;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .link-grid a:hover {
+      border-color: #60a5fa;
+      background: #1e3a5f;
+    }
+    .link-grid .icon {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      color: #94a3b8;
+    }
+    .link-grid a:hover .icon {
+      color: #60a5fa;
+    }
+    .link-grid .text {
+      min-width: 0;
+    }
+    .link-grid .label {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .link-grid .desc {
+      color: #94a3b8;
+      font-size: 0.8rem;
+      margin-top: 2px;
+    }
+    .webgl-help {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      font-size: 0.85rem;
+    }
+    .webgl-help a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+    .webgl-help a:hover {
+      text-decoration: underline;
+    }
+    .screenshots {
+      margin-top: 2rem;
+    }
+    .screenshots p {
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+    .screenshots img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      margin-top: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>WebGL Not Available</h1>
+    <p>The 3D satellite map requires WebGL, which your browser or device doesn't support. Try Chrome 56+, Firefox 51+, Safari 15+, or Android 7.0+ for the full 3D experience.</p>
+    <p class="subtitle">You can still browse satellite data on the pages below.</p>
+
+    <h2>Constellations</h2>
+    <div class="link-grid">
+      <a href="/constellation/starlink">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        <div class="text">
+          <div class="label">Starlink</div>
+          <div class="desc">6,000+ active satellites 鈥?SpaceX's broadband mega-constellation</div>
+        </div>
+      </a>
+      <a href="/constellation/oneweb">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><ellipse cx="12" cy="12" rx="4" ry="10"/><path d="M2 12h20"/></svg>
+        <div class="text">
+          <div class="label">OneWeb</div>
+          <div class="desc">Low-Earth broadband constellation by Eutelsat</div>
+        </div>
+      </a>
+      <a href="/constellation/kuiper">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="11" ry="4.5" transform="rotate(-30 12 12)"/><ellipse cx="12" cy="12" rx="11" ry="4.5" transform="rotate(30 12 12)"/></svg>
+        <div class="text">
+          <div class="label">Kuiper</div>
+          <div class="desc">Amazon's planned LEO broadband network</div>
+        </div>
+      </a>
+      <a href="/constellation/gps">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <div class="text">
+          <div class="label">GPS</div>
+          <div class="desc">US navigation constellation in MEO</div>
+        </div>
+      </a>
+      <a href="/constellation/galileo">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 3v4M12 17v4M3 12h4M17 12h4"/><circle cx="12" cy="12" r="2"/></svg>
+        <div class="text">
+          <div class="label">Galileo</div>
+          <div class="desc">European navigation constellation</div>
+        </div>
+      </a>
+      <a href="/constellations">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="18" r="2"/><circle cx="12" cy="12" r="2"/><path d="M6 6l6 6m0 0l6-6m-6 6l-6 6m6-6l6 6"/></svg>
+        <div class="text">
+          <div class="label">All Constellations</div>
+          <div class="desc">Browse 50+ satellite constellations</div>
+        </div>
+      </a>
+    </div>
+
+    <h2>Famous Satellites</h2>
+    <div class="link-grid">
+      <a href="/sat/25544">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="8" y="8" width="8" height="8" rx="1"/><path d="M2 12h6M16 12h6M12 2v6M12 16v6"/></svg>
+        <div class="text">
+          <div class="label">ISS (ZARYA)</div>
+          <div class="desc">International Space Station 鈥?NORAD 25544</div>
+        </div>
+      </a>
+      <a href="/sat/20580">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="4" width="6" height="16" rx="1"/><path d="M6 7h12M6 17h12"/><circle cx="12" cy="7" r="1.5"/></svg>
+        <div class="text">
+          <div class="label">Hubble Space Telescope</div>
+          <div class="desc">Iconic space observatory since 1990 鈥?NORAD 20580</div>
+        </div>
+      </a>
+      <a href="/sat/48274">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3l-3 6h6l-3-6zM6 9l-3 6h6l-3-6zM18 9l-3 6h6l-3-6z"/><path d="M3 15l3-6M9 15l3-6M9 15l-3-6M15 15l3-6M15 15l-3-6M21 15l-3-6"/></svg>
+        <div class="text">
+          <div class="label">James Webb Space Telescope</div>
+          <div class="desc">Deep-space infrared observatory at L2 鈥?NORAD 48274</div>
+        </div>
+      </a>
+      <a href="/sat/57320">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="7" y="9" width="10" height="6" rx="1"/><path d="M2 12h5M17 12h5M10 9V5M14 9V5M10 15v4M14 15v4"/></svg>
+        <div class="text">
+          <div class="label">Tiangong (CSS)</div>
+          <div class="desc">China's space station 鈥?NORAD 57320</div>
+        </div>
+      </a>
+      <a href="/sat/36516">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/></svg>
+        <div class="text">
+          <div class="label">SDO (Solar Dynamics Observatory)</div>
+          <div class="desc">Sun-watching spacecraft in geosynchronous orbit 鈥?NORAD 36516</div>
+        </div>
+      </a>
+    </div>
+
+    <h2>Tracking Tools</h2>
+    <div class="link-grid">
+      <a href="/re-entries">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10"/><path d="M17 12l-5 5-2-2"/><path d="M22 12c0-1.1-.18-2.16-.5-3.15"/><path d="M19 4l-2 4h4l-2-4z" fill="currentColor"/></svg>
+        <div class="text">
+          <div class="label">Satellite Re-Entries</div>
+          <div class="desc">Live decay countdown timers and recent atmospheric re-entry events</div>
+        </div>
+      </a>
+      <a href="/satellite-collision-finding">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+        <div class="text">
+          <div class="label">Space Debris & Collision Tracker</div>
+          <div class="desc">Conjunction screening and collision risk assessment</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="webgl-help">
+      <strong>Want the full 3D experience?</strong> Try updating your browser or switching to Chrome, Firefox, or Safari.
+      <br><a href="#offline-external" target="_blank" rel="noopener noreferrer">Check WebGL support</a>
+      &middot;
+      <a href="#offline-external" target="_blank" rel="noopener noreferrer">How to enable WebGL</a>
+    </div>
+
+    <div class="screenshots">
+      <p>Here's what the full 3D map looks like:</p>
+      <img src="showoff1.png" alt="satellitemap.space 3D satellite visualization" />
+      <img src="showoff2.png" alt="satellitemap.space tracking features" />
+    </div>
+  </div>
+</body>
+</html>
+

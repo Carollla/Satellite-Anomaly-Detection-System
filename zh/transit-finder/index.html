@@ -1,0 +1,1166 @@
+﻿<!DOCTYPE html><html lang="zh" style="scrollbar-gutter: auto !important" class="preload" data-astro-cid-37fxchfa> <head><title>Satellite Transit Finder 鈥?Sun, Moon &amp; Planet Crossings</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Calculate when satellites transit the Sun, Moon, Jupiter, Mars, Saturn, or Venus near your location. Uses SGP4 propagation and ray-casting with astronomy-engine ephemeris."><meta name="keywords" content="satellite transit finder, ISS solar transit, ISS lunar transit, satellite sun crossing, satellite moon crossing, transit prediction, celestial transit calculator"><meta name="author" content="SatelliteMap.space"><meta name="robots" content="index, follow"><!-- Canonical URL --><link rel="canonical" href="/transit-finder"><!-- Hreflang alternate language links (only for pages with translations) --><link rel="alternate" hreflang="en" href="/transit-finder">
+    <link rel="alternate" hreflang="de" href="/de/transit-finder">
+    <link rel="alternate" hreflang="zh" href="/zh/transit-finder">
+    <link rel="alternate" hreflang="ja" href="/ja/transit-finder">
+    <link rel="alternate" hreflang="x-default" href="/transit-finder"><!-- Open Graph / Facebook + Twitter Card (raw HTML to avoid entity double-encoding) --><meta property="og:type" content="website">
+  <meta property="og:title" content="Satellite Transit Finder 鈥?Sun, Moon & Planet Crossings">
+  <meta property="og:description" content="Calculate when satellites transit the Sun, Moon, Jupiter, Mars, Saturn, or Venus near your location. Uses SGP4 propagation and ray-casting with astronomy-engine ephemeris.">
+  <meta property="og:image" content="/og-preview-v2.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="/transit-finder">
+  <meta property="og:site_name" content="SatelliteMap.space">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@SatelliteMapApp">
+  <meta name="twitter:creator" content="@SatelliteMapApp">
+  <meta name="twitter:title" content="Satellite Transit Finder 鈥?Sun, Moon & Planet Crossings">
+  <meta name="twitter:description" content="Calculate when satellites transit the Sun, Moon, Jupiter, Mars, Saturn, or Venus near your location. Uses SGP4 propagation and ray-casting with astronomy-engine ephemeris.">
+  <meta name="twitter:image" content="/og-preview-v2.jpg"><!-- Apple Mobile --><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Satellite Map"><!-- Structured Data --><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Satellite Transit Finder","description":"Calculate when satellites cross the Sun, Moon, or planets near your location","url":"/transit-finder","applicationCategory":"ScienceApplication","operatingSystem":"Web Browser"}</script><link rel="icon" type="image/png" href="/favicon-96x96.png?v5" sizes="96x96"><link rel="icon" type="image/svg+xml" href="/favicon.svg?v5"><link rel="shortcut icon" href="/favicon.ico?v5"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v5"><meta name="apple-mobile-web-app-title" content="Satellite Map"><meta name="msapplication-TileColor" content="#da532c"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#000"><!-- Styles are imported via the frontmatter above --><link rel="stylesheet" href="/_astro/_constellation_path_.othtnewT.css">
+<style>@keyframes pulse-subtle{0%,to{opacity:1;transform:scale(1);box-shadow:0 0 14px #f97316b3}50%{opacity:.9;transform:scale(1.1);box-shadow:0 0 24px #f97316}}.animate-pulse-subtle[data-astro-cid-7ifjcd23]{animation:pulse-subtle 1.8s ease-in-out infinite}
+</style></head> <body class="bg-black text-white" data-astro-cid-37fxchfa> <!-- Flowbite Dark Navbar - EXACT COPY from index.html --> <nav class="border-gray-700 fixed w-full z-20 top-0 start-0 border-b" data-astro-cid-37fxchfa> <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto px-2 py-1" data-astro-cid-37fxchfa> <!-- Mobile burger button (all mobile orientations) --> <button id="mobile-menu-toggle" type="button" class="navbar-mobile-custom items-center p-1.5 w-8 h-8 justify-center text-sm text-white rounded-lg hover:bg-gray-700 focus:outline-none mr-3" data-astro-cid-37fxchfa> <span class="sr-only" data-astro-cid-37fxchfa>Open main menu</span> <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14" data-astro-cid-37fxchfa> <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15" data-astro-cid-37fxchfa></path> </svg> </button> <!-- Logo (smaller and centered on mobile) --> <a href="/about" data-route="/about" class="flex items-center space-x-2 rtl:space-x-reverse" data-astro-cid-37fxchfa> <div class="px-[1px]" data-astro-cid-37fxchfa> <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 68 68" data-astro-cid-37fxchfa> <g id="busy-indicator" class="atom-logo" transform="translate(34, 34)" stroke="#1a73e8" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke" data-astro-cid-37fxchfa> <circle cx="0" cy="0" r="8" fill="#1a73e8" stroke="#1ad7e8" data-astro-cid-37fxchfa></circle> <ellipse rx="32" ry="8" transform="rotate(0)" data-astro-cid-37fxchfa></ellipse> <ellipse rx="32" ry="8" transform="rotate(60)" data-astro-cid-37fxchfa></ellipse> <ellipse rx="32" ry="8" transform="rotate(120)" data-astro-cid-37fxchfa></ellipse> <ellipse rx="32" ry="8" transform="rotate(30)" stroke="#34a853" data-astro-cid-37fxchfa></ellipse> <ellipse rx="32" ry="8" transform="rotate(90)" data-astro-cid-37fxchfa></ellipse> <ellipse rx="32" ry="8" transform="rotate(150)" data-astro-cid-37fxchfa></ellipse> </g> </svg> </div> <span class="self-center text-lg font-medium whitespace-nowrap text-white" data-astro-cid-37fxchfa>
+satellitemap<span class="text-blue-400" data-astro-cid-37fxchfa>.space</span> </span> </a> <!-- Spacer for mobile to center logo --> <div class="w-8 navbar-mobile-spacer" style="display: none;" data-astro-cid-37fxchfa></div> <!-- Desktop menu --> <div class="navbar-desktop-custom" id="navbar-desktop" style="display: none; width: auto;" data-astro-cid-37fxchfa> <ul class="flex items-center space-x-6" data-astro-cid-37fxchfa> <!-- People in Space --> <li class="flex items-center" data-astro-cid-37fxchfa> <a href="/people" data-route="/people" class="navbar-link" data-translate="people" data-astro-cid-37fxchfa>People</a> </li> <!-- News --> <li class="flex items-center" data-astro-cid-37fxchfa> <a href="/zh/news" data-route="/zh/news" class="navbar-link" data-translate="news" data-astro-cid-37fxchfa>鍗槦鏂伴椈</a> </li> <!-- Visualizer --> <li class="flex items-center" data-astro-cid-37fxchfa> <a href="/" class="navbar-link" data-astro-cid-37fxchfa>Visualizer</a> </li> <!-- Load Dropdown --> <li class="relative flex items-center" data-astro-cid-37fxchfa> <button id="dropdownLoadLink" data-dropdown-toggle="dropdownLoad" class="navbar-dropdown-button" data-astro-cid-37fxchfa> <span data-astro-cid-37fxchfa>Load</span> <svg class="w-2.5 h-2.5 ms-1 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6" data-astro-cid-37fxchfa> <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" data-astro-cid-37fxchfa></path> </svg> </button> <div id="dropdownLoad" class="navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" aria-labelledby="dropdownLoadLink" data-astro-cid-37fxchfa> <!-- Types Submenu --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Types
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/vis/type/internet" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Internet</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/communications" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Communications</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/global-positioning" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Global Positioning</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/earth-observation" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Earth Observation</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/geostationary" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Geostationary</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/geosynchronous" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Geosynchronous</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/all-functional" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>All Functional</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/debris" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Debris</a></li> <li data-astro-cid-37fxchfa><a href="/vis/type/all" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>All</a></li> </ul> </div> </li> <!-- Divider --> <li data-astro-cid-37fxchfa><hr class="my-1 border-gray-600" data-astro-cid-37fxchfa></li> <!-- Constellation Finder --> <li data-astro-cid-37fxchfa> <a href="/zh/constellations" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>
+Finder
+</a> </li> <!-- Divider --> <li data-astro-cid-37fxchfa><hr class="my-1 border-gray-600" data-astro-cid-37fxchfa></li> <!-- Internet Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Internet
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/starlink" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Starlink</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/amazon-leo" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Amazon Leo</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/oneweb" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Oneweb</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/spacesail" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>SpaceSail (鍗冨竼)</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/xingwang" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Guowang (鍥界綉)</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/yinhe" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>GalaxySpace</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/e-space" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>E-space</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/rassvet" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Rassvet</a></li> </ul> </div> </li> <!-- Cellular Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Cellular
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/iridium" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Iridium NEXT</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/globalstar" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Globalstar</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/lynk" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Lynk</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/bluewalker" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Bluewalker</a></li> </ul> </div> </li> <!-- Positioning Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Positioning
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/gps" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>GPS</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/galileo" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Galileo</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/glonass" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>GLONASS</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/beidou" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>BeiDou</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/parus" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Parus</a></li> </ul> </div> </li> <!-- Earth Obs Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Earth Obs
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/planet" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Planet</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/jilin-1" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Jilin-1</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/satelog" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Satelog</a></li> </ul> </div> </li> <!-- Weather Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Weather
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/spire" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Spire</a></li> </ul> </div> </li> <!-- Science Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Science
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/swarm" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Swarm</a></li> </ul> </div> </li> <!-- IoT Category --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+IoT
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="constellation-submenu navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/constellation/orbcomm" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Orbcomm</a></li> <li data-astro-cid-37fxchfa><a href="/constellation/geespace" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Geespace</a></li> </ul> </div> </li> </ul> </div> </li> <!-- Functions Dropdown --> <li class="relative flex items-center" data-astro-cid-37fxchfa> <button id="dropdownFunctionsLink" data-dropdown-toggle="dropdownFunctions" class="navbar-dropdown-button" data-astro-cid-37fxchfa> <span data-translate="functions" data-astro-cid-37fxchfa>鍔熻兘</span> <svg class="w-2.5 h-2.5 ms-1 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6" data-astro-cid-37fxchfa> <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" data-astro-cid-37fxchfa></path> </svg> </button> <div id="dropdownFunctions" class="navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" aria-labelledby="dropdownFunctionsLink" data-astro-cid-37fxchfa> <!-- Constellation Data --> <li data-astro-cid-37fxchfa><a href="/vis/constellation/starlink/growth" class="navbar-desktop-dropdown-item" title="Constellation growth and statistics" data-astro-cid-37fxchfa> <span data-astro-cid-37fxchfa>鏄熷骇鏁版嵁</span> </a></li> <!-- To Visualizer --> <li data-astro-cid-37fxchfa><a href="/" class="navbar-desktop-dropdown-item" title="Interactive 3D satellite visualizer" data-astro-cid-37fxchfa> <span data-astro-cid-37fxchfa>鎵撳紑鍙鍖?/span> </a></li> <!-- Calculators Submenu --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-translate="calculators" data-astro-cid-37fxchfa> 璁＄畻鍣?<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="absolute left-full top-0 hidden group-hover:block navbar-dropdown-menu" id="calculators-submenu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/vis/trains" data-route="/vis/trains" class="navbar-desktop-dropdown-item" title="Calculate satellite train overflights for your location" data-astro-cid-37fxchfa> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" data-astro-cid-37fxchfa></path> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v8a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1h-1M6 16h2M6 8h6" data-astro-cid-37fxchfa></path> </svg> <span class="ml-2" data-astro-cid-37fxchfa>鍗槦鍒楄溅</span> </a></li> <li data-astro-cid-37fxchfa><a href="/vis/sky-transits" class="navbar-desktop-dropdown-item" title="Calculate satellite overflights for your location" data-astro-cid-37fxchfa> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" data-astro-cid-37fxchfa></path> <circle cx="12" cy="10" r="3" data-astro-cid-37fxchfa></circle> </svg> <span class="ml-2" data-astro-cid-37fxchfa>杩囧</span> </a></li> <li data-astro-cid-37fxchfa><a href="/vis/interference" class="navbar-desktop-dropdown-item" title="Find when other satellites interfere with line of sight" data-astro-cid-37fxchfa> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" data-astro-cid-37fxchfa></path> </svg> <span class="ml-2" data-astro-cid-37fxchfa>骞叉壈</span> </a></li> <li data-astro-cid-37fxchfa><a href="/vis/altitude-history" class="navbar-desktop-dropdown-item" title="Track satellite orbital decay and altitude changes over time" data-astro-cid-37fxchfa> <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" data-astro-cid-37fxchfa></path> </svg> <span class="ml-2" data-astro-cid-37fxchfa>楂樺害鍘嗗彶</span> </a></li> </ul> </div> </li> <!-- Apps Submenu --> <li class="relative group" data-astro-cid-37fxchfa> <button class="navbar-desktop-dropdown-item flex items-center justify-between w-full" data-astro-cid-37fxchfa>
+Apps
+<svg class="w-2.5 h-2.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" data-astro-cid-37fxchfa></path> </svg> </button> <div class="absolute left-full top-0 hidden group-hover:block navbar-dropdown-menu" id="apps-submenu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/zh/re-entries" class="navbar-desktop-dropdown-item" title="Monitor satellites at risk of re-entry" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" data-astro-cid-37fxchfa></path> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>鍐嶅叆澶ф皵灞?/span> </a></li> <li data-astro-cid-37fxchfa><a href="/transit-finder" class="navbar-desktop-dropdown-item" title="Find when satellites transit the Sun, Moon or planets" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" data-astro-cid-37fxchfa></path> <circle cx="12" cy="12" r="5" data-astro-cid-37fxchfa></circle> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>Transit Finder</span> </a></li> <li data-astro-cid-37fxchfa><a href="/zh/tle-calculator" class="navbar-desktop-dropdown-item" title="Parse and analyze Two-Line Element (TLE) orbital data" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" data-astro-cid-37fxchfa></path> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>TLE鍒嗘瀽</span> </a></li> <li data-astro-cid-37fxchfa><a href="/satellite-photobomb" class="navbar-desktop-dropdown-item" title="Satellite photobomb simulator" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" data-astro-cid-37fxchfa></path> <circle cx="12" cy="13" r="3" data-astro-cid-37fxchfa></circle> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>鐓х墖妯℃嫙鍣?/span> </a></li> <li data-astro-cid-37fxchfa><a href="/satellite-collision-finding" class="navbar-desktop-dropdown-item" title="GPU-accelerated satellite conjunction search" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" data-astro-cid-37fxchfa></path> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>杩戣窛绂绘帴杩?/span> </a></li> <li data-astro-cid-37fxchfa><a href="/amateur-radio" class="navbar-desktop-dropdown-item" title="Live amateur radio satellite tracking with sky view and frequencies" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.14 0M1.394 9.393c5.857-5.858 15.355-5.858 21.213 0" data-astro-cid-37fxchfa></path> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>SatNOGS Radio</span> </a></li> </ul> </div> </li> <!-- Constellations --> <li data-astro-cid-37fxchfa><a href="/constellations" class="navbar-desktop-dropdown-item" title="Browse and search constellations" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <circle cx="6" cy="6" r="1.5" fill="currentColor" data-astro-cid-37fxchfa></circle><circle cx="18" cy="6" r="1.5" fill="currentColor" data-astro-cid-37fxchfa></circle><circle cx="12" cy="18" r="1.5" fill="currentColor" data-astro-cid-37fxchfa></circle><circle cx="6" cy="14" r="1.5" fill="currentColor" data-astro-cid-37fxchfa></circle> <line x1="6" y1="6" x2="18" y2="6" stroke="currentColor" stroke-width="1" data-astro-cid-37fxchfa></line><line x1="18" y1="6" x2="12" y2="18" stroke="currentColor" stroke-width="1" data-astro-cid-37fxchfa></line><line x1="12" y1="18" x2="6" y2="14" stroke="currentColor" stroke-width="1" data-astro-cid-37fxchfa></line><line x1="6" y1="14" x2="6" y2="6" stroke="currentColor" stroke-width="1" data-astro-cid-37fxchfa></line> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>Constellations</span> </a></li> <!-- Historical --> <li data-astro-cid-37fxchfa><a href="/leo-internet-treemap" class="navbar-desktop-dropdown-item" title="Orbital object treemap 鈥?growth over time" data-astro-cid-37fxchfa> <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2" data-astro-cid-37fxchfa></rect><rect x="14" y="3" width="7" height="4" rx="1" stroke-width="2" data-astro-cid-37fxchfa></rect><rect x="14" y="10" width="7" height="4" rx="1" stroke-width="2" data-astro-cid-37fxchfa></rect><rect x="3" y="13" width="7" height="8" rx="1" stroke-width="2" data-astro-cid-37fxchfa></rect><rect x="14" y="17" width="7" height="4" rx="1" stroke-width="2" data-astro-cid-37fxchfa></rect> </svg> <span style="margin-left:.1em" data-astro-cid-37fxchfa>Historical</span> </a></li> </ul> </div> </li> <!-- More Dropdown (with user status icon) --> <li class="relative flex items-center" data-astro-cid-37fxchfa> <button id="dropdownMoreLink" data-dropdown-toggle="dropdownMore" class="navbar-dropdown-button" data-astro-cid-37fxchfa> <!-- User Status Icon (inline with More) --> <span id="userStatusIcon" class="inline-flex items-center" title="User status" data-astro-cid-37fxchfa> <!-- Filled icon for verified users --> <svg id="userIconFilled" class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-astro-cid-37fxchfa> <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" data-astro-cid-37fxchfa></path> </svg> <!-- Outline icon for non-verified/logged-out users --> <svg id="userIconOutline" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" data-astro-cid-37fxchfa></path> </svg> </span> <span data-translate="more" data-astro-cid-37fxchfa>鏇村</span> <svg class="w-2.5 h-2.5 ms-1 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6" data-astro-cid-37fxchfa> <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" data-astro-cid-37fxchfa></path> </svg> </button> <div id="dropdownMore" class="navbar-dropdown-menu" data-astro-cid-37fxchfa> <ul class="navbar-dropdown-list" aria-labelledby="dropdownMoreLink" data-astro-cid-37fxchfa> <li data-astro-cid-37fxchfa><a href="/zh/settings" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>璁剧疆</a></li> <li data-astro-cid-37fxchfa><a href="/zh/info" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Info & Updates</a></li> <li data-astro-cid-37fxchfa><a href="/zh/feedback" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>鍙嶉</a></li> <li data-astro-cid-37fxchfa><a href="/zh/credits" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>鑷磋阿</a></li> <li data-astro-cid-37fxchfa><a href="/zh/space-track-status" class="navbar-desktop-dropdown-item" data-astro-cid-37fxchfa>Space-track 鐘舵€?/a></li> </ul> </div> </li> </ul> </div> <!-- Spacer for desktop right margin --> <div class="navbar-desktop-spacer w-15" style="display: none;" data-astro-cid-37fxchfa></div> </div> </nav> <!-- Search trigger icon (appears on top right) --> <div id="search-trigger-icon" data-astro-cid-37fxchfa> <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" data-astro-cid-37fxchfa></path> </svg> </div> <!-- Mobile Slide-Out Menu - EXACT COPY from index.html --> <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 navbar-mobile-overlay opacity-0 pointer-events-none transition-opacity duration-300" data-astro-cid-37fxchfa></div> <div id="mobile-menu" class="navbar-mobile-menu transform -translate-x-full transition-transform duration-300 ease-in-out" data-astro-cid-37fxchfa> <div class="flex flex-col h-full" data-astro-cid-37fxchfa> <!-- Mobile menu items --> <div class="flex-1 overflow-y-auto py-4" data-astro-cid-37fxchfa> <!-- People in Space --> <a href="/people" data-route="/people" onclick="closeMobileMenu()" class="navbar-mobile-link" data-translate="people" data-astro-cid-37fxchfa>
+People
+</a> <!-- News --> <a href="/zh/news" data-route="/zh/news" onclick="closeMobileMenu()" class="navbar-mobile-link" data-translate="news" data-astro-cid-37fxchfa> 鍗槦鏂伴椈 </a> <!-- Visualizer --> <a href="/" onclick="closeMobileMenu()" class="navbar-mobile-link" data-astro-cid-37fxchfa>
+Visualizer
+</a> <!-- Load --> <div class="border-b border-gray-700" data-astro-cid-37fxchfa> <button id="mobile-load-toggle" class="navbar-mobile-toggle" data-astro-cid-37fxchfa> <span data-astro-cid-37fxchfa>Load</span> <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-37fxchfa></path> </svg> </button> <div id="mobile-load-menu" class="navbar-mobile-submenu hidden" data-astro-cid-37fxchfa> <div class="px-2 py-2" data-astro-cid-37fxchfa> <!-- Types --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold" data-astro-cid-37fxchfa>Types</div> <a href="/vis/type/internet" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Internet</a> <a href="/vis/type/communications" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Communications</a> <a href="/vis/type/global-positioning" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Global Positioning</a> <a href="/vis/type/earth-observation" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Earth Observation</a> <a href="/vis/type/geostationary" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Geostationary</a> <a href="/vis/type/geosynchronous" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Geosynchronous</a> <a href="/vis/type/all-functional" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>All Functional</a> <a href="/vis/type/debris" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Debris</a> <a href="/vis/type/all" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>All</a> <hr class="my-2 border-gray-600" data-astro-cid-37fxchfa> <!-- Constellation Finder --> <a href="/zh/constellations" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Finder</a> <hr class="my-2 border-gray-600" data-astro-cid-37fxchfa> <!-- Internet --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold" data-astro-cid-37fxchfa>Internet</div> <a href="/constellation/starlink" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Starlink</a> <a href="/constellation/amazon-leo" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Amazon Leo</a> <a href="/constellation/oneweb" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>OneWeb</a> <a href="/constellation/spacesail" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>SpaceSail (鍗冨竼)</a> <a href="/constellation/xingwang" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Guowang (鍥界綉)</a> <a href="/constellation/yinhe" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>GalaxySpace</a> <a href="/constellation/e-space" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>E-space</a> <a href="/constellation/rassvet" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Rassvet</a> <!-- Voice --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Voice</div> <a href="/constellation/iridium" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Iridium NEXT</a> <a href="/constellation/globalstar" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Globalstar</a> <a href="/constellation/lynk" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Lynk</a> <a href="/constellation/bluewalker" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Bluewalker</a> <!-- Positioning --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Positioning</div> <a href="/constellation/gps" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>GPS</a> <a href="/constellation/galileo" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Galileo</a> <a href="/constellation/glonass" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>GLONASS</a> <a href="/constellation/beidou" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>BeiDou</a> <a href="/constellation/parus" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Parus</a> <!-- Earth Obs --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Earth Obs</div> <a href="/constellation/planet" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Planet</a> <a href="/constellation/jilin-1" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Jilin-1</a> <a href="/constellation/satelog" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Satelog</a> <!-- Weather --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Weather</div> <a href="/constellation/spire" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Spire</a> <!-- Military --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Military</div> <a href="/constellation/strela-1m" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Strela-1m</a> <a href="/constellation/strela-3" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Strela-3</a> <!-- Science --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>Science</div> <a href="/constellation/swarm" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Swarm</a> <!-- IoT --> <div class="text-xs text-gray-400 px-2 py-1 font-semibold mt-2" data-astro-cid-37fxchfa>IoT</div> <a href="/constellation/orbcomm" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Orbcomm</a> <a href="/constellation/geespace" class="navbar-mobile-dropdown-item" data-astro-cid-37fxchfa>Geespace</a> </div> </div> </div> <!-- Functions --> <div class="border-b border-gray-700" data-astro-cid-37fxchfa> <button id="mobile-functions-toggle" class="navbar-mobile-toggle" data-astro-cid-37fxchfa> <span data-translate="functions" data-astro-cid-37fxchfa>鍔熻兘</span> <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-37fxchfa></path> </svg> </button> <div id="mobile-functions-menu" class="navbar-mobile-submenu hidden" data-astro-cid-37fxchfa> <div class="px-2 py-2" data-astro-cid-37fxchfa> <a href="/vis/constellation/starlink/growth" class="block text-gray-400 hover:text-white px-2 py-2" data-astro-cid-37fxchfa>鏄熷骇鏁版嵁</a> <a href="/" class="block text-gray-400 hover:text-white px-2 py-2" data-astro-cid-37fxchfa>鎵撳紑鍙鍖?/a> <div class="border-t border-gray-600 pt-2 mt-2" data-astro-cid-37fxchfa> <button id="mobile-calculators-toggle" class="flex items-center justify-between w-full text-left text-gray-300 hover:text-white py-2" data-astro-cid-37fxchfa> <span data-translate="vis-calculators" data-astro-cid-37fxchfa>鍙鍖栬绠楀櫒</span> <svg class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-37fxchfa></path> </svg> </button> <div id="mobile-calculators-menu" class="hidden" data-astro-cid-37fxchfa> <a href="/vis/trains" data-route="/vis/trains" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>鍗槦鍒楄溅</a> <a href="/vis/sky-transits" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>杩囧</a> <a href="/vis/interference" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>骞叉壈</a> <a href="/vis/altitude-history" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>楂樺害鍘嗗彶</a> </div> </div> <!-- Apps --> <div class="border-t border-gray-600 pt-2 mt-2" data-astro-cid-37fxchfa> <button id="mobile-apps-toggle" class="flex items-center justify-between w-full text-left text-gray-300 hover:text-white py-2" data-astro-cid-37fxchfa> <span data-astro-cid-37fxchfa>Apps</span> <svg class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-37fxchfa></path> </svg> </button> <div id="mobile-apps-menu" class="hidden" data-astro-cid-37fxchfa> <a href="/zh/re-entries" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>鍐嶅叆澶ф皵灞?/a> <a href="/transit-finder" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>Transit Finder</a> <a href="/zh/tle-calculator" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>TLE璁＄畻鍣?/a> <a href="/satellite-photobomb" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>鐓х墖骞叉壈妯℃嫙</a> <a href="/satellite-collision-finding" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>杩戣窛绂绘帴杩?/a> <a href="/amateur-radio" class="block text-gray-400 hover:text-white px-4 py-1" data-astro-cid-37fxchfa>SatNOGS Radio</a> </div> </div> <!-- Constellations --> <div class="border-t border-gray-600 pt-2 mt-2" data-astro-cid-37fxchfa> <a href="/constellations" class="block text-gray-400 hover:text-white px-2 py-2" data-astro-cid-37fxchfa>Constellations</a> <a href="/leo-internet-treemap" class="block text-gray-400 hover:text-white px-2 py-2" data-astro-cid-37fxchfa>Historical</a> </div> </div> </div> </div> <!-- More --> <div class="border-b border-gray-700" data-astro-cid-37fxchfa> <button id="mobile-more-toggle" class="navbar-mobile-toggle" data-astro-cid-37fxchfa> <span class="flex items-center gap-1.5" data-astro-cid-37fxchfa> <!-- User Status Icon (inline with More) --> <span id="mobile-userStatusIcon" class="inline-flex items-center" title="User status" data-astro-cid-37fxchfa> <!-- Filled icon for verified users --> <svg id="mobile-userIconFilled" class="w-4 h-4 text-white hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" data-astro-cid-37fxchfa> <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" data-astro-cid-37fxchfa></path> </svg> <!-- Outline icon for non-verified/logged-out users --> <svg id="mobile-userIconOutline" class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" data-astro-cid-37fxchfa></path> </svg> </span> <span data-translate="more" data-astro-cid-37fxchfa>鏇村</span> </span> <svg class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-37fxchfa> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" data-astro-cid-37fxchfa></path> </svg> </button> <div id="mobile-more-menu" class="navbar-mobile-submenu hidden" data-astro-cid-37fxchfa> <div class="px-2 py-2" data-astro-cid-37fxchfa> <a href="/zh/settings" class="navbar-mobile-dropdown-item" data-translate="settings" data-astro-cid-37fxchfa>璁剧疆</a> <a href="/zh/info" class="navbar-mobile-dropdown-item" data-translate="info" data-astro-cid-37fxchfa>淇℃伅</a> <a href="/zh/feedback" class="navbar-mobile-dropdown-item" data-translate="feedback" data-astro-cid-37fxchfa>鍙嶉</a> <a href="/zh/credits" data-route="/zh/credits" onclick="closeMobileMenu()" class="navbar-mobile-dropdown-item" data-translate="credits" data-astro-cid-37fxchfa>鑷磋阿</a> <a href="/zh/space-track-status" class="navbar-mobile-dropdown-item" data-translate="spaceTrackStatus" data-astro-cid-37fxchfa>Space-track 鐘舵€?/a> <!-- Admin links will be added here dynamically --> <div id="mobile-admin-links" data-astro-cid-37fxchfa></div> </div> </div> </div> </div> </div> </div> <!-- Main Content --> <main class="pt-10 min-h-screen bg-black" data-astro-cid-37fxchfa>  <div class="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800" data-astro-cid-7ifjcd23> <!-- Header --> <div class="relative overflow-hidden bg-gradient-to-r from-[rgb(112,163,243)]/20 via-slate-800/70 to-slate-900/80 backdrop-blur-sm border-b border-slate-600" data-astro-cid-7ifjcd23> <img src="/images/header-bg.png" alt="" class="absolute left-0 top-0 h-full w-auto opacity-30 pointer-events-none select-none" style="mask-image:linear-gradient(to right,black 50%,transparent);-webkit-mask-image:linear-gradient(to right,black 50%,transparent)" data-astro-cid-7ifjcd23> <div class="px-4 sm:px-6 lg:px-8 py-6" data-astro-cid-7ifjcd23> <div class="space-y-2" data-astro-cid-7ifjcd23> <h1 class="text-2xl lg:text-3xl font-bold text-white" data-astro-cid-7ifjcd23>Satellite Transit Finder</h1> <p class="text-gray-300 max-w-2xl text-sm" data-astro-cid-7ifjcd23>Calculate when a satellite crosses the face of a celestial body near your location. Uses SGP4 propagation and astronomical ephemerides to ray-cast shadow lines onto the Earth.</p> </div> </div> </div> <!-- Main Content --> <div class="px-4 sm:px-6 lg:px-8 py-6 max-w-6xl flex flex-col lg:flex-row gap-6" data-astro-cid-7ifjcd23> <!-- Calculator Column --> <div class="lg:w-2/3" data-astro-cid-7ifjcd23> <!-- Location --> <div class="relative bg-slate-800/60 rounded-lg p-4 mb-4 border border-slate-700" data-astro-cid-7ifjcd23> <h2 class="text-sm font-semibold text-gray-300 mb-3" data-astro-cid-7ifjcd23>Your Location</h2> <button id="geolocate-btn" class="absolute top-3 right-3 px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-gray-300 text-xs rounded flex items-center gap-1.5" data-astro-cid-7ifjcd23> <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-7ifjcd23> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" data-astro-cid-7ifjcd23></path> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" data-astro-cid-7ifjcd23></path> </svg> Locate </button> <div class="flex items-end gap-3" data-astro-cid-7ifjcd23> <label class="w-28" data-astro-cid-7ifjcd23> <span class="text-xs text-gray-400" data-astro-cid-7ifjcd23>Latitude</span> <input type="number" id="obs-lat" step="0.0001" min="-90" max="90" class="mt-1 w-full bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-sm text-white" data-astro-cid-7ifjcd23> </label> <label class="w-28" data-astro-cid-7ifjcd23> <span class="text-xs text-gray-400" data-astro-cid-7ifjcd23>Longitude</span> <input type="number" id="obs-lon" step="0.0001" min="-180" max="180" class="mt-1 w-full bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-sm text-white" data-astro-cid-7ifjcd23> </label> <label class="w-20" data-astro-cid-7ifjcd23> <span class="text-xs text-gray-400" data-astro-cid-7ifjcd23>Altitude (m)</span> <input type="number" id="obs-alt" step="1" min="0" max="9000" value="0" class="mt-1 w-full bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-sm text-white" data-astro-cid-7ifjcd23> </label> </div> </div> <!-- Search Parameters --> <div class="relative bg-slate-800/60 rounded-lg p-4 mb-4 border border-slate-700" data-astro-cid-7ifjcd23> <h2 class="text-sm font-semibold text-gray-300 mb-3" data-astro-cid-7ifjcd23>Search Parameters</h2> <button id="backdate-btn" class="absolute top-3 right-3 px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-gray-300 text-xs rounded flex items-center gap-1.5" data-astro-cid-7ifjcd23> <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-7ifjcd23> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" data-astro-cid-7ifjcd23></path> </svg>
+Back-date
+</button> <!-- Row 1: Satellite + NORAD + Body --> <div class="flex items-end gap-3 mb-3" data-astro-cid-7ifjcd23> <label class="block w-28 shrink-0" data-astro-cid-7ifjcd23> <span class="text-xs text-gray-400" data-astro-cid-7ifjcd23>Satellite</span> <select id="sat-select" class="mt-1 w-full bg-slate-900 border border-slate-600 rounded px-2 text-sm text-white h-7" data-astro-cid-7ifjcd23> <option value="25544" data-astro-cid-7ifjcd23>ISS (ZARYA)</option> <option value="48274" data-astro-cid-7ifjcd23>CSS (Tianhe)</option> <option value="36516" data-astro-cid-7ifjcd23>Hubble</option> <optgroup id="train-options" label="Trains" data-astro-cid-7ifjcd23></optgroup> </select> </label> <label class="block" data-astro-cid-7ifjcd23> <span class="text-xs text-gray-400" data-astro-cid-7ifjcd23>or NORAD</span> <input type="number" id="norad-input" class="mt-1 block w-20 bg-slate-900 border border-slate-600 rounded px-2 text-sm text-white h-7" data-astro-cid-7ifjcd23> </label> <span class="text-xs text-gray-400 self-end mb-1" data-astro-cid-7ifjcd23>in</span> <label data-astro-cid-7ifjcd23> <span class="text-xs text-gray-400" data-astro-cid-7ifjcd23>Celestial Body</span> <select id="body-select" class="mt-1 w-full bg-slate-900 border border-slate-600 rounded px-2 text-sm text-white h-7" data-astro-cid-7ifjcd23> <option value="sun" data-astro-cid-7ifjcd23>Sun</option> <option value="moon" data-astro-cid-7ifjcd23>Moon</option> <option value="jupiter" data-astro-cid-7ifjcd23>Jupiter</option> <option value="mars" data-astro-cid-7ifjcd23>Mars</option> <option value="saturn" data-astro-cid-7ifjcd23>Saturn</option> <option value="venus" data-astro-cid-7ifjcd23>Venus</option> </select> </label> </div> <!-- Row 2: Days + Radius + Calculate --> <div class="flex items-end gap-3" data-astro-cid-7ifjcd23> <label class="w-20" data-astro-cid-7ifjcd23> <span class="text-xs text-gray-400" data-astro-cid-7ifjcd23>Days</span> <input type="number" id="search-days" value="14" min="1" max="30" class="mt-1 w-full bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-sm text-white" data-astro-cid-7ifjcd23> </label> <label class="w-24" data-astro-cid-7ifjcd23> <span class="text-xs text-gray-400" data-astro-cid-7ifjcd23>Radius (km)</span> <input type="number" id="max-distance" value="250" min="50" max="1000" class="mt-1 w-full bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-sm text-white" data-astro-cid-7ifjcd23> </label> <div class="flex-1" data-astro-cid-7ifjcd23></div> <button id="calc-btn" class="px-4 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-gray-500 text-white text-sm font-medium rounded flex items-center gap-2" data-astro-cid-7ifjcd23> <svg id="calc-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-7ifjcd23> <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" data-astro-cid-7ifjcd23></path> </svg> <svg id="calc-spinner" class="hidden animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24" data-astro-cid-7ifjcd23> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" data-astro-cid-7ifjcd23></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" data-astro-cid-7ifjcd23></path> </svg> <span id="calc-text" data-astro-cid-7ifjcd23>Calculate</span> </button> </div> <!-- Back-date fields (hidden until toggled) --> <div id="custom-tle-box" style="display:none" class="mt-3 border-t border-slate-700 pt-3" data-astro-cid-7ifjcd23> <label class="text-xs text-gray-400" data-astro-cid-7ifjcd23>Custom TLE (overrides API fetch)</label> <textarea id="custom-tle" rows="2" placeholder="Paste two TLE lines here" class="mt-1 w-full bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-xs text-green-400 font-mono leading-tight" data-astro-cid-7ifjcd23></textarea> <label class="text-xs text-gray-400 mt-2 block" data-astro-cid-7ifjcd23>Search from UTC (overrides date range)</label> <input type="text" id="custom-utc" placeholder="2026-05-17T21:26:00Z" class="mt-1 w-full bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-xs text-green-400 font-mono" data-astro-cid-7ifjcd23> </div> </div> <!-- Status --> <div id="status" class="hidden mb-4" data-astro-cid-7ifjcd23> <p id="status-text" class="text-sm text-gray-400" data-astro-cid-7ifjcd23></p> <div class="w-full bg-slate-700 rounded-full h-1.5 mt-2" data-astro-cid-7ifjcd23> <div id="progress-bar" class="bg-blue-500 h-1.5 rounded-full transition-all" style="width: 0%" data-astro-cid-7ifjcd23></div> </div> </div> <!-- Error --> <div id="error" class="hidden mb-4 bg-red-900/30 border border-red-600 rounded-lg p-4" data-astro-cid-7ifjcd23> <p id="error-text" class="text-sm text-red-400" data-astro-cid-7ifjcd23></p> </div> <!-- Results --> <div id="results" class="hidden" data-astro-cid-7ifjcd23> <h2 class="text-lg font-semibold text-white mb-3" data-astro-cid-7ifjcd23>Results</h2> <div id="results-body" data-astro-cid-7ifjcd23></div> </div> <!-- No Results --> <div id="no-results" class="hidden text-center py-8" data-astro-cid-7ifjcd23> <p class="text-gray-400" data-astro-cid-7ifjcd23>No transits found within search parameters.</p> <p class="text-gray-500 text-sm mt-1" data-astro-cid-7ifjcd23>Try increasing the search radius or number of days.</p> </div> </div> <!-- Tips Sidebar --> <aside class="lg:w-1/3 space-y-4" data-astro-cid-7ifjcd23> <div class="bg-slate-800/60 rounded-lg p-4 border border-slate-700" data-astro-cid-7ifjcd23> <h3 class="text-sm font-semibold text-amber-300 mb-2" data-astro-cid-7ifjcd23>鈽€锔?Photographing Solar Transits</h3> <p class="text-xs text-gray-300 leading-relaxed mb-3" data-astro-cid-7ifjcd23>Solar transits last under a second 鈥?the ISS crosses the Sun&#39;s disk in 0.3鈥?.8s at ~7 km/s. Use a proper solar filter (Baader film, Thousand Oaks glass) on the front of your lens. Shoot at 1/1000s or faster, burst mode or video at 4K 120fps. A 500mm+ focal length fills the frame with the solar disk. Manual focus to infinity, pre-framed on the Sun.</p> <h4 class="text-xs font-semibold text-gray-400 mb-1" data-astro-cid-7ifjcd23>Guides</h4> <ul class="text-xs text-blue-400 space-y-1" data-astro-cid-7ifjcd23> <li data-astro-cid-7ifjcd23><a href="#offline-external" target="_blank" rel="noopener" data-astro-cid-7ifjcd23>MrEclipse 鈥?Solar Photography</a></li> <li data-astro-cid-7ifjcd23><a href="#offline-external" target="_blank" rel="noopener" data-astro-cid-7ifjcd23>Sky & Telescope 鈥?ISS Transit Photography</a></li> <li data-astro-cid-7ifjcd23><a href="#offline-external" target="_blank" rel="noopener" data-astro-cid-7ifjcd23>Cloudy Nights 鈥?ISS Solar Transit Forum</a></li> </ul> </div> <div class="bg-slate-800/60 rounded-lg p-4 border border-slate-700" data-astro-cid-7ifjcd23> <h3 class="text-sm font-semibold text-blue-300 mb-2" data-astro-cid-7ifjcd23>馃寵 Photographing Lunar Transits</h3> <p class="text-xs text-gray-300 leading-relaxed mb-3" data-astro-cid-7ifjcd23>Lunar transits are trickier 鈥?the satellite is a dark silhouette against a much dimmer surface. No solar filter needed. Use 1/1000s鈥?/2000s, ISO 400鈥?600 depending on Moon phase. A waxing gibbous or full Moon gives the best contrast. The ISS appears as a sharp black dot against the bright limb. Video mode at high frame rate is more forgiving than single shots.</p> <h4 class="text-xs font-semibold text-gray-400 mb-1" data-astro-cid-7ifjcd23>Guides</h4> <ul class="text-xs text-blue-400 space-y-1" data-astro-cid-7ifjcd23> <li data-astro-cid-7ifjcd23><a href="#offline-external" target="_blank" rel="noopener" data-astro-cid-7ifjcd23>AstroBin 鈥?Lunar Transit Gallery</a></li> <li data-astro-cid-7ifjcd23><a href="#offline-external" target="_blank" rel="noopener" data-astro-cid-7ifjcd23>Photographing Space 鈥?ISS Transits</a></li> </ul> </div> <div class="bg-slate-800/60 rounded-lg p-4 border border-slate-700" data-astro-cid-7ifjcd23> <h3 class="text-sm font-semibold text-gray-300 mb-2" data-astro-cid-7ifjcd23>Tips</h3> <ul class="text-xs text-gray-400 space-y-2 leading-relaxed" data-astro-cid-7ifjcd23> <li data-astro-cid-7ifjcd23><span class="text-gray-200" data-astro-cid-7ifjcd23>Timing is everything</span> 鈥?the transit window is typically &lt;1 second. Use an audio cue or GPS-synced clock.</li> <li data-astro-cid-7ifjcd23><span class="text-gray-200" data-astro-cid-7ifjcd23>Check TLE freshness</span> 鈥?orbital elements drift. Re-calculate on the day of the transit for best accuracy.</li> <li data-astro-cid-7ifjcd23><span class="text-gray-200" data-astro-cid-7ifjcd23>Path width matters</span> 鈥?the visibility strip can be as narrow as 2鈥? km. GPS your exact observing position.</li> <li data-astro-cid-7ifjcd23><span class="text-gray-200" data-astro-cid-7ifjcd23>Practice framing</span> 鈥?set up and focus well before the transit. The Sun/Moon won&#39;t move much in 30 minutes.</li> <li data-astro-cid-7ifjcd23><span class="text-gray-200" data-astro-cid-7ifjcd23>Accuracy</span> 鈥?a prediction from a recent (&lt;24 hour old) TLE will be accurate to half a second or less, unless the satellite is under powered movement.</li> </ul> </div> </aside> </div> </div>   <div id="globe-preview-modal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center bg-black/80" data-astro-cid-7ifjcd23> <div class="flex flex-col items-center" data-astro-cid-7ifjcd23> <div class="relative w-[90vw] max-w-4xl aspect-video bg-black rounded-lg border border-gray-600 overflow-hidden" data-astro-cid-7ifjcd23> <button id="globe-preview-close" class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center" data-astro-cid-7ifjcd23> <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" data-astro-cid-7ifjcd23><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" data-astro-cid-7ifjcd23></path></svg> </button> <div id="globe-preview-loading" class="absolute inset-0 flex items-center justify-center text-gray-400 text-sm" data-astro-cid-7ifjcd23> <svg class="animate-spin w-6 h-6 mr-2" fill="none" viewBox="0 0 24 24" data-astro-cid-7ifjcd23> <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" data-astro-cid-7ifjcd23></circle> <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" data-astro-cid-7ifjcd23></path> </svg>
+Loading 3D preview...
+</div> <canvas id="globe-preview-canvas" class="w-full h-full" data-astro-cid-7ifjcd23></canvas> </div> <p class="text-gray-500 text-xs mt-2" data-astro-cid-7ifjcd23>Visualization may not perfectly reflect the calculated transit.</p> </div> </div>  <script src="/satellite.min.js"></script> <script src="/scripts/astronomy-engine.js?h=196da047"></script> <script src="/scripts/celestial-transit-core.js?h=4c7119b8"></script> <script>(function(){const T = {"pageTitle":"Satellite Transit Finder 鈥?Sun, Moon & Planet Crossings","pageDescription":"Calculate when satellites transit the Sun, Moon, Jupiter, Mars, Saturn, or Venus near your location. Uses SGP4 propagation and ray-casting with astronomy-engine ephemeris.","appName":"Satellite Transit Finder","appDescription":"Calculate when satellites cross the Sun, Moon, or planets near your location","heading":"Satellite Transit Finder","subtitle":"Calculate when a satellite crosses the face of a celestial body near your location. Uses SGP4 propagation and astronomical ephemerides to ray-cast shadow lines onto the Earth.","yourLocation":"Your Location","locate":"Locate","latitude":"Latitude","longitude":"Longitude","altitudeM":"Altitude (m)","searchParams":"Search Parameters","satellite":"Satellite","orNorad":"or NORAD","inWord":"in","celestialBody":"Celestial Body","days":"Days","radiusKm":"Radius (km)","calculate":"Calculate","fetchingTle":"Fetching TLE...","fetchingSatTle":"Fetching satellite TLE data...","runningSelfTest":"Running ray-caster self-test...","selfTestFailed":"Ray-caster self-test failed. The calculation engine may produce incorrect results.","searching":"Searching...","scanning":"Scanning {days} days for {body} transits...","scanningPct":"Scanning... {pct}%","setLocation":"Please set your location first (use the locate button or enter coordinates)","geoNotSupported":"Geolocation not supported by your browser","couldNotGetLocation":"Could not get location: {msg}","locating":"Locating...","located":"Located","results":"Results","noResults":"No transits found within search parameters.","noResultsTip":"Try increasing the search radius or number of days.","transitsFound":"{n} transit(s) found for NORAD {norad} 脳 {icon} {body}{tleAge}","tleAge":"TLE age","night":"night","ocean":"ocean","elevation":"Elevation","azimuth":"Azimuth","plan":"Plan 鈻?,"hide":"Hide 鈻?,"loadingAnalysis":"Loading precise transit analysis...","share":"Share","linkCopied":"Link Copied!","transitGeometry":"Transit Geometry","duration":"Duration","pathWidth":"Path Width","transitChord":"Transit Chord","sizeRatio":"Size Ratio","position":"{name} Position","distance":"Distance","raDec":"RA / Dec (J2000)","angularSize":"Angular Size","transitAnimation":"Transit Animation","viewingLocation":"Viewing Location","midTransit":"Mid-Transit","distanceFromHome":"Distance from Home","altitudeSensitivity":"Altitude Sensitivity","lightingConditions":"Lighting Conditions","shadow":"Observer","satLighting":"Satellite","sunAltitude":"Sun Altitude","sunAzimuth":"Sun Azimuth","moonPhase":"Moon Phase","phaseAngle":"Phase Angle","satellitePosition":"Satellite Position","effectiveDiameter":"Effective Diameter","satelliteMotion":"Satellite Motion","angularSpeed":"Angular Speed","totalSpeed":"Total Speed","transverse":"Transverse","radial":"Radial","directionFromZenith":"Direction from Zenith","highPrecision":"High-Precision Data","precisionNote":"Calculated {date} UTC using the latest TLE. Elevation/Azimuth are apparent with refraction estimates for 15掳C/1010mb, parallax with WGS84 ellipsoid. TLE accuracy is best on the actual day of transit 鈥?the track can shift significantly day by day.","clickMapRecalc":"Click map to recalculate transit from that location","recalculating":"Recalculating for {lat}掳, {lon}掳...","home":"Home","clear":"Clear","mostlyClear":"Mostly clear","partlyCloudy":"Partly cloudy","overcast":"Overcast","cloudy":"Cloudy","solarTitle":"Photographing Solar Transits","solarText":"Solar transits last under a second 鈥?the ISS crosses the Sun's disk in 0.3鈥?.8s at ~7 km/s. Use a proper solar filter (Baader film, Thousand Oaks glass) on the front of your lens. Shoot at 1/1000s or faster, burst mode or video at 4K 120fps. A 500mm+ focal length fills the frame with the solar disk. Manual focus to infinity, pre-framed on the Sun.","lunarTitle":"Photographing Lunar Transits","lunarText":"Lunar transits are trickier 鈥?the satellite is a dark silhouette against a much dimmer surface. No solar filter needed. Use 1/1000s鈥?/2000s, ISO 400鈥?600 depending on Moon phase. A waxing gibbous or full Moon gives the best contrast. The ISS appears as a sharp black dot against the bright limb. Video mode at high frame rate is more forgiving than single shots.","guides":"Guides","tips":"Tips","tipTiming":"Timing is everything","tipTimingText":"the transit window is typically <1 second. Use an audio cue or GPS-synced clock.","tipTle":"Check TLE freshness","tipTleText":"orbital elements drift. Re-calculate on the day of the transit for best accuracy.","tipPath":"Path width matters","tipPathText":"the visibility strip can be as narrow as 2鈥? km. GPS your exact observing position.","tipFraming":"Practice framing","tipFramingText":"set up and focus well before the transit. The Sun/Moon won't move much in 30 minutes.","tipAccuracy":"Accuracy","tipAccuracyText":"a prediction from a recent (<24 hour old) TLE will be accurate to half a second or less, unless the satellite is under powered movement.","sharedTransitShifted":"The shared transit time may have shifted due to updated orbital data. Check the results below."};
+
+    window.__T = T;
+  })();</script> <script type="module">
+    const T = window.__T;
+    // Simple template: T.key with {var} placeholders
+    function tr(key, vars = {}) {
+      let s = T[key] || key;
+      for (const [k, v] of Object.entries(vars)) s = s.replaceAll(`{${k}}`, v);
+      return s;
+    }
+    import { apiFetch } from '/scripts/api.js?h=888618fb';
+
+    // Force reload when restored from bfcache (stale page state)
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted) window.location.reload();
+    });
+
+    // Session state (populated by loadHomeLocation)
+    let _sessionMgr = null;
+    let _sessionData = null;
+
+    // DOM refs
+    const latInput = document.getElementById('obs-lat');
+    const lonInput = document.getElementById('obs-lon');
+    const altInput = document.getElementById('obs-alt');
+    const geoBtn = document.getElementById('geolocate-btn');
+    const satSelect = document.getElementById('sat-select');
+    const noradInput = document.getElementById('norad-input');
+    const bodySelect = document.getElementById('body-select');
+    const daysInput = document.getElementById('search-days');
+    const distInput = document.getElementById('max-distance');
+    const calcBtn = document.getElementById('calc-btn');
+    const calcIcon = document.getElementById('calc-icon');
+    const calcSpinner = document.getElementById('calc-spinner');
+    const calcText = document.getElementById('calc-text');
+    const statusDiv = document.getElementById('status');
+    const statusText = document.getElementById('status-text');
+    const progressBar = document.getElementById('progress-bar');
+    const errorDiv = document.getElementById('error');
+    const errorText = document.getElementById('error-text');
+    const resultsDiv = document.getElementById('results');
+    const resultsBody = document.getElementById('results-body');
+    const noResultsDiv = document.getElementById('no-results');
+
+    // 鈹€鈹€ Populate train leads in satellite dropdown 鈹€鈹€鈹€鈹€鈹€鈹€
+    (async () => {
+      try {
+        const resp = await apiFetch('/trains?altitude_threshold=500');
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const group = document.getElementById('train-options');
+        if (!group || !data.trains?.length) { if (group) group.remove(); return; }
+        for (const train of data.trains) {
+          const lead = train.satellites?.[0];
+          if (!lead) continue;
+          const opt = document.createElement('option');
+          opt.value = lead.norad_id;
+          const name = lead.name.replace(/^STARLINK-/, 'SL-');
+          opt.textContent = `馃殏 ${train.constellation_name} ${name} (${train.train_stats.satellite_count})`;
+          group.appendChild(opt);
+        }
+      } catch (e) { /* silent */ }
+    })();
+
+    // 鈹€鈹€ Pre-fill from user preferences (via session API) 鈹€鈹€鈹€鈹€鈹€鈹€
+
+    async function loadHomeLocation() {
+      try {
+        const baseUrl = window.location.origin;
+        const sessionsUrl = baseUrl + '/sessions.js';
+        const apiUrl = baseUrl + '/scripts/api.js?h=888618fb';
+        const [sessionsModule, apiModule] = await Promise.all([
+          import(sessionsUrl),
+          import(apiUrl)
+        ]);
+        const { SessionManager } = sessionsModule;
+        const { getApiEndpointClient } = apiModule;
+        const apiBase = getApiEndpointClient();
+        const sessionManager = new SessionManager(apiBase);
+        await sessionManager.initialize(false);
+        _sessionMgr = sessionManager;
+        const data = sessionManager.getData();
+        _sessionData = data;
+        console.log('Session data:', data);
+        console.log('Preferences:', data?.preferences);
+        console.log('homeLat:', data?.preferences?.homeLat, 'homeLon:', data?.preferences?.homeLon);
+        if (data?.preferences?.homeLat && data?.preferences?.homeLon) {
+          // Only fill if user hasn't already typed something
+          if (!latInput.value && !lonInput.value) {
+            latInput.value = parseFloat(data.preferences.homeLat).toFixed(4);
+            lonInput.value = parseFloat(data.preferences.homeLon).toFixed(4);
+            if (data.preferences.homeAlt) altInput.value = Math.round(parseFloat(data.preferences.homeAlt));
+            console.log('Home location loaded from session');
+          } else {
+            console.log('Home location skipped 鈥?user already entered coordinates');
+          }
+        } else {
+          console.log('No home location in session preferences');
+        }
+      } catch (e) {
+        console.warn('Could not load home location from session:', e.message);
+      }
+    }
+    // Only auto-load home location if not arriving via shared URL (checkUrlParams handles it)
+    if (!window.location.search.includes('norad=')) loadHomeLocation();
+
+    // 鈹€鈹€ Geolocation 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    geoBtn.addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        showError(T.geoNotSupported);
+        return;
+      }
+      geoBtn.disabled = true;
+      geoBtn.textContent = T.locating;
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          latInput.value = pos.coords.latitude.toFixed(4);
+          lonInput.value = pos.coords.longitude.toFixed(4);
+          if (pos.coords.altitude != null) altInput.value = Math.round(pos.coords.altitude);
+          geoBtn.disabled = false;
+          geoBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Located';
+          setTimeout(() => {
+            geoBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg> Use my location';
+          }, 2000);
+        },
+        (err) => {
+          showError(tr('couldNotGetLocation', { msg: err.message }));
+          geoBtn.disabled = false;
+          geoBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg> Use my location';
+        },
+        { enableHighAccuracy: true, timeout: 15000 }
+      );
+    });
+
+    // 鈹€鈹€ Fetch TLE 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    async function fetchTLE(noradId, beforeUtc = null) {
+      // Check for custom TLE override
+      const customTle = document.getElementById('custom-tle')?.value?.trim();
+      if (customTle) {
+        const lines = customTle.split('\n').map(l => l.trim()).filter(l => l);
+        if (lines.length >= 2 && lines[0].startsWith('1 ') && lines[1].startsWith('2 ')) {
+          console.log('Using custom TLE override');
+          return { tle1: lines[0], tle2: lines[1] };
+        }
+      }
+
+      const body = { noradIds: [noradId] };
+      if (beforeUtc) body.timestamp_before = beforeUtc;
+      const resp = await apiFetch('/tle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!resp.ok) throw new Error(`TLE fetch failed (${resp.status})`);
+      const data = await resp.json();
+      // Response: { success, data: [{ norad, raw_tle: { tle_line1, tle_line2 }, ... }] }
+      const entry = data.data?.[0];
+      const raw = entry?.raw_tle;
+      if (!raw?.tle_line1) throw new Error('No TLE data found for NORAD ' + noradId);
+      return { tle1: raw.tle_line1, tle2: raw.tle_line2 };
+    }
+
+    // 鈹€鈹€ Calculate 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    calcBtn.addEventListener('click', runCalculation);
+
+    let _tleBeforeUtc = null; // set from URL params for historical lookups
+    let _searchStartTime = null; // set from URL params to search from shared time
+
+    async function runCalculation() {
+      // Validate inputs
+      const lat = parseFloat(latInput.value);
+      const lon = parseFloat(lonInput.value);
+      const elevation = parseInt(altInput.value) || 0;
+      if (isNaN(lat) || isNaN(lon)) {
+        showError(T.setLocation);
+        return;
+      }
+
+      const noradId = parseInt(noradInput.value) || parseInt(satSelect.value) || 25544;
+      const celestialBody = bodySelect.value;
+      const searchDays = parseInt(daysInput.value) || 14;
+      const maxDistanceKm = parseInt(distInput.value) || 250;
+
+      // UI: calculating state
+      calcBtn.disabled = true;
+      calcIcon.classList.add('hidden');
+      calcSpinner.classList.remove('hidden');
+      calcText.textContent = T.fetchingTle;
+      errorDiv.classList.add('hidden');
+      resultsDiv.classList.add('hidden');
+      noResultsDiv.classList.add('hidden');
+      statusDiv.classList.remove('hidden');
+      statusText.textContent = T.fetchingSatTle;
+      progressBar.style.width = '0%';
+
+      try {
+        // Debug: custom UTC overrides search start and TLE timestamp
+        const customUtc = document.getElementById('custom-utc')?.value?.trim();
+        if (customUtc) {
+          const d = new Date(customUtc);
+          if (!isNaN(d.getTime())) {
+            _tleBeforeUtc = customUtc;
+            _searchStartTime = new Date(d.getTime() - 86400000);
+            console.log('Custom UTC override:', customUtc);
+          }
+        }
+
+        // 1. Fetch TLE (use historical TLE if loading from shared URL, or custom TLE override)
+        const { tle1, tle2 } = await fetchTLE(noradId, _tleBeforeUtc);
+        _tleBeforeUtc = null; // only use once
+        currentTle1 = tle1;
+        currentTle2 = tle2;
+        currentTleEpoch = parseTleEpoch(tle1);
+
+        // 2. Create engine
+        console.warn(`[transit] Creating engine with lat=${lat}, lon=${lon}, elevation=${elevation}`);
+        const engine = new TransitEngine({ tle1, tle2, lat, lon, elevation });
+
+        // 3. Self-test
+        statusText.textContent = T.runningSelfTest;
+        const testOk = engine.testKnownTransit();
+        if (!testOk) {
+          showError(T.selfTestFailed);
+          // Continue anyway 鈥?the test uses a specific TLE epoch that may be stale
+        }
+
+        // 4. Run search
+        calcText.textContent = T.searching;
+        statusText.textContent = tr('scanning', { days: searchDays, body: celestialBody });
+
+        const startTime = _searchStartTime || new Date();
+        if (!document.getElementById('custom-utc')?.value?.trim()) _searchStartTime = null;
+
+        const results = await engine.findTransits({
+          celestialBody,
+          searchDays,
+          maxDistanceKm,
+          startTime,
+          onProgress: (pct) => {
+            progressBar.style.width = pct + '%';
+            statusText.textContent = tr('scanningPct', { pct });
+          }
+        });
+
+        // 5. Display
+        statusDiv.classList.add('hidden');
+        if (results.length === 0) {
+          noResultsDiv.classList.remove('hidden');
+        } else {
+          displayResults(results, celestialBody, noradId);
+        }
+
+      } catch (err) {
+        console.error('Transit calculation error:', err);
+        showError(err.message);
+        statusDiv.classList.add('hidden');
+      } finally {
+        calcBtn.disabled = false;
+        calcIcon.classList.remove('hidden');
+        calcSpinner.classList.add('hidden');
+        calcText.textContent = T.calculate;
+      }
+    }
+
+    // 鈹€鈹€ Shared state for detail loading 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    let currentTle1 = '';
+    let currentTle2 = '';
+    let currentTleEpoch = null;  // Date object of TLE epoch
+    let currentTransits = [];
+    const cachedDetails = {};   // rIdx 鈫?apiResponse
+    const detailMeta = {};      // rIdx 鈫?{ body, time, contentEl }
+    let detailIndex = 0;
+    let leafletLoaded = false;
+
+    // Parse TLE epoch from line 1 (cols 18-32: YY + DDD.DDDDDDDD)
+    function parseTleEpoch(tle1) {
+      const epochStr = tle1.substring(18, 32).trim();
+      const yr2 = parseInt(epochStr.substring(0, 2));
+      const dayFrac = parseFloat(epochStr.substring(2));
+      const year = yr2 >= 57 ? 1900 + yr2 : 2000 + yr2;
+      const jan1 = new Date(Date.UTC(year, 0, 1));
+      return new Date(jan1.getTime() + (dayFrac - 1) * 86400000);
+    }
+
+    // Format TLE age as "Xd Yh Zm" or "Yh Zm"
+    function formatTleAge(epoch) {
+      const ageMs = Date.now() - epoch.getTime();
+      const ageHours = ageMs / 3600000;
+      const days = Math.floor(ageHours / 24);
+      const hours = Math.floor(ageHours % 24);
+      const mins = Math.floor((ageMs % 3600000) / 60000);
+      if (days > 0) return `${days}d ${hours}h ${mins}m`;
+      return `${hours}h ${mins}m`;
+    }
+
+    function tleAgeColor(epoch) {
+      const ageHours = (Date.now() - epoch.getTime()) / 3600000;
+      if (ageHours > 120) return 'text-red-400';     // >5 days
+      if (ageHours > 48) return 'text-yellow-400';    // >2 days
+      return 'text-green-400';
+    }
+
+    // 鈹€鈹€ Display Results 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    function displayResults(transits, celestialBody, noradId) {
+      resultsDiv.classList.remove('hidden');
+      currentTransits = transits;
+
+      const bodyIcons = { moon: '馃寵', sun: '鈽€锔?, jupiter: '鈾?, mars: '鈾?, saturn: '鈾?, venus: '鈾€' };
+      const bodyIcon = bodyIcons[celestialBody] || '馃獝';
+      const rankColors = { gold: 'text-yellow-400', silver: 'text-gray-300', bronze: 'text-amber-600' };
+      const rankIcons = { gold: '馃', silver: '馃', bronze: '馃' };
+
+      const tleAgeHtml = currentTleEpoch
+        ? ` 鈥?${T.tleAge}: <span class="${tleAgeColor(currentTleEpoch)}">${formatTleAge(currentTleEpoch)}</span>`
+        : '';
+      let html = `<div class="text-xs text-gray-500 mb-3">${tr('transitsFound', { n: transits.length, norad: noradId, icon: bodyIcon, body: celestialBody, tleAge: tleAgeHtml })}</div>`;
+
+      // Transit alert box
+      const isLoggedIn = _sessionData?.email;
+      const existingAlert = _sessionData?.email_transits;
+      if (!isLoggedIn) {
+        html += `<div class="border border-slate-600 rounded px-3 py-2 mb-3 text-xs text-gray-400">
+          Astrophotographer? <a href="/login" class="text-blue-400 hover:text-blue-300 underline">Login</a> to get nearby transit events in your mailbox
+        </div>`;
+      } else if (existingAlert?.enabled) {
+        html += `<div class="border border-blue-700/40 rounded px-3 py-2 mb-3 text-xs text-gray-300 flex items-center justify-between">
+          <span>馃敂 Transit alerts active for ${existingAlert.body || 'sun'} 脳 NORAD ${existingAlert.norad || '?'}</span>
+          <button id="cancel-transit-alert" class="text-red-400 hover:text-red-300 underline ml-2">Cancel alert</button>
+        </div>`;
+      } else {
+        html += `<div class="border border-slate-600 rounded px-3 py-2 mb-3 text-xs text-gray-300">
+          <div class="flex items-center gap-3 flex-wrap">
+            <span>Alert me by email for</span>
+            <label class="flex items-center gap-1 cursor-pointer">
+              <input type="radio" name="transit-alert-type" value="clear" checked class="radio radio-xs radio-primary"> clear skies only
+            </label>
+            <label class="flex items-center gap-1 cursor-pointer">
+              <input type="radio" name="transit-alert-type" value="any" class="radio radio-xs radio-primary"> any transit
+            </label>
+            <button id="set-transit-alert" class="px-2 py-0.5 bg-blue-600 hover:bg-blue-500 text-white rounded text-xs">Matching this search</button>
+          </div>
+        </div>`;
+      }
+
+      html += '<div class="space-y-3">';
+      for (let i = 0; i < transits.length; i++) {
+        const t = transits[i];
+        const date = new Date(t.time);
+        const dateStr = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+        const utcStr = date.toISOString().substring(11, 19) + ' UTC';
+        const distKm = t.centerline?.distanceFromHome != null ? Math.round(t.centerline.distanceFromHome) : '?';
+        const satAz = t.azimuth?.toFixed(1) || '?';
+        const nightLabel = t.isNighttime ? `<span class="text-blue-400 text-xs ml-1">(${T.night})</span>` : '';
+        const oceanLabel = t.allOcean ? `<span class="text-gray-500 text-xs ml-1">(${T.ocean})</span>` : '';
+        const celestialAlt = t.centerline?.celestialAltitude != null ? t.centerline.celestialAltitude.toFixed(1) + '掳' : '鈥?;
+
+        html += `
+          <div class="bg-slate-800/80 rounded-lg border border-slate-700 relative">
+            <button class="share-btn hidden absolute top-2 right-2 px-2 py-0.5 text-xs text-gray-400 hover:text-white border border-gray-600 hover:border-gray-400 rounded transition-colors flex items-center gap-1 z-10"
+              data-norad="${noradId}" data-body="${celestialBody}" data-time="${new Date(t.time).toISOString()}"
+              data-lat="${t.centerline?.lat?.toFixed(4) || ''}" data-lon="${t.centerline?.lon?.toFixed(4) || ''}"
+            >
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+              </svg>
+              <span class="share-label">${T.share}</span>
+            </button>
+            <div class="p-3">
+              <div class="flex items-center gap-2 mb-2">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="${rankColors[t.rank] || 'text-gray-400'} text-lg">${rankIcons[t.rank] || ''}</span>
+                  <span class="text-white font-medium">${dateStr}</span>
+                  <span class="text-gray-400 text-sm">${timeStr}</span>
+                  <span class="text-gray-500 text-xs">(${utcStr})</span>
+                  ${nightLabel}${oceanLabel}
+                </div>
+              </div>
+              <div class="flex items-center justify-between gap-4">
+                <span class="text-white text-lg font-semibold whitespace-nowrap">~${distKm} km</span>
+                <span class="text-sm text-gray-300 text-center flex-1">${T.elevation} <span class="text-white">${celestialAlt}</span> 路 ${T.azimuth} <span class="text-white">${satAz}掳</span></span>
+                <span id="weather-${i}" class="text-xs text-gray-500 whitespace-nowrap"></span>
+                <button class="details-btn px-3 py-1 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded shrink-0"
+                  data-idx="${i}" data-body="${celestialBody}" data-time="${new Date(t.time).toISOString()}">
+                  ${T.plan}
+                </button>
+              </div>
+            </div>
+            <div id="details-panel-${i}" class="hidden border-t border-slate-700">
+              <div id="details-content-${i}" class="p-4">
+                <div class="flex items-center justify-center py-4 text-gray-500 text-sm">
+                  <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                  </svg>
+                  ${T.loadingAnalysis}
+                </div>
+              </div>
+            </div>
+          </div>`;
+      }
+      html += '</div>';
+
+      resultsBody.innerHTML = html;
+
+      // Attach click handlers to all details and share buttons
+      resultsBody.querySelectorAll('.details-btn').forEach(btn => {
+        btn.addEventListener('click', () => toggleDetails(btn));
+      });
+      attachShareHandlers();
+      fetchWeatherForTransits(transits);
+
+      // Transit alert handlers
+      document.getElementById('set-transit-alert')?.addEventListener('click', () => {
+        if (!_sessionMgr || !_sessionData) return;
+        const alertType = document.querySelector('input[name="transit-alert-type"]:checked')?.value || 'clear';
+        _sessionData.email_transits = {
+          enabled: true,
+          body: celestialBody,
+          norad: noradId,
+          clear_only: alertType === 'clear',
+          lat: parseFloat(latInput.value),
+          lon: parseFloat(lonInput.value),
+          radius_km: parseInt(distInput.value) || 250,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        };
+        _sessionMgr.saveData(_sessionData);
+        displayResults(transits, celestialBody, noradId); // re-render to show active state
+      });
+
+      document.getElementById('cancel-transit-alert')?.addEventListener('click', () => {
+        if (!_sessionMgr || !_sessionData) return;
+        _sessionData.email_transits = { enabled: false };
+        _sessionMgr.saveData(_sessionData);
+        displayResults(transits, celestialBody, noradId); // re-render
+      });
+    }
+
+    // 鈹€鈹€ Cloud cover from GFS via /cloud endpoint 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    async function fetchWeatherForTransits(transits) {
+      // Fetch in parallel 鈥?one call per transit using its centerline + time
+      const promises = transits.map(async (t, i) => {
+        const el = document.getElementById(`weather-${i}`);
+        if (!el || !t.centerline?.lat || !t.centerline?.lon) return;
+
+        try {
+          const utc = new Date(t.time).toISOString();
+          const resp = await apiFetch(`/cloud?lat=${t.centerline.lat.toFixed(4)}&lon=${t.centerline.lon.toFixed(4)}&utc=${utc}`, { signal: AbortSignal.timeout(10000) });
+          if (!resp.ok) return;
+          const data = await resp.json();
+          const fc = data.forecasts?.[0];
+          if (!fc || fc.error) return;
+
+          renderWeatherBadge(el, fc);
+        } catch (e) {
+          // Silent fail 鈥?weather is optional
+        }
+      });
+      await Promise.allSettled(promises);
+    }
+
+    function renderWeatherBadge(el, fc) {
+      const total = fc.total_cloud_pct;
+      const low = fc.low_cloud_pct ?? 0;
+
+      let verdict, color;
+      if (total <= 10) {
+        verdict = T.clear; color = 'text-green-400';
+      } else if (total <= 30 && low <= 10) {
+        verdict = T.mostlyClear; color = 'text-green-300';
+      } else if (total <= 50 && low <= 20) {
+        verdict = T.partlyCloudy; color = 'text-yellow-400';
+      } else if (low >= 50 || total >= 80) {
+        verdict = T.overcast; color = 'text-red-400';
+      } else {
+        verdict = T.cloudy; color = 'text-orange-400';
+      }
+
+      const tooltip = `Cloud: ${total}% (Low ${low}% 路 Mid ${fc.mid_cloud_pct ?? 0}% 路 High ${fc.high_cloud_pct ?? 0}%) 鈥?GFS ${fc.valid_time}`;
+      el.innerHTML = `<span class="${color} cursor-help" title="${tooltip}">${verdict}</span>`;
+    }
+
+    // 鈹€鈹€ Details toggle + API call 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    function buildTransitUrl(noradId, body, utc, lat, lon) {
+      const params = new URLSearchParams({ norad: noradId, body, utc, lat, lon });
+      return `${window.location.pathname}?${params}`;
+    }
+
+    async function toggleDetails(btn) {
+      const idx = btn.dataset.idx;
+      const panel = document.getElementById(`details-panel-${idx}`);
+      const content = document.getElementById(`details-content-${idx}`);
+      const shareBtn = btn.closest('.bg-slate-800\\/80')?.querySelector('.share-btn');
+
+      if (!panel.classList.contains('hidden')) {
+        panel.classList.add('hidden');
+        btn.textContent = T.plan;
+        if (shareBtn) shareBtn.classList.add('hidden');
+        history.pushState({ transit: null }, '', window.location.pathname);
+        return;
+      }
+
+      panel.classList.remove('hidden');
+      btn.textContent = T.hide;
+
+      // Show share button and push URL
+      if (shareBtn) {
+        shareBtn.classList.remove('hidden');
+        const url = buildTransitUrl(shareBtn.dataset.norad, shareBtn.dataset.body, shareBtn.dataset.time, shareBtn.dataset.lat, shareBtn.dataset.lon);
+        history.pushState({ transit: idx }, '', url);
+      }
+
+      // Already loaded?
+      if (content.dataset.loaded) return;
+
+      const t = currentTransits[idx];
+      if (!t?.centerline?.lat || !t?.centerline?.lon) {
+        content.innerHTML = '<p class="text-red-400 text-sm">Missing centerline coordinates for this transit.</p>';
+        return;
+      }
+
+      try {
+        const leafletPromise = loadLeaflet();
+
+        const resp = await apiFetch('/api/transit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            time: btn.dataset.time,
+            lat: t.centerline.lat,
+            lon: t.centerline.lon,
+            elevation: parseInt(altInput.value) || 0,
+            body: btn.dataset.body,
+            tle1: currentTle1,
+            tle2: currentTle2,
+            quiet: true
+          })
+        });
+
+        const apiResp = await resp.json();
+        if (apiResp.error || apiResp.status === 'error') {
+          throw new Error(apiResp.error || apiResp.message || 'Transit calculation failed');
+        }
+
+        await leafletPromise;
+
+        const rIdx = detailIndex++;
+        renderDetails(rIdx, apiResp, btn.dataset.body, btn.dataset.time, content);
+        content.dataset.loaded = '1';
+      } catch (err) {
+        console.error('Error loading transit details:', err);
+        content.innerHTML = `<p class="text-red-400 text-sm">Error: ${err.message}</p>`;
+      }
+    }
+
+    // 鈹€鈹€ Render details + wire up map 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    function renderDetails(rIdx, apiResp, celestialBody, time, contentEl) {
+      cachedDetails[rIdx] = apiResp;
+      detailMeta[rIdx] = { body: celestialBody, time, contentEl, norad: satSelect.value || noradInput.value };
+      contentEl.innerHTML = formatTransitDetails(apiResp, celestialBody, rIdx);
+
+      // Auto-build the map
+      if (window.L) {
+        const container = document.getElementById(`transit-map-${rIdx}`);
+        if (container && !container._leafletMap) {
+          buildMap(rIdx, container);
+        }
+      }
+    }
+
+    // 鈹€鈹€ Format transit detail response 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    function formatTransitDetails(apiResp, celestialBody, rIdx) {
+      const d = apiResp.transit_details;
+      if (!d) return '<p class="text-red-400 text-sm">No transit details in response.</p>';
+
+      const isSun = celestialBody === 'sun';
+      const bodyName = celestialBody.charAt(0).toUpperCase() + celestialBody.slice(1);
+      const bodyIcon = isSun ? '鈽€锔? : '馃寵';
+      const homeLat = parseFloat(latInput.value);
+      const homeLon = parseFloat(lonInput.value);
+      const distFromHome = TransitEngine.haversineDistance(homeLat, homeLon, d.location.latitude, d.location.longitude);
+
+      const durationStr = d.transit_geometry.transit_duration_s < 0.01
+        ? d.transit_geometry.transit_duration_s.toFixed(4) + 's'
+        : d.transit_geometry.transit_duration_s.toFixed(2) + 's';
+      const pathWidthKm = d.transit_geometry.empirical_path_width_km || d.transit_geometry.visibility_path_width_km;
+      const pathWidth = pathWidthKm < 1
+        ? (pathWidthKm * 1000).toFixed(0) + ' m'
+        : pathWidthKm.toFixed(1) + ' km';
+
+      const row = (label, value) =>
+        `<div class="flex justify-between text-xs"><span class="text-gray-400">${label}</span><span class="text-gray-200">${value}</span></div>`;
+
+      let svgBlock = '';
+      if (apiResp.visualization?.svg_animation) {
+        svgBlock = `<div class="flex justify-center">${apiResp.visualization.svg_animation}</div>`;
+      }
+
+      let lightingRows = row(T.shadow, `<span class="${d.shadow_conditions.in_shadow ? 'text-blue-400' : 'text-yellow-400'}">${d.shadow_conditions.shadow_condition}</span>`);
+      if (d.shadow_conditions.satellite_lighting) {
+        const sl = d.shadow_conditions.satellite_lighting;
+        const slColor = sl === 'sunlit' ? 'text-yellow-400' : sl === 'penumbra' ? 'text-orange-400' : 'text-blue-400';
+        lightingRows += row(T.satLighting, `<span class="${slColor}">${sl}</span>`);
+      }
+      if (!isSun && d.sun_position) {
+        lightingRows += row(T.sunAltitude, d.sun_position.altitude_deg.toFixed(1) + '掳');
+        lightingRows += row(T.sunAzimuth, d.sun_position.azimuth_deg.toFixed(1) + '掳');
+      }
+      if (d.illumination && celestialBody === 'moon') {
+        lightingRows += row(T.moonPhase, d.illumination.illumination_percent.toFixed(1) + '%');
+        lightingRows += row(T.phaseAngle, d.illumination.phase_angle_deg.toFixed(1) + '掳');
+      }
+
+      return `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+          <div class="bg-slate-900/60 rounded p-3 space-y-1">
+            <h4 class="text-xs font-semibold text-gray-300 mb-2">${T.transitGeometry}</h4>
+            ${row(T.pathWidth, pathWidth)}
+            ${row(T.duration, durationStr)}
+            ${row(T.azimuth, (() => {
+              const v = d.satellite_position.azimuth_deg;
+              const dd = Math.floor(v);
+              const mm = Math.floor((v - dd) * 60);
+              const ss = ((v - dd) * 60 - mm) * 60;
+              return `${dd}掳 ${mm}鈥?${ss.toFixed(1)}鈥砢;
+            })())}
+            ${row(T.elevation, (() => {
+              const v = d.satellite_position.altitude_deg;
+              const sign = v >= 0 ? '' : '-';
+              const av = Math.abs(v);
+              const dd = Math.floor(av);
+              const mm = Math.floor((av - dd) * 60);
+              const ss = ((av - dd) * 60 - mm) * 60;
+              return `${sign}${dd}掳 ${mm}鈥?${ss.toFixed(1)}鈥砢;
+            })())}
+            ${row(T.transitChord, d.transit_geometry.transit_chord_arcmin.toFixed(2) + '鈥?)}
+            ${row(T.sizeRatio, d.transit_geometry.size_ratio.toFixed(1) + ':1 (' + d.celestial_position.angular_size_arcmin.toFixed(1) + '鈥?vs ' + d.satellite_position.angular_size_arcsec.toFixed(2) + '鈥?')}
+            <div class="mt-4"></div>
+            <h4 class="text-xs font-semibold text-gray-300 mt-2 mb-2">${bodyIcon} ${tr('position', { name: bodyName })}</h4>
+            ${row(T.distance, (d.celestial_position.distance_km / 1000).toFixed(0) + 'k km')}
+            ${row(T.raDec, (() => {
+              const h = d.celestial_position.ra_hours;
+              const hh = Math.floor(h);
+              const mm = Math.floor((h - hh) * 60);
+              const ss = ((h - hh) * 60 - mm) * 60;
+              const dec = d.celestial_position.dec_degrees;
+              const sign = dec >= 0 ? '+' : '-';
+              const ad = Math.abs(dec);
+              const dd = Math.floor(ad);
+              const dm = Math.floor((ad - dd) * 60);
+              const ds = ((ad - dd) * 60 - dm) * 60;
+              return `${hh}h ${mm}m ${ss.toFixed(1)}s, ${sign}${dd}掳 ${dm}鈥?${ds.toFixed(0)}鈥砢;
+            })())}
+            ${row(T.angularSize, d.celestial_position.angular_size_arcmin.toFixed(1) + '鈥?)}
+          </div>
+
+          ${svgBlock}
+
+          <div class="bg-slate-900/60 rounded p-3 space-y-1">
+            <h4 class="text-xs font-semibold text-gray-300 mb-2">${T.viewingLocation}</h4>
+            ${row(T.latitude, d.location.latitude.toFixed(6) + '掳')}
+            ${row(T.longitude, d.location.longitude.toFixed(6) + '掳')}
+            ${row(T.elevation, d.location.elevation_m.toFixed(0) + ' m')}
+            ${row(T.midTransit, `<span class="text-yellow-300 font-medium">${new Date(d.timestamp).toISOString().replace('T', ' ').replace('.000Z', ' UTC')}</span>`)}
+            ${row(T.distanceFromHome, distFromHome.toFixed(1) + ' km')}
+            ${d.transit_geometry.altitude_sensitivity_pct_per_100m != null ? row(T.altitudeSensitivity, d.transit_geometry.altitude_sensitivity_pct_per_100m + '% per 100m') : ''}
+          </div>
+
+          <div class="bg-slate-900/60 rounded p-3 space-y-1">
+            <h4 class="text-xs font-semibold text-gray-300 mb-2">${T.lightingConditions}</h4>
+            ${lightingRows}
+          </div>
+
+          <div class="md:col-span-2">
+            <p class="text-sm text-gray-200 mb-1">${T.clickMapRecalc}</p>
+            <div class="relative">
+              <div id="transit-map-${rIdx}" class="rounded overflow-hidden" style="height:340px"></div>
+              <button class="globe-preview-btn absolute bottom-3 right-3 z-[1000] w-10 h-10 rounded-full bg-orange-500 hover:bg-orange-400 text-white shadow-[0_0_14px_rgba(249,115,22,0.7)] hover:shadow-[0_0_22px_rgba(249,115,22,0.9)] animate-pulse-subtle flex items-center justify-center transition-all"
+                data-ridx="${rIdx}" title="Preview in 3D">
+                <svg class="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-slate-900/60 rounded p-3 space-y-1">
+            <h4 class="text-xs font-semibold text-gray-300 mb-2">${T.satellitePosition}</h4>
+            ${row(T.distance, d.satellite_position.distance_km.toFixed(1) + ' km')}
+            ${row(T.angularSize, d.satellite_position.angular_size_arcsec.toFixed(2) + '鈥?)}
+            ${row(T.effectiveDiameter, d.satellite_position.effective_diameter_m.toFixed(1) + ' m')}
+          </div>
+
+          <div class="bg-slate-900/60 rounded p-3 space-y-1">
+            <h4 class="text-xs font-semibold text-gray-300 mb-2">${T.satelliteMotion}</h4>
+            ${row(T.angularSpeed, d.velocity_components.angular_arcmin_per_s.toFixed(2) + '鈥?s')}
+            ${row(T.totalSpeed, d.velocity_components.total_km_per_s.toFixed(2) + ' km/s')}
+            ${row(T.transverse, d.velocity_components.transverse_km_per_s.toFixed(2) + ' km/s')}
+            ${row(T.radial, d.velocity_components.radial_km_per_s.toFixed(2) + ' km/s')}
+            ${row(T.directionFromZenith, d.velocity_components.direction_from_zenith_deg.toFixed(1) + '掳')}
+          </div>
+
+        </div>
+
+        <div class="mt-3 pt-2 border-t border-slate-700">
+          <span class="text-xs font-medium text-green-400 bg-green-900/30 px-2 py-0.5 rounded">${T.highPrecision}</span>
+          <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+            ${tr('precisionNote', { date: new Date().toISOString().split('T')[0] })}
+          </p>
+        </div>`;
+    }
+
+    // 鈹€鈹€ Leaflet loader 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    function loadLeaflet() {
+      if (leafletLoaded || window.L) { leafletLoaded = true; return Promise.resolve(); }
+      return new Promise((resolve, reject) => {
+        const css = document.createElement('link');
+        css.rel = 'stylesheet';
+        css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        css.onload = () => {
+          const js = document.createElement('script');
+          js.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+          js.onload = () => { leafletLoaded = true; resolve(); };
+          js.onerror = reject;
+          document.head.appendChild(js);
+        };
+        css.onerror = reject;
+        document.head.appendChild(css);
+      });
+    }
+
+    // 鈹€鈹€ Map toggle 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    function buildMap(rIdx, container) {
+      const apiResp = cachedDetails[rIdx];
+      const { latitude, longitude } = apiResp.transit_details.location;
+      const map = L.map(container).setView([latitude, longitude], 12);
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap',
+        maxZoom: 18
+      }).addTo(map);
+
+      // GeoJSON overlay (centerline, visibility zone, timing labels)
+      if (apiResp.visualization?.geojson) {
+        L.geoJSON(apiResp.visualization.geojson, {
+          style: (feature) => {
+            if (feature.properties.type === 'centerline') return { color: '#2d8a2f', weight: 2, opacity: 0.8 };
+            if (feature.properties.type === 'visibility_zone') return { color: '#ff3300', weight: 0, fillColor: '#ff3300', fillOpacity: 0.15, stroke: false };
+            return { color: '#ff3300', weight: 3, opacity: 0.9, fillOpacity: 0.2 };
+          },
+          pointToLayer: (feature, latlng) => {
+            if (feature.properties.type === 'timing') {
+              return L.circleMarker(latlng, { radius: 3, fillColor: '#ffff00', color: '#666', weight: 1, fillOpacity: 0.9 });
+              /* Label version:
+              return L.marker(latlng, {
+                icon: L.divIcon({
+                  html: `<div style="background:rgba(255,255,255,0.8);padding:2px 6px;border-radius:3px;font-size:10px;font-weight:bold;color:#333;border:1px solid #666;white-space:nowrap">${feature.properties.label}s</div>`,
+                  className: '', iconSize: [60, 16], iconAnchor: [30, 8]
+                })
+              });
+              */
+            }
+            if (feature.properties.type === 'position') {
+              const colors = { photography: '#cc0066', optimal: '#0066cc', original: '#666666' };
+              const radii = { photography: 8, optimal: 7, original: 5 };
+              const sub = feature.properties.subtype;
+              return L.circleMarker(latlng, { radius: radii[sub] || 5, fillColor: colors[sub] || '#0066cc', stroke: false, fillOpacity: 0.8 });
+            }
+            return L.circleMarker(latlng, { radius: 5 });
+          },
+          onEachFeature: (feature, layer) => {
+            // Pass all clicks through to the map for locked-mode recalc
+            layer.on('click', (e) => { L.DomEvent.stopPropagation(e); map.fire('click', e); });
+          }
+        }).addTo(map);
+      }
+
+      // Optimal location marker (circle, not interactive marker)
+      L.circleMarker([latitude, longitude], {
+        radius: 6, fillColor: '#3b82f6', color: '#1d4ed8', weight: 2, fillOpacity: 0.8, interactive: false
+      }).addTo(map);
+
+      // Home marker
+      const homeLat = parseFloat(latInput.value);
+      const homeLon = parseFloat(lonInput.value);
+      if (homeLat && homeLon) {
+        L.circleMarker([homeLat, homeLon], {
+          radius: 5, fillColor: '#9ca3af', color: '#6b7280', weight: 2, fillOpacity: 0.8, interactive: false
+        }).addTo(map).bindTooltip(T.home, { permanent: true, direction: 'right', className: 'leaflet-tooltip-home', offset: [8, 0] });
+        map.fitBounds([[homeLat, homeLon], [latitude, longitude]], { padding: [30, 30] });
+      }
+
+      // Click to recalculate at clicked location (locked mode)
+      // Click to show recalc popup, confirm to recalculate
+      let recalcPopup = null;
+      map.on('click', (e) => {
+        if (recalcPopup) map.closePopup(recalcPopup);
+        const lat = e.latlng.lat.toFixed(4);
+        const lon = e.latlng.lng.toFixed(4);
+        recalcPopup = L.popup({ closeButton: false, className: 'recalc-popup', offset: [0, -5] })
+          .setLatLng(e.latlng)
+          .setContent(`<div style="text-align:center;font-size:12px;"><div style="color:#666;margin-bottom:4px">${lat}掳, ${lon}掳</div><button onclick="window._recalcTransit(${rIdx},${e.latlng.lat},${e.latlng.lng})" style="background:#2563eb;color:white;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:bold">Recalculate here</button></div>`)
+          .openOn(map);
+      });
+
+      container._leafletMap = map;
+    }
+
+    // 鈹€鈹€ Recalculate at clicked map location (locked mode) 鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    window._recalcTransit = (rIdx, lat, lon) => recalcAtLocation(rIdx, lat, lon);
+
+    async function recalcAtLocation(rIdx, clickLat, clickLon) {
+      const meta = detailMeta[rIdx];
+      if (!meta) return;
+
+      const contentEl = meta.contentEl;
+
+      // Overlay a loading indicator without destroying the current content
+      const overlay = document.createElement('div');
+      overlay.className = 'absolute inset-0 bg-black/60 flex items-center justify-center z-[1000] rounded';
+      overlay.innerHTML = `
+        <div class="flex items-center text-gray-300 text-sm">
+          <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          ${tr('recalculating', { lat: clickLat.toFixed(4), lon: clickLon.toFixed(4) })}
+        </div>`;
+      contentEl.style.position = 'relative';
+      contentEl.appendChild(overlay);
+
+      try {
+        const resp = await apiFetch('/api/transit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            time: meta.time,
+            lat: clickLat,
+            lon: clickLon,
+            elevation: parseInt(altInput.value) || 0,
+            body: meta.body,
+            tle1: currentTle1,
+            tle2: currentTle2,
+            quiet: true,
+            locked: true
+          })
+        });
+
+        const apiResp = await resp.json();
+        if (apiResp.error || apiResp.status === 'error') {
+          throw new Error(apiResp.error || apiResp.message || 'Locked-mode calculation failed');
+        }
+
+        // Re-render with new rIdx so map container ID is fresh
+        const newIdx = detailIndex++;
+        renderDetails(newIdx, apiResp, meta.body, meta.time, contentEl);
+
+        // Update URL with clicked location so sharing uses the pin, not the centerline
+        const url = buildTransitUrl(meta.norad || satSelect.value || noradInput.value, meta.body, meta.time, clickLat.toFixed(4), clickLon.toFixed(4));
+        history.replaceState({ transit: rIdx }, '', url);
+      } catch (err) {
+        console.error('Locked-mode recalculation error:', err);
+        contentEl.innerHTML = `<p class="text-red-400 text-sm">Error: ${err.message}</p>`;
+      }
+    }
+
+    // 鈹€鈹€ Helpers 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    function showError(msg) {
+      errorDiv.classList.remove('hidden');
+      errorText.textContent = msg;
+    }
+
+    // When dropdown changes, clear custom NORAD input
+    satSelect.addEventListener('change', () => { noradInput.value = ''; });
+    // When custom NORAD is typed, deselect dropdown
+    noradInput.addEventListener('input', () => { satSelect.selectedIndex = -1; });
+
+    // 鈹€鈹€ Share button handler 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    function attachShareHandlers() {
+      resultsBody.querySelectorAll('.share-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const url = new URL(buildTransitUrl(btn.dataset.norad, btn.dataset.body, btn.dataset.time, btn.dataset.lat, btn.dataset.lon), window.location.origin);
+          const fullUrl = url.href;
+          const label = btn.querySelector('.share-label');
+
+          if (navigator.share) {
+            try {
+              await navigator.share({ title: T.appName, url: fullUrl });
+            } catch (e) { /* user cancelled */ }
+          } else {
+            await navigator.clipboard.writeText(fullUrl);
+            label.textContent = T.linkCopied;
+            btn.classList.remove('text-gray-400', 'border-gray-600');
+            btn.classList.add('text-green-400', 'border-green-600');
+            setTimeout(() => {
+              label.textContent = T.share;
+              btn.classList.remove('text-green-400', 'border-green-600');
+              btn.classList.add('text-gray-400', 'border-gray-600');
+            }, 2000);
+          }
+        });
+      });
+    }
+
+    // 鈹€鈹€ Browser back button closes Plan panel 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    window.addEventListener('popstate', (e) => {
+      // Close any open plan panels
+      resultsBody?.querySelectorAll('.details-btn').forEach(btn => {
+        const idx = btn.dataset.idx;
+        const panel = document.getElementById(`details-panel-${idx}`);
+        const shareBtn = btn.closest('.bg-slate-800\\/80')?.querySelector('.share-btn');
+        if (panel && !panel.classList.contains('hidden')) {
+          panel.classList.add('hidden');
+          btn.textContent = T.plan;
+          if (shareBtn) shareBtn.classList.add('hidden');
+        }
+      });
+    });
+
+    // 鈹€鈹€ Auto-load from URL parameters 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    // Back-date toggle: show/hide custom TLE and UTC fields
+    document.getElementById('backdate-btn').addEventListener('click', () => {
+      const box = document.getElementById('custom-tle-box');
+      const btn = document.getElementById('backdate-btn');
+      const visible = box.style.display !== 'none';
+      box.style.display = visible ? 'none' : 'block';
+      btn.classList.toggle('bg-blue-600', !visible);
+      btn.classList.toggle('bg-slate-700', visible);
+    });
+
+    async function checkUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      const norad = params.get('norad');
+      const body = params.get('body');
+      const utc = params.get('utc');
+      const lat = params.get('lat');
+      const lon = params.get('lon');
+
+      if (!norad || !body || !lat || !lon) return;
+
+      // Pre-fill form
+      latInput.value = parseFloat(lat).toFixed(4);
+      lonInput.value = parseFloat(lon).toFixed(4);
+
+      // Set satellite: try dropdown first, fall back to NORAD input
+      const dropdownMatch = [...satSelect.options].find(o => o.value === norad);
+      if (dropdownMatch) {
+        satSelect.value = norad;
+        noradInput.value = '';
+      } else {
+        noradInput.value = norad;
+        satSelect.selectedIndex = -1;
+      }
+
+      bodySelect.value = body;
+
+      // Use TLE and search start appropriate for the shared transit time
+      if (utc) {
+        _tleBeforeUtc = utc;
+        // Start search a day before the shared time to ensure we find it
+        _searchStartTime = new Date(new Date(utc).getTime() - 86400000);
+      }
+
+      // Wait for home location to finish loading, then run calculation
+      await loadHomeLocation().catch(() => {});
+
+      // Override lat/lon back to shared values (loadHomeLocation may have overwritten)
+      latInput.value = parseFloat(lat).toFixed(4);
+      lonInput.value = parseFloat(lon).toFixed(4);
+
+      await runCalculation();
+
+      // Find and auto-expand the transit closest to shared UTC
+      if (utc && currentTransits.length > 0) {
+        const sharedTime = new Date(utc).getTime();
+        let bestIdx = 0;
+        let bestDiff = Infinity;
+        for (let i = 0; i < currentTransits.length; i++) {
+          const diff = Math.abs(new Date(currentTransits[i].time).getTime() - sharedTime);
+          if (diff < bestDiff) { bestDiff = diff; bestIdx = i; }
+        }
+
+        // Auto-expand if within 30 minutes of shared time
+        if (bestDiff < 30 * 60 * 1000) {
+          const planBtn = resultsBody.querySelector(`.details-btn[data-idx="${bestIdx}"]`);
+          if (planBtn) {
+            planBtn.click();
+            planBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        } else {
+          // Transit may have shifted due to TLE update
+          showError(T.sharedTransitShifted);
+          errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }
+
+    checkUrlParams();
+
+    // 鈹€鈹€ Globe 3D preview 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+    let globeInstance = null;
+    let globeLoading = false;
+    const modal = document.getElementById('globe-preview-modal');
+    const previewCanvas = document.getElementById('globe-preview-canvas');
+    const previewLoading = document.getElementById('globe-preview-loading');
+    const previewClose = document.getElementById('globe-preview-close');
+
+    async function getGlobe(noradId) {
+      if (globeInstance) return globeInstance;
+      if (globeLoading) return null;
+      globeLoading = true;
+
+      try {
+        const isDev = window.location.hostname === 'localhost';
+        const url = isDev ? '/blueglobe.js?h=a2a04a9d' : '/blueglobe.js?h=a2a04a9d';
+        const { BlueGlobe } = await import(url);
+        const { getApiEndpointClient } = await import('/scripts/api.js?h=888618fb');
+
+        globeInstance = new BlueGlobe(previewCanvas, {
+          initialNoradId: noradId,
+          apiBaseUrl: getApiEndpointClient(),
+          compactMode: true,
+          hideElements: ['search', 'filters-panel', 'info-panel']
+        });
+        await globeInstance.init();
+        previewLoading.classList.add('hidden');
+        return globeInstance;
+      } catch (err) {
+        console.error('Globe preview load failed:', err);
+        previewLoading.textContent = 'Failed to load 3D preview';
+        globeLoading = false;
+        return null;
+      }
+    }
+
+    async function openGlobePreview(rIdx) {
+      const meta = detailMeta[rIdx];
+      const apiResp = cachedDetails[rIdx];
+      if (!meta || !apiResp) return;
+
+      const d = apiResp.transit_details;
+      if (!d) return;
+
+      const noradId = parseInt(meta.norad);
+
+      modal.classList.remove('hidden');
+
+      const globe = await getGlobe(noradId);
+      if (!globe) return;
+
+      const transitTime = new Date(meta.time).getTime();
+      const lat = d.location.latitude;
+      const lon = d.location.longitude;
+      const alt = parseInt(altInput.value) || 0;
+
+      // Set home to the transit centerline location
+      globe.setHome({ lat, lon, alt });
+
+      // Disable FOV rubber band easing
+      window._disableFovRubberBand = true;
+      if (globe.sphereControls) globe.sphereControls.setCameraState({ rubber: false });
+
+      // Preview the pass, then lock camera to the satellite
+      await globe.previewPass({
+        noradIds: [noradId],
+        startTimeMs: transitTime - 30000,  // 30s before transit
+        endTimeMs: transitTime + 30000,
+        startAzimuth: d.satellite_position?.azimuth || 0,
+        startElevation: d.satellite_position?.elevation || 30
+      });
+
+      // Suppress clarke belt line and 20掳 horizon line (after previewPass which resets it)
+      globe.render_suppress = 128 | 2048;
+
+      globe.trackSatellite(noradId);
+    }
+
+    // Delegate click on preview buttons (they're dynamically created)
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('.globe-preview-btn');
+      if (btn) {
+        const rIdx = parseInt(btn.dataset.ridx);
+        openGlobePreview(rIdx);
+      }
+    });
+
+    previewClose.addEventListener('click', () => {
+      modal.classList.add('hidden');
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.add('hidden');
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+        modal.classList.add('hidden');
+      }
+    });
+  </script>  </main> <!-- Development API Toggle Footer (localhost only) --> <div id="api-toggle-footer" class="fixed bottom-4 right-4 z-30 bg-gray-800/90 backdrop-blur-sm rounded-lg p-3 border border-gray-600 text-sm hidden" data-astro-cid-37fxchfa> <div class="flex items-center gap-2" data-astro-cid-37fxchfa> <span class="text-gray-300" data-astro-cid-37fxchfa>API:</span> <button id="api-toggle-btn" class="px-2 py-1 rounded text-xs font-mono border transition-colors" data-astro-cid-37fxchfa> <!-- Will be populated by JavaScript --> </button> <button id="api-toggle-close" class="text-gray-400 hover:text-white ml-2" title="Hide" data-astro-cid-37fxchfa>脳</button> </div> </div> <script type="module" src="/_astro/BaseLayout.astro_astro_type_script_index_0_lang.CWhBtdny.js"></script> <!-- App peek moved to session init block (only shown to non-logged-in users) --> <!-- Navbar styles are now in global.css --> </body></html>
+
