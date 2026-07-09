@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
+<script>document.write('<base href="' + (location.hostname.endsWith('.github.io') ? '/Satellite-Anomaly-Detection-System/' : '/') + '">');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SPACEMAN 星座状态</title>
@@ -459,11 +460,12 @@
       .source-row { grid-template-columns: 1fr; }
     }
   </style>
+<script src="assets/spaceman-pages-adapter.js"></script>
 </head>
 <body>
   <nav class="topbar">
     <div class="nav-inner">
-      <a class="brand" href="/">
+      <a class="brand" href="">
         <svg viewBox="0 0 68 68" fill="none" aria-hidden="true">
           <g transform="translate(34, 34)" stroke="#1a73e8" stroke-width="1.25" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="0" cy="0" r="8" fill="#1a73e8" stroke="#1ad7e8"></circle>
@@ -478,11 +480,11 @@
         <span>SPACEMAN</span>
       </a>
       <div class="nav-links" aria-label="顶部导航">
-        <a class="hide-mobile" href="/">可视化</a>
-        <a class="hide-mobile" href="/constellations">星座数据</a>
-        <a href="/fault-injection">故障注入</a>
-        <a href="/security-audit">安全审计</a>
-        <a href="/model-config">模型配置</a>
+        <a class="hide-mobile" href="">可视化</a>
+        <a class="hide-mobile" href="constellations">星座数据</a>
+        <a href="fault-injection">故障注入</a>
+        <a href="security-audit">安全审计</a>
+        <a href="model-config">模型配置</a>
       </div>
     </div>
   </nav>
@@ -496,9 +498,9 @@
           <p class="lead" id="hero-lead">面向卫星任务与星座配置的本地数字孪生前端。当前页面读取本地状态接口，展示正在三维可视化、智能助手和后续运维功能中使用的星座配置。</p>
         </div>
         <div class="actions">
-          <a class="btn primary" href="/">进入三维可视化</a>
-          <a class="btn" href="/local-api/spaceman-status">查看本地状态接口</a>
-          <a class="btn" href="/constellations">返回星座列表</a>
+          <a class="btn primary" href="">进入三维可视化</a>
+          <a class="btn" href="local-api/spaceman-status">查看本地状态接口</a>
+          <a class="btn" href="constellations">返回星座列表</a>
         </div>
       </div>
 

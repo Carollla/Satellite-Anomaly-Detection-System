@@ -1,18 +1,20 @@
 ﻿<!doctype html>
 <html lang="zh-CN">
 <head>
+<script>document.write('<base href="' + (location.hostname.endsWith('.github.io') ? '/Satellite-Anomaly-Detection-System/' : '/') + '">');</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>安全审计 | SPACEMAN</title>
-  <link rel="icon" type="image/png" href="/favicon-96x96.png?v5" sizes="96x96">
-  <link rel="stylesheet" crossorigin href="/assets/main.Bo4yuzhq.css">
-  <link rel="stylesheet" href="/assets/spaceman-feature-page.css">
-  <link rel="stylesheet" href="/assets/spaceman-security-audit.css">
-  <link rel="stylesheet" href="/assets/spaceman-assistant.css">
+  <link rel="icon" type="image/png" href="favicon-96x96.png?v5" sizes="96x96">
+  <link rel="stylesheet" crossorigin href="assets/main.Bo4yuzhq.css">
+  <link rel="stylesheet" href="assets/spaceman-feature-page.css">
+  <link rel="stylesheet" href="assets/spaceman-security-audit.css">
+  <link rel="stylesheet" href="assets/spaceman-assistant.css">
   <style>
     body { opacity: 1 !important; }
     #spaceman-nav-host, #spaceman-nav-host nav { display: block !important; opacity: 1 !important; }
   </style>
+<script src="assets/spaceman-pages-adapter.js"></script>
 </head>
 <body style="-webkit-user-select: none;">
   <div id="spaceman-nav-host">
@@ -27,7 +29,7 @@
     </button>
 
     <!-- Logo (smaller and centered on mobile) -->
-    <a href="/" data-route="/" class="flex items-center space-x-2 rtl:space-x-reverse">
+    <a href="" data-route="/" class="flex items-center space-x-2 rtl:space-x-reverse">
       <div class="px-[1px]">
         <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 68 68">
           <g id="busy-indicator">
@@ -57,7 +59,7 @@
         
         <!-- People in Space -->
         <li class="flex items-center">
-          <a href="/people" data-route="/people" class="navbar-link" data-translate="people">People</a>
+          <a href="people" data-route="/people" class="navbar-link" data-translate="people">People</a>
         </li>
 
         <!-- News Dropdown -->
@@ -70,7 +72,7 @@
           </button>
           <div id="dropdownNews" class="navbar-dropdown-menu">
             <ul class="navbar-dropdown-list" aria-labelledby="dropdownNewsLink">
-              <li><a href="/news" class="navbar-desktop-dropdown-item" data-translate="currentNews">Current News</a></li>
+              <li><a href="news" class="navbar-desktop-dropdown-item" data-translate="currentNews">Current News</a></li>
               <li><span class="navbar-desktop-dropdown-item opacity-50 cursor-not-allowed" data-translate="liveVideo" id="desktop-live-video-label">Live Video</span></li>
               <li id="desktop-live-video-items" class="hidden"></li>
             </ul>
@@ -156,39 +158,39 @@
                 </button>
                 <div class="absolute left-full top-0 hidden group-hover:block navbar-dropdown-menu">
                   <ul class="navbar-dropdown-list">
-                    <li><a href="/re-entries" class="navbar-desktop-dropdown-item" title="Monitor satellites at risk of re-entry">
+                    <li><a href="re-entries" class="navbar-desktop-dropdown-item" title="Monitor satellites at risk of re-entry">
                       <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                       </svg>
                       <span style="margin-left:.1em" data-translate="reEntries">Re-Entries</span>
                     </a></li>
-                    <li><a href="/transit-finder" class="navbar-desktop-dropdown-item" title="Find when satellites transit the Sun, Moon or planets">
+                    <li><a href="transit-finder" class="navbar-desktop-dropdown-item" title="Find when satellites transit the Sun, Moon or planets">
                       <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         <circle cx="12" cy="12" r="5"></circle>
                       </svg>
                       <span style="margin-left:.1em" data-translate="transitFinder">Transit Finder</span>
                     </a></li>
-                    <li><a href="/tle-calculator" class="navbar-desktop-dropdown-item" title="Parse and analyze Two-Line Element (TLE) orbital data">
+                    <li><a href="tle-calculator" class="navbar-desktop-dropdown-item" title="Parse and analyze Two-Line Element (TLE) orbital data">
                       <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                       </svg>
                       <span style="margin-left:.1em" data-translate="tleCalculator">TLE Analysis</span>
                     </a></li>
-                    <li><a href="/satellite-photobomb" class="navbar-desktop-dropdown-item" title="Satellite photo simulator">
+                    <li><a href="satellite-photobomb" class="navbar-desktop-dropdown-item" title="Satellite photo simulator">
                       <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
                         <circle cx="12" cy="13" r="3"></circle>
                       </svg>
                       <span style="margin-left:.1em" data-translate="photoBombSim">Photo Simulator</span>
                     </a></li>
-                    <li><a href="/satellite-collision-finding" class="navbar-desktop-dropdown-item" title="GPU-accelerated satellite close approach search">
+                    <li><a href="satellite-collision-finding" class="navbar-desktop-dropdown-item" title="GPU-accelerated satellite close approach search">
                       <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                       </svg>
                       <span style="margin-left:.1em" data-translate="closeApproaches">Close Approaches</span>
                     </a></li>
-                    <li><a href="/amateur-radio" class="navbar-desktop-dropdown-item" title="Live amateur radio satellite tracking with sky view and frequencies">
+                    <li><a href="amateur-radio" class="navbar-desktop-dropdown-item" title="Live amateur radio satellite tracking with sky view and frequencies">
                       <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.14 0M1.394 9.393c5.857-5.858 15.355-5.858 21.213 0"></path>
                       </svg>
@@ -199,7 +201,7 @@
               </li>
 
               <!-- Constellations -->
-              <li><a href="/constellations" class="navbar-desktop-dropdown-item" title="Browse and search constellations">
+              <li><a href="constellations" class="navbar-desktop-dropdown-item" title="Browse and search constellations">
                 <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <circle cx="6" cy="6" r="1.5" fill="currentColor"/><circle cx="18" cy="6" r="1.5" fill="currentColor"/><circle cx="12" cy="18" r="1.5" fill="currentColor"/><circle cx="6" cy="14" r="1.5" fill="currentColor"/>
                   <line x1="6" y1="6" x2="18" y2="6" stroke="currentColor" stroke-width="1"/><line x1="18" y1="6" x2="12" y2="18" stroke="currentColor" stroke-width="1"/><line x1="12" y1="18" x2="6" y2="14" stroke="currentColor" stroke-width="1"/><line x1="6" y1="14" x2="6" y2="6" stroke="currentColor" stroke-width="1"/>
@@ -208,7 +210,7 @@
               </a></li>
 
               <!-- Historical -->
-              <li><a href="/leo-internet-treemap" class="navbar-desktop-dropdown-item" title="Orbital object treemap â growth over time">
+              <li><a href="leo-internet-treemap" class="navbar-desktop-dropdown-item" title="Orbital object treemap â growth over time">
                 <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <rect x="3" y="3" width="7" height="7" rx="1" stroke-width="2"/><rect x="14" y="3" width="7" height="4" rx="1" stroke-width="2"/><rect x="14" y="10" width="7" height="4" rx="1" stroke-width="2"/><rect x="3" y="13" width="7" height="8" rx="1" stroke-width="2"/><rect x="14" y="17" width="7" height="4" rx="1" stroke-width="2"/>
                 </svg>
@@ -230,9 +232,9 @@
           <div id="dropdownSpacemanFunctions" class="navbar-dropdown-menu">
             <ul class="navbar-dropdown-list" aria-labelledby="dropdownSpacemanFunctionsLink">
               <li><a href="#" data-spaceman-action="assistant" class="navbar-desktop-dropdown-item"><span id="spaceman-assistant-menu-label">智能助手</span></a></li>
-              <li><a href="/fault-injection" data-spaceman-route="/fault-injection" class="navbar-desktop-dropdown-item"><span id="spaceman-fault-menu-label">故障注入</span></a></li>
-              <li><a href="/security-audit?spaceman_nav=1" data-spaceman-route="/security-audit" class="navbar-desktop-dropdown-item"><span id="spaceman-audit-menu-label">安全审计</span></a></li>
-              <li><a href="/model-config" data-spaceman-route="/model-config" class="navbar-desktop-dropdown-item"><span id="spaceman-model-menu-label">模型配置</span></a></li>
+              <li><a href="fault-injection" data-spaceman-route="/fault-injection" class="navbar-desktop-dropdown-item"><span id="spaceman-fault-menu-label">故障注入</span></a></li>
+              <li><a href="security-audit?spaceman_nav=1" data-spaceman-route="/security-audit" class="navbar-desktop-dropdown-item"><span id="spaceman-audit-menu-label">安全审计</span></a></li>
+              <li><a href="model-config" data-spaceman-route="/model-config" class="navbar-desktop-dropdown-item"><span id="spaceman-model-menu-label">模型配置</span></a></li>
             </ul>
           </div>
         </li>
@@ -248,17 +250,17 @@
           </button>
           <div id="dropdownMore" class="navbar-dropdown-menu">
             <ul class="navbar-dropdown-list" aria-labelledby="dropdownMoreLink">
-              <li><a href="/settings" onclick="window.appRouter?.navigate('/settings'); return false;" class="navbar-desktop-dropdown-item flex items-center gap-2">
+              <li><a href="settings" onclick="window.appRouter?.navigate('/settings'); return false;" class="navbar-desktop-dropdown-item flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 </svg>
                 <span data-translate="settings">Settings</span>
               </a></li>
-              <li><a href="/info" class="navbar-desktop-dropdown-item" data-translate="info">Info / Updates</a></li>
-              <li><a href="/feedback" onclick="window.appRouter?.navigate('/feedback'); return false;" class="navbar-desktop-dropdown-item" data-translate="feedback">Feedback</a></li>
-              <li><a href="/credits" data-route="/credits" class="navbar-desktop-dropdown-item" data-translate="credits">Credits</a></li>
-              <li><a href="/space-track-status" class="navbar-desktop-dropdown-item" data-translate="spaceTrackStatus">Space-track status</a></li>
+              <li><a href="info" class="navbar-desktop-dropdown-item" data-translate="info">Info / Updates</a></li>
+              <li><a href="feedback" onclick="window.appRouter?.navigate('/feedback'); return false;" class="navbar-desktop-dropdown-item" data-translate="feedback">Feedback</a></li>
+              <li><a href="credits" data-route="/credits" class="navbar-desktop-dropdown-item" data-translate="credits">Credits</a></li>
+              <li><a href="space-track-status" class="navbar-desktop-dropdown-item" data-translate="spaceTrackStatus">Space-track status</a></li>
             </ul>
           </div>
         </li>
@@ -266,7 +268,7 @@
         <!-- Share -->
         <li class="flex items-center">
           <a href="#" onclick="triggerShare(); return false;" class="navbar-link flex items-center space-x-2">
-            <img src="/svgs/share.svg" alt="Share" class="w-4 h-4 filter invert">
+            <img src="svgs/share.svg" alt="Share" class="w-4 h-4 filter invert">
             <span data-translate="share">Share</span>
           </a>
         </li>
@@ -285,7 +287,7 @@
     <!-- Mobile menu items -->
     <div class="flex-1 overflow-y-auto py-4">
       <!-- People in Space -->
-      <a href="/people" data-route="/people" onclick="closeMobileMenu()" class="navbar-mobile-link" data-translate="people">
+      <a href="people" data-route="/people" onclick="closeMobileMenu()" class="navbar-mobile-link" data-translate="people">
         People
       </a>
 
@@ -299,7 +301,7 @@
         </button>
         <div id="mobile-news-menu" class="navbar-mobile-submenu hidden">
           <div class="px-2 py-2">
-            <a href="/news" onclick="closeMobileMenu()" class="navbar-mobile-dropdown-item" data-translate="currentNews">Current News</a>
+            <a href="news" onclick="closeMobileMenu()" class="navbar-mobile-dropdown-item" data-translate="currentNews">Current News</a>
             <span class="navbar-mobile-dropdown-item opacity-50 cursor-not-allowed" data-translate="liveVideo" id="mobile-live-video-label">Live Video</span>
             <div id="mobile-live-video-items" class="hidden pl-4"></div>
           </div>
@@ -383,21 +385,21 @@
               </svg>
             </button>
             <div id="mobile-apps-menu" class="hidden">
-              <a href="/re-entries" onclick="closeMobileMenu(); return true;" class="navbar-mobile-submenu-item" data-translate="reEntries">Re-Entries</a>
-              <a href="/transit-finder" onclick="closeMobileMenu(); return true;" class="navbar-mobile-submenu-item" data-translate="transitFinder">Transit Finder</a>
-              <a href="/tle-calculator" onclick="closeMobileMenu(); return true;" class="navbar-mobile-submenu-item" data-translate="tleCalculator">TLE Analysis</a>
-              <a href="/satellite-photobomb" onclick="closeMobileMenu(); return true;" class="navbar-mobile-submenu-item" data-translate="photoBombSim">Photo Simulator</a>
-              <a href="/satellite-collision-finding" onclick="closeMobileMenu(); return true;" class="navbar-mobile-submenu-item" data-translate="closeApproaches">Close Approaches</a>
-              <a href="/amateur-radio" onclick="closeMobileMenu(); return true;" class="navbar-mobile-submenu-item">SatNOGS Radio</a>
+              <a href="re-entries" onclick="closeMobileMenu(); return true;" class="navbar-mobile-submenu-item" data-translate="reEntries">Re-Entries</a>
+              <a href="transit-finder" onclick="closeMobileMenu(); return true;" class="navbar-mobile-submenu-item" data-translate="transitFinder">Transit Finder</a>
+              <a href="tle-calculator" onclick="closeMobileMenu(); return true;" class="navbar-mobile-submenu-item" data-translate="tleCalculator">TLE Analysis</a>
+              <a href="satellite-photobomb" onclick="closeMobileMenu(); return true;" class="navbar-mobile-submenu-item" data-translate="photoBombSim">Photo Simulator</a>
+              <a href="satellite-collision-finding" onclick="closeMobileMenu(); return true;" class="navbar-mobile-submenu-item" data-translate="closeApproaches">Close Approaches</a>
+              <a href="amateur-radio" onclick="closeMobileMenu(); return true;" class="navbar-mobile-submenu-item">SatNOGS Radio</a>
             </div>
 
             <!-- Constellations -->
-            <a href="/constellations" onclick="closeMobileMenu(); return true;" class="navbar-mobile-dropdown-item" title="Browse and search constellations">
+            <a href="constellations" onclick="closeMobileMenu(); return true;" class="navbar-mobile-dropdown-item" title="Browse and search constellations">
               <span>Constellations</span>
             </a>
 
             <!-- Historical -->
-            <a href="/leo-internet-treemap" onclick="closeMobileMenu(); return true;" class="navbar-mobile-dropdown-item" title="Orbital object treemap â growth over time">
+            <a href="leo-internet-treemap" onclick="closeMobileMenu(); return true;" class="navbar-mobile-dropdown-item" title="Orbital object treemap â growth over time">
               <span>Historical</span>
             </a>
           </div>
@@ -415,9 +417,9 @@
         <div id="mobile-spaceman-functions-menu" class="navbar-mobile-submenu hidden">
           <div class="px-2 py-2">
             <a href="#" data-spaceman-action="assistant" class="navbar-mobile-dropdown-item">智能助手</a>
-            <a href="/fault-injection" data-spaceman-route="/fault-injection" class="navbar-mobile-dropdown-item">故障注入</a>
-            <a href="/security-audit?spaceman_nav=1" data-spaceman-route="/security-audit" class="navbar-mobile-dropdown-item">安全审计</a>
-            <a href="/model-config" data-spaceman-route="/model-config" class="navbar-mobile-dropdown-item">模型配置</a>
+            <a href="fault-injection" data-spaceman-route="/fault-injection" class="navbar-mobile-dropdown-item">故障注入</a>
+            <a href="security-audit?spaceman_nav=1" data-spaceman-route="/security-audit" class="navbar-mobile-dropdown-item">安全审计</a>
+            <a href="model-config" data-spaceman-route="/model-config" class="navbar-mobile-dropdown-item">模型配置</a>
           </div>
         </div>
       </div>
@@ -432,24 +434,24 @@
         </button>
         <div id="mobile-more-menu" class="navbar-mobile-submenu hidden">
           <div class="px-2 py-2">
-            <a href="/settings" onclick="window.appRouter?.navigate('/settings'); closeMobileMenu(); return false;" class="navbar-mobile-dropdown-item flex items-center gap-2">
+            <a href="settings" onclick="window.appRouter?.navigate('/settings'); closeMobileMenu(); return false;" class="navbar-mobile-dropdown-item flex items-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
               </svg>
               <span data-translate="settings">Settings</span>
             </a>
-            <a href="/info" onclick="closeMobileMenu()" class="navbar-mobile-dropdown-item" data-translate="info">Info / Updates</a>
-            <a href="/feedback" onclick="window.appRouter?.navigate('/feedback'); closeMobileMenu(); return false;" class="navbar-mobile-dropdown-item" data-translate="feedback">Feedback</a>
-            <a href="/credits" data-route="/credits" onclick="closeMobileMenu()" class="navbar-mobile-dropdown-item" data-translate="credits">Credits</a>
-            <a href="/space-track-status" onclick="closeMobileMenu()" class="navbar-mobile-dropdown-item" data-translate="spaceTrackStatus">Space-track status</a>
+            <a href="info" onclick="closeMobileMenu()" class="navbar-mobile-dropdown-item" data-translate="info">Info / Updates</a>
+            <a href="feedback" onclick="window.appRouter?.navigate('/feedback'); closeMobileMenu(); return false;" class="navbar-mobile-dropdown-item" data-translate="feedback">Feedback</a>
+            <a href="credits" data-route="/credits" onclick="closeMobileMenu()" class="navbar-mobile-dropdown-item" data-translate="credits">Credits</a>
+            <a href="space-track-status" onclick="closeMobileMenu()" class="navbar-mobile-dropdown-item" data-translate="spaceTrackStatus">Space-track status</a>
           </div>
         </div>
       </div>
 
       <!-- Share -->
       <a href="#" onclick="triggerShare(); closeMobileMenu(); return false;" class="navbar-mobile-link flex items-center space-x-3">
-        <img src="/svgs/share.svg" alt="Share" class="w-4 h-4 filter invert">
+        <img src="svgs/share.svg" alt="Share" class="w-4 h-4 filter invert">
         <span data-translate="share">Share</span>
       </a>
     </div>
@@ -638,10 +640,10 @@
       </article>
     </div>
   </main>
-  <script src="/assets/spaceman-feature-page.js" defer></script>
-  <script src="/assets/spaceman-security-audit.js" defer></script>
-  <script src="/assets/spaceman-assistant.js" defer></script>
-  <script src="/assets/spaceman-localization.js" defer></script>
+  <script src="assets/spaceman-feature-page.js" defer></script>
+  <script src="assets/spaceman-security-audit.js" defer></script>
+  <script src="assets/spaceman-assistant.js" defer></script>
+  <script src="assets/spaceman-localization.js" defer></script>
 </body>
 </html>
 
