@@ -220,4 +220,26 @@
     }
     return originalSetAttribute.call(this, name, value);
   };
+
+  const applyPerformanceProfile = () => {
+    const globe = window.globe || window.blueGlobe;
+    if (!globe || globe.__spacemanPagesPerformanceProfile) return false;
+    if (typeof globe.setFrameRate === "function") {
+      globe.setFrameRate(30);
+    } else {
+      globe.render_decimation = Math.max(globe.render_decimation || 1, 2);
+      globe.desired_dpr = 1;
+    }
+    globe.autoPause = true;
+    globe.__spacemanPagesPerformanceProfile = true;
+    return true;
+  };
+
+  let performanceAttempts = 0;
+  const performanceTimer = window.setInterval(() => {
+    performanceAttempts += 1;
+    if (applyPerformanceProfile() || performanceAttempts > 80) {
+      window.clearInterval(performanceTimer);
+    }
+  }, 250);
 })();
