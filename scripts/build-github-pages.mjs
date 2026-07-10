@@ -29,14 +29,14 @@ mkdirSync(out, { recursive: true });
 copyTree(root, out);
 writeFileSync(join(out, ".nojekyll"), "", "utf8");
 
-const adapter = `<script src="${repoBase}/assets/spaceman-pages-adapter.js"></script>`;
+const adapter = `<script src="${repoBase}/assets/spaceman-pages-adapter.js?v=20260710-tlefix"></script>`;
 for (const file of listFiles(out)) {
   if (extname(file).toLowerCase() !== ".html") continue;
   let html = readFileSync(file, "utf8");
   html = html
     .replace(/(href|src)="\/(?!\/)/g, `$1="${repoBase}/`)
     .replace(/url\(\/(?!\/)/g, `url(${repoBase}/`);
-  html = html.replace(/\s*<script\s+src=["'][^"']*spaceman-pages-adapter\.js["']><\/script>/g, "");
+  html = html.replace(/\s*<script\s+src=["'][^"']*spaceman-pages-adapter\.js(?:\?[^"']*)?["']><\/script>/g, "");
   if (html.includes("assets/main.localfix3.js")) {
     html = html.replace(/(\s*<script\b(?=[^>]*assets\/main\.localfix3\.js)[^>]*><\/script>)/, `\n  ${adapter}$1`);
   } else {
