@@ -28,6 +28,17 @@
     if (!path.startsWith("/") || path.startsWith(base + "/")) return path;
     return base + path;
   };
+  const requestPath = (url) => {
+    if (typeof url !== "string") return "";
+    try {
+      const parsed = new URL(url, location.origin);
+      if (parsed.origin !== location.origin) return "";
+      return stripBasePath(parsed.pathname) + parsed.search;
+    } catch {
+      return stripBasePath(url);
+    }
+  };
+  const staticFetch = (url) => originalFetch(url, { method: "GET" });
 
   try {
     const locationPrototype = Object.getPrototypeOf(window.location);
@@ -61,8 +72,9 @@
 
   window.fetch = function spacemanPagesFetch(input, init) {
     const raw = typeof input === "string" ? input : input && input.url;
-    if (raw && raw.startsWith("/local-api/")) {
-      if (raw.includes("/api/keys/session")) {
+    const path = requestPath(raw);
+    if (path && path.startsWith("/local-api/")) {
+      if (path.includes("/api/keys/session")) {
         return jsonResponse({
           success: true,
           message: "GitHub Pages static session API key",
@@ -80,7 +92,7 @@
           }
         });
       }
-      if (raw.includes("/api/create-session")) {
+      if (path.includes("/api/create-session")) {
         return jsonResponse({
           success: true,
           token: "github-pages-static-session",
@@ -92,7 +104,7 @@
           }
         });
       }
-      if (raw.includes("/api/user-state")) {
+      if (path.includes("/api/user-state")) {
         return jsonResponse({
           success: true,
           local: true,
@@ -106,25 +118,25 @@
           }
         });
       }
-      if (raw.includes("/api/statistics")) {
+      if (path.includes("/api/statistics")) {
         return jsonResponse({ success: true, staticPages: true });
       }
-      if (raw.includes("/health")) {
+      if (path.includes("/health")) {
         return jsonResponse({ status: "ok", staticPages: true, timestamp: new Date().toISOString() });
       }
-      if (raw.includes("/available-tiles")) {
+      if (path.includes("/available-tiles")) {
         return Promise.resolve(new Response(new Uint8Array(8192), {
           headers: { "content-type": "application/octet-stream" }
         }));
       }
-      if (raw.includes("/satellites")) {
-        return originalFetch(`${base}/json/local-api/satellites-starlink-active.json`, init);
+      if (path.includes("/satellites")) {
+        return staticFetch(`${base}/json/local-api/satellites-starlink-active.json`);
       }
-      if (raw.includes("/v2/tle") || raw.endsWith("/tle")) {
-        return originalFetch(`${base}/json/local-api/v2-tle-starlink.txt`, init);
+      if (path.includes("/v2/tle") || path.endsWith("/tle")) {
+        return staticFetch(`${base}/json/local-api/v2-tle-starlink.txt`);
       }
-      if (raw.includes("/spaceman-status")) {
-        return originalFetch(`${base}/json/local-api/satellites-starlink-active.json`, init)
+      if (path.includes("/spaceman-status")) {
+        return staticFetch(`${base}/json/local-api/satellites-starlink-active.json`)
           .then((response) => response.json())
           .then((metadata) => new Response(JSON.stringify({
             success: true,
@@ -158,13 +170,13 @@
         message: "GitHub Pages static API stub. Run npm start locally for full backend features."
       }), { status: 200, headers: { "content-type": "application/json" } }));
     }
-    if (raw && raw.startsWith("/html/app_banner.html.")) {
+    if (path && path.startsWith("/html/app_banner.html.")) {
       return textResponse("", { status: 204, contentType: "text/html; charset=utf-8" });
     }
-    if (raw && raw.startsWith("/json/planes/db/") && raw.endsWith(".js")) {
+    if (path && path.startsWith("/json/planes/db/") && path.endsWith(".js")) {
       return jsonResponse({});
     }
-    if (raw && (raw === "/json/jpl_ephemeris_ground_truth.json" || raw.includes("/json/jpl_ephemeris_ground_truth.json"))) {
+    if (path && (path === "/json/jpl_ephemeris_ground_truth.json" || path.includes("/json/jpl_ephemeris_ground_truth.json"))) {
       return jsonResponse({ test_cases: [] });
     }
     if (typeof input === "string") {
