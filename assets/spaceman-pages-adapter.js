@@ -4,6 +4,43 @@
 
   const base = "/Satellite-Anomaly-Detection-System";
   window.__SPACEMAN_ROUTE_BASE = base;
+  const originalRequestAnimationFrame = window.requestAnimationFrame.bind(window);
+  const originalCancelAnimationFrame = window.cancelAnimationFrame.bind(window);
+  const minFrameMs = 1000 / 30;
+  let lastFrameTime = 0;
+  let frameHandle = 1;
+  const pendingFrames = new Map();
+
+  window.requestAnimationFrame = function spacemanPagesRequestAnimationFrame(callback) {
+    const handle = frameHandle++;
+    const nativeHandle = originalRequestAnimationFrame((timestamp) => {
+      const delay = Math.max(0, minFrameMs - (timestamp - lastFrameTime));
+      if (delay > 1) {
+        const timer = window.setTimeout(() => {
+          pendingFrames.delete(handle);
+          const now = performance.now();
+          lastFrameTime = now;
+          callback(now);
+        }, delay);
+        pendingFrames.set(handle, { timer });
+        return;
+      }
+      pendingFrames.delete(handle);
+      lastFrameTime = timestamp;
+      callback(timestamp);
+    });
+    pendingFrames.set(handle, { nativeHandle });
+    return handle;
+  };
+
+  window.cancelAnimationFrame = function spacemanPagesCancelAnimationFrame(handle) {
+    const pending = pendingFrames.get(handle);
+    if (!pending) return;
+    pendingFrames.delete(handle);
+    if (pending.nativeHandle) originalCancelAnimationFrame(pending.nativeHandle);
+    if (pending.timer) window.clearTimeout(pending.timer);
+  };
+
   const jsonResponse = (body, init = {}) => Promise.resolve(new Response(JSON.stringify(body), {
     status: init.status || 200,
     headers: { "content-type": "application/json", ...(init.headers || {}) }
