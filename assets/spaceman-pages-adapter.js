@@ -1,4 +1,24 @@
 (function () {
+  const suppressSplashConsole = () => {
+    const remove = () => {
+      const el = document.getElementById("splash-console");
+      if (el) el.remove();
+    };
+    remove();
+    if (document.documentElement) {
+      const observer = new MutationObserver(remove);
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+      window.setTimeout(() => observer.disconnect(), 120000);
+    }
+    const originalGetElementById = document.getElementById.bind(document);
+    document.getElementById = function spacemanGetElementById(id) {
+      if (id === "splash-console") return null;
+      return originalGetElementById(id);
+    };
+  };
+
+  suppressSplashConsole();
+
   const isPages = location.hostname.endsWith(".github.io");
   if (!isPages) return;
 
