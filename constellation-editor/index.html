@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="assets/spaceman-feature-page.css">
   <link rel="stylesheet" href="assets/spaceman-nav-unifier.css">
   <link rel="stylesheet" href="assets/spaceman-constellation-editor.css">
-  <link rel="stylesheet" href="assets/spaceman-assistant.css">
+  <link rel="stylesheet" href="assets/spaceman-assistant.css?v=20260710-assistant-layout2">
 <script src="assets/spaceman-pages-adapter.js"></script>
 </head>
 <body style="-webkit-user-select: none;">
@@ -28,10 +28,12 @@
           <em id="editorSavedAt">未保存</em>
         </div>
         <div class="editor-toolbar-actions">
+          <button id="editorUndo" type="button" disabled>撤销</button>
           <button id="editorExportJson" type="button">导出 JSON</button>
           <button id="editorBindApi" type="button">绑定 API</button>
           <button id="editorRestoreDefault" type="button" class="danger">恢复默认</button>
-          <button id="editorSave" type="button" class="primary">保存场景</button>
+          <button id="editorSnapshotManager" type="button">快照管理</button>
+          <button id="editorSave" type="button" class="primary">保存快照</button>
         </div>
       </header>
 
@@ -169,7 +171,10 @@
           </section>
 
           <section class="editor-section editor-snapshot-section">
-            <h3>保存快照</h3>
+            <div class="editor-section-title">
+              <h3>快照库</h3>
+              <span id="editorSnapshotCount">0 个快照</span>
+            </div>
             <div id="editorSnapshots" class="editor-snapshots"></div>
           </section>
         </aside>
@@ -218,11 +223,39 @@
       </article>
     </div>
 
+    <div id="editorSnapshotModal" class="editor-modal hidden" role="dialog" aria-modal="true" aria-labelledby="editorSnapshotModalTitle">
+      <div class="editor-modal-backdrop"></div>
+      <article class="editor-modal-card editor-snapshot-modal-card">
+        <h3 id="editorSnapshotModalTitle">保存当前快照</h3>
+        <p>保存后可在右侧快照库中一键恢复当前卫星、壳层与轨道参数。</p>
+        <label>快照名称<input id="editorSnapshotName" type="text" maxlength="80" placeholder="例如：任务编组 A"></label>
+        <div>
+          <button type="button" data-close-modal>取消</button>
+          <button id="editorSnapshotConfirm" type="button" class="primary">保存快照</button>
+        </div>
+      </article>
+    </div>
+
+    <div id="editorSnapshotManagerModal" class="editor-modal hidden" role="dialog" aria-modal="true" aria-labelledby="editorSnapshotManagerTitle">
+      <div class="editor-modal-backdrop"></div>
+      <article class="editor-modal-card editor-snapshot-manager-card">
+        <div class="editor-modal-heading">
+          <div>
+            <h3 id="editorSnapshotManagerTitle">快照管理</h3>
+            <p>选择快照即可恢复完整星座状态。</p>
+          </div>
+          <button type="button" class="editor-modal-close" data-close-modal aria-label="关闭">×</button>
+        </div>
+        <div id="editorSnapshotManagerList" class="editor-snapshot-manager-list"></div>
+      </article>
+    </div>
+
     <div id="editorToast" class="editor-toast hidden"></div>
   </main>
   <script src="assets/spaceman-feature-page.js" defer></script>
   <script src="assets/spaceman-constellation-editor.js" defer></script>
-  <script src="assets/spaceman-assistant.js" defer></script>
-  <script src="assets/spaceman-localization.js" defer></script>
+  <script src="assets/spaceman-assistant.js?v=20260710-assistant-layout2" defer></script>
+  <script src="assets/spaceman-localization.js?v=20260710-freezefix" defer></script>
+  <script src="assets/spaceman-nav-dropdown-align.js?v=20260710-nav-align2" defer></script>
 </body>
 </html>

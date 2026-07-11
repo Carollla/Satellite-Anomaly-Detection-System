@@ -884,6 +884,19 @@
   font-size: 14px;
 }
 
+.spaceman-assistant-history-rename {
+  min-width: 0;
+  width: 100%;
+  height: 28px;
+  padding: 2px 6px;
+  border: 1px solid rgba(96, 165, 250, .75);
+  border-radius: 5px;
+  outline: none;
+  color: #f3f4f6;
+  background: rgba(255, 255, 255, .08);
+  font: inherit;
+}
+
 .spaceman-assistant-history-row:hover span,
 .spaceman-assistant-history-row.active span {
   color: #fff;
@@ -993,6 +1006,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .spaceman-assistant-composer-left,
@@ -1001,6 +1016,17 @@
   align-items: center;
   gap: 8px;
   min-width: 0;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.spaceman-assistant-composer-left {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.spaceman-assistant-composer-right {
+  flex: 0 0 auto;
 }
 
 .spaceman-assistant-mini-btn,
@@ -1030,6 +1056,46 @@
   opacity: .82;
 }
 
+.spaceman-assistant-approval .spaceman-approval-hand {
+  display: block;
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+#spaceman-assistant-panel.spaceman-assistant-approval-compact .spaceman-assistant-approval {
+  width: 42px;
+  justify-content: center;
+  gap: 4px;
+  flex: 0 0 42px;
+}
+
+#spaceman-assistant-panel.spaceman-assistant-approval-compact .spaceman-assistant-approval > span {
+  display: none;
+}
+
+#spaceman-assistant-panel.spaceman-assistant-model-compact #spaceman-model-btn {
+  width: 22px;
+  max-width: 22px;
+  justify-content: center;
+  gap: 0;
+  flex: 0 0 22px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+#spaceman-assistant-panel.spaceman-assistant-reasoning-compact #spaceman-model-btn .spaceman-model-reasoning {
+  display: none;
+}
+
+#spaceman-assistant-panel.spaceman-assistant-model-compact #spaceman-model-btn .spaceman-model-name {
+  display: none;
+}
+
 .spaceman-assistant-mini-btn {
   width: 28px;
   font-size: 22px;
@@ -1040,6 +1106,38 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+#spaceman-model-btn {
+  min-width: 0;
+  max-width: none;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+#spaceman-model-btn > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#spaceman-model-btn .spaceman-model-name {
+  flex: 0 0 auto;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+#spaceman-model-btn .spaceman-model-reasoning {
+  flex: 0 0 auto;
+  overflow: visible;
+}
+
+#spaceman-model-btn > svg {
+  flex: 0 0 10px;
+  width: 10px;
+  min-width: 10px;
+  display: block;
 }
 
 .spaceman-assistant-chip.active {
@@ -1430,6 +1528,258 @@
   font-size: 15px;
   line-height: 1.75;
   overflow-wrap: anywhere;
+}
+
+.spaceman-live-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 2px 0 0;
+  color: rgba(229, 231, 235, .56);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.spaceman-live-status span {
+  color: rgba(229, 231, 235, .40);
+  font-variant-numeric: tabular-nums;
+}
+
+.spaceman-live-tools:empty {
+  display: none;
+}
+
+.spaceman-tool-card {
+  margin: 12px 0 10px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 7px;
+  background: rgba(24, 24, 27, .76);
+  overflow: hidden;
+}
+
+.spaceman-tool-card > summary {
+  display: grid;
+  grid-template-columns: 21px minmax(0, 1fr) auto 13px;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 0 13px;
+  color: #f3f4f6;
+  cursor: pointer;
+  list-style: none;
+}
+
+.spaceman-tool-card > summary::-webkit-details-marker {
+  display: none;
+}
+
+.spaceman-tool-card > summary:hover {
+  background: rgba(255, 255, 255, .035);
+}
+
+.spaceman-tool-card-icon {
+  width: 8px;
+  height: 8px;
+  border: 0;
+  border-radius: 50%;
+  background: #8b8b92;
+}
+
+.spaceman-tool-card-icon::before {
+  content: none;
+}
+
+.spaceman-tool-card-title {
+  min-width: 0;
+  color: #f5f5f5;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.spaceman-tool-card-count {
+  color: rgba(229, 231, 235, .42);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.spaceman-tool-card-chevron {
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid rgba(229, 231, 235, .55);
+  border-bottom: 1.5px solid rgba(229, 231, 235, .55);
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform .16s ease;
+}
+
+.spaceman-tool-card[open] .spaceman-tool-card-chevron {
+  transform: rotate(225deg) translate(-1px, -1px);
+}
+
+.spaceman-tool-card.pending {
+  border-color: rgba(255, 255, 255, .12);
+  background: rgba(24, 24, 27, .82);
+}
+
+.spaceman-tool-card.pending .spaceman-tool-card-icon {
+  background: #eab308;
+}
+
+.spaceman-tool-card.pending .spaceman-tool-card-icon::before {
+  content: none;
+}
+
+.spaceman-tool-card.failed .spaceman-tool-card-icon {
+  background: #ef4444;
+}
+
+.spaceman-tool-card.failed .spaceman-tool-card-icon::before {
+  content: none;
+}
+
+.spaceman-tool-card-body {
+  padding: 11px 13px 12px;
+  border-top: 1px solid rgba(255, 255, 255, .09);
+}
+
+.spaceman-tool-notice {
+  margin: 0;
+  color: rgba(244, 244, 245, .82);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.spaceman-tool-notice.failed {
+  color: rgba(254, 202, 202, .86);
+}
+
+.spaceman-tool-authorize {
+  min-height: 31px;
+  margin: 12px 0 0;
+  padding: 0 12px;
+  border: 1px solid rgba(255, 255, 255, .19);
+  border-radius: 6px;
+  color: #f4f4f5;
+  background: rgba(255, 255, 255, .075);
+  font: 12px/1 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  cursor: pointer;
+}
+
+.spaceman-tool-authorize:hover {
+  border-color: rgba(255, 255, 255, .33);
+  background: rgba(255, 255, 255, .13);
+}
+
+.spaceman-tool-changes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.spaceman-tool-change {
+  display: grid;
+  grid-template-columns: minmax(78px, auto) minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: baseline;
+  color: rgba(229, 231, 235, .55);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.spaceman-tool-change span {
+  color: rgba(229, 231, 235, .58);
+}
+
+.spaceman-tool-change strong {
+  min-width: 0;
+  color: rgba(244, 244, 245, .88);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spaceman-tool-change em {
+  color: rgba(134, 239, 172, .78);
+  font-size: 11px;
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.spaceman-tool-summary {
+  position: relative;
+  margin: 12px 0 8px;
+  padding-left: 28px;
+  color: rgba(229, 231, 235, .62);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.spaceman-tool-summary::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 4px;
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(148, 163, 184, .55);
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(148, 163, 184, .17), transparent);
+}
+
+.spaceman-tool-row {
+  display: grid;
+  grid-template-columns: 19px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  margin: 6px 0;
+  color: rgba(229, 231, 235, .72);
+  font-size: 12px;
+  line-height: 1.42;
+}
+
+.spaceman-tool-icon {
+  width: 17px;
+  height: 17px;
+  display: inline-grid;
+  place-items: center;
+  margin-top: 1px;
+  border: 1px solid rgba(148, 163, 184, .45);
+  border-radius: 5px;
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.spaceman-tool-row strong,
+.spaceman-tool-row span {
+  display: block;
+}
+
+.spaceman-tool-row strong {
+  color: rgba(243, 244, 246, .90);
+  font-weight: 600;
+}
+
+.spaceman-tool-row span:last-child {
+  margin-top: 2px;
+  color: rgba(229, 231, 235, .44);
+  overflow-wrap: anywhere;
+}
+
+.spaceman-tool-row.completed .spaceman-tool-icon {
+  border-color: rgba(74, 222, 128, .48);
+  color: #86efac;
+}
+
+.spaceman-tool-row.approval_required .spaceman-tool-icon {
+  border-color: rgba(251, 191, 36, .52);
+  color: #fcd34d;
+}
+
+.spaceman-tool-row.failed .spaceman-tool-icon {
+  border-color: rgba(248, 113, 113, .52);
+  color: #fca5a5;
 }
 
 .spaceman-user-bubble,

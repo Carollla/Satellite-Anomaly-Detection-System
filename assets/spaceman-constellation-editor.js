@@ -6,7 +6,12 @@
     search: "",
     playing: true,
     phase: 0,
-    pendingDeleteIds: []
+    pendingDeleteIds: [],
+    undoStack: [],
+    animation: {
+      enteringIds: new Set(),
+      removingIds: new Set()
+    }
   };
 
   const shellColors = {
@@ -67,7 +72,7 @@
     return state.data?.satellites.find((sat) => sat.id === state.selectedId) || null;
   }
 
-  function renderAll(animateIds = []) {
+  function renderAll(animation = {}) {
     if (!state.data) return;
     renderMetrics();
     renderShells();
@@ -76,7 +81,22 @@
     renderInspector();
     renderHistory();
     renderSnapshots();
-    renderViewport(animateIds);
+    renderUndo();
+    renderViewport(animation);
+  }
+
+  function pushUndo(entry) {
+    state.undoStack.unshift({ ...entry, time: Date.now() });
+    state.undoStack = state.undoStack.slice(0, 30);
+    renderUndo();
+  }
+
+  function renderUndo() {
+    const button = el("editorUndo");
+    if (!button) return;
+    const latest = state.undoStack[0];
+    button.disabled = !latest;
+    button.textContent = latest ? `撤销：${latest.label}` : "撤销";
   }
 
   function renderMetrics() {
@@ -161,27 +181,73 @@
   function renderSnapshots() {
     const host = el("editorSnapshots");
     if (!host) return;
-    host.innerHTML = (state.data.snapshots || []).map((snapshot) => `
-      <div class="snapshot-row">
+    const snapshots = state.data.snapshots || [];
+    const count = el("editorSnapshotCount");
+    if (count) count.textContent = `${snapshots.length} 个快照`;
+    const snapshotMarkup = snapshots.map((snapshot) => `
+      <div class="snapshot-row ${snapshot.type === "default" ? "default" : ""}">
         <div>
           <strong>${esc(snapshot.name)}</strong>
-          <span>${snapshot.totalSatellites} 颗 · ${snapshot.type === "default" ? "默认" : "用户自定义"} · ${new Date(snapshot.createdAt).toLocaleString("zh-CN")}</span>
+          <span>${snapshot.totalSatellites} 颗 · ${snapshot.type === "default" ? "默认场景" : "用户场景"} · ${new Date(snapshot.createdAt).toLocaleString("zh-CN")}</span>
         </div>
-        <button type="button" data-restore-snapshot="${esc(snapshot.id)}">恢复</button>
+        <div class="snapshot-actions">
+          <button type="button" data-restore-snapshot="${esc(snapshot.id)}">恢复</button>
+          ${snapshot.type === "default" ? "" : `<button type="button" class="danger" data-delete-snapshot="${esc(snapshot.id)}">删除</button>`}
+        </div>
       </div>
     `).join("");
+    host.innerHTML = snapshotMarkup;
+    const managerList = el("editorSnapshotManagerList");
+    if (managerList) managerList.innerHTML = snapshotMarkup || '<p class="editor-empty-state">暂时没有可管理的快照。</p>';
   }
 
-  function renderViewport(animateIds = []) {
-    // The central viewport is the real home visualizer iframe. The editor list
-    // and inspector remain database-driven; saving applies the DB to main data.
-    if (animateIds.length) {
+  function renderViewport(animation = {}) {
+    const viewport = el("editorViewport");
+    if (!viewport || !state.data) return;
+    let layer = viewport.querySelector(".editor-live-overlay");
+    if (!layer) {
+      layer = document.createElement("div");
+      layer.className = "editor-live-overlay";
+      viewport.appendChild(layer);
+    }
+
+    const enteringIds = new Set(animation.enteringIds || []);
+    const removingIds = new Set(animation.removingIds || []);
+    enteringIds.forEach((id) => state.animation.enteringIds.add(id));
+    removingIds.forEach((id) => state.animation.removingIds.add(id));
+
+    const visible = state.data.satellites.filter((sat) => sat.visible !== false);
+    layer.innerHTML = visible.map((sat, index) => {
+      const shell = state.data.shells.find((item) => item.key === sat.shellKey);
+      const altitude = Number(sat.altitudeKm || shell?.altitudeKm || 550);
+      const radius = Math.max(24, Math.min(46, 18 + Math.log10(altitude + 1000) * 8));
+      const angle = ((Number(sat.meanAnomalyDeg || 0) + state.phase + index * 0.37) % 360) * Math.PI / 180;
+      const tilt = 0.34 + Math.min(0.34, Number(sat.inclinationDeg || 0) / 260);
+      const raan = Number(sat.raanDeg || 0) * Math.PI / 180;
+      const x = 50 + Math.cos(angle + raan) * radius;
+      const y = 50 + Math.sin(angle) * radius * tilt;
+      const color = shellColors[sat.shellKey] || shellColors.custom;
+      const classes = [
+        "editor-live-sat",
+        sat.id === state.selectedId ? "selected" : "",
+        state.animation.enteringIds.has(sat.id) ? "entering" : "",
+        state.animation.removingIds.has(sat.id) ? "removing" : ""
+      ].filter(Boolean).join(" ");
+      return `<button class="${classes}" type="button" data-preview-select="${esc(sat.id)}" title="${esc(sat.name)}" style="left:${x.toFixed(3)}%;top:${y.toFixed(3)}%;--sat-color:${color}"></button>`;
+    }).join("");
+
+    if (enteringIds.size || removingIds.size) {
       const overlay = document.querySelector(".editor-preview-overlay");
       overlay?.animate([
-        { transform: "translateY(0)", boxShadow: "0 0 0 rgba(96,165,250,0)" },
-        { transform: "translateY(-4px)", boxShadow: "0 0 28px rgba(96,165,250,.55)" },
-        { transform: "translateY(0)", boxShadow: "0 0 0 rgba(96,165,250,0)" }
-      ], { duration: 650, easing: "ease-out" });
+        { transform: "translateY(0)", boxShadow: "0 0 0 rgba(248,113,113,0)" },
+        { transform: "translateY(-4px)", boxShadow: "0 0 28px rgba(248,113,113,.55)" },
+        { transform: "translateY(0)", boxShadow: "0 0 0 rgba(248,113,113,0)" }
+      ], { duration: 760, easing: "ease-out" });
+      window.setTimeout(() => {
+        enteringIds.forEach((id) => state.animation.enteringIds.delete(id));
+        removingIds.forEach((id) => state.animation.removingIds.delete(id));
+        if (state.data) renderViewport();
+      }, 950);
     }
   }
 
@@ -334,15 +400,29 @@
     try {
       const result = await request("/save", {
         method: "POST",
-        body: JSON.stringify({ name: el("editorSceneName").value.trim() })
+        body: JSON.stringify({ name: el("editorSnapshotName").value.trim() })
       });
       state.data = result.data;
       renderAll();
       refreshMainPreview();
-      toast(`已保存快照并同步主视图：${result.applied?.count || state.data.stats.visibleSatellites} 颗`);
+      toast(`已保存“${result.snapshot?.name || "当前快照"}”并同步主视图`);
     } catch (error) {
       toast(`保存失败：${error.message || error}`, "error");
     }
+  }
+
+  function openSnapshotSave() {
+    const now = new Date();
+    const time = now.toLocaleString("zh-CN", { hour: "2-digit", minute: "2-digit" });
+    const sceneName = el("editorSceneName").value.trim() || "SPACEMAN 星座";
+    el("editorSnapshotName").value = `${sceneName} ${time}`;
+    el("editorSnapshotModal").classList.remove("hidden");
+    window.setTimeout(() => el("editorSnapshotName").focus(), 0);
+  }
+
+  function openSnapshotManager() {
+    renderSnapshots();
+    el("editorSnapshotManagerModal").classList.remove("hidden");
   }
 
   async function restoreSnapshot(snapshotId) {
@@ -355,6 +435,17 @@
       toast("快照已恢复并同步主视图");
     } catch (error) {
       toast(`恢复快照失败：${error.message || error}`, "error");
+    }
+  }
+
+  async function deleteSnapshot(snapshotId) {
+    try {
+      const result = await request(`/snapshots/${encodeURIComponent(snapshotId)}`, { method: "DELETE" });
+      state.data = result.data;
+      renderSnapshots();
+      toast("快照已删除");
+    } catch (error) {
+      toast(`删除快照失败：${error.message || error}`, "error");
     }
   }
 
@@ -439,10 +530,17 @@
       const button = event.target.closest("[data-apply-shell]");
       if (button) applyShellCount(button.dataset.applyShell);
     });
-    el("editorSnapshots").addEventListener("click", (event) => {
+    const bindSnapshotActions = (container) => container.addEventListener("click", (event) => {
       const button = event.target.closest("[data-restore-snapshot]");
-      if (button) restoreSnapshot(button.dataset.restoreSnapshot);
+      if (button) {
+        closeModals();
+        restoreSnapshot(button.dataset.restoreSnapshot);
+      }
+      const deleteButton = event.target.closest("[data-delete-snapshot]");
+      if (deleteButton) deleteSnapshot(deleteButton.dataset.deleteSnapshot);
     });
+    bindSnapshotActions(el("editorSnapshots"));
+    bindSnapshotActions(el("editorSnapshotManagerList"));
     el("editorViewport").addEventListener("contextmenu", (event) => {
       event.preventDefault();
       const menu = el("editorContextMenu");
@@ -491,7 +589,18 @@
     });
     document.querySelectorAll("[data-template]").forEach((button) => button.addEventListener("click", () => addTemplate(button.dataset.template)));
     el("editorRestoreDefault").addEventListener("click", restoreDefault);
-    el("editorSave").addEventListener("click", saveScene);
+    el("editorSnapshotManager").addEventListener("click", openSnapshotManager);
+    el("editorSave").addEventListener("click", openSnapshotSave);
+    el("editorSnapshotConfirm").addEventListener("click", () => {
+      closeModals();
+      saveScene();
+    });
+    el("editorSnapshotName").addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      closeModals();
+      saveScene();
+    });
     el("editorExportJson").addEventListener("click", exportJson);
     el("editorBindApi").addEventListener("click", () => { window.location.href = "/model-config"; });
     el("editorPlayToggle").addEventListener("click", () => {

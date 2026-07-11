@@ -1,6 +1,16 @@
 (function () {
   const STORAGE_KEY = "spaceman.assistant.conversations.v1";
-  const MODEL_SETTINGS_KEY = "spaceman.assistant.modelSettings.v1";
+const MODEL_SETTINGS_KEY = "spaceman.assistant.modelSettings.v1";
+const SPACEMAN_MODELS = [
+  "GPT-5.5",
+  "GPT-5.6-luna",
+  "GPT-5.6-terra",
+  "GPT-5.6-sol",
+  "GPT-5.4",
+  "GPT-5.4-Mini",
+  "GPT-5.3-Codex",
+  "GPT-5.2"
+];
   const MAX_HISTORY = 50;
 
   const routes = {
@@ -174,10 +184,10 @@
           <div class="spaceman-assistant-composer-bar">
             <div class="spaceman-assistant-composer-left">
               <button class="spaceman-assistant-mini-btn" id="spaceman-add-btn" type="button" title="Add files and more">+</button>
-              <button class="spaceman-assistant-approval has-chevron" id="spaceman-approval-btn" type="button"><span>Ask for approval</span><svg viewBox="0 0 10 6" aria-hidden="true"><path d="m1 1 4 4 4-4"/></svg></button>
+              <button class="spaceman-assistant-approval has-chevron" id="spaceman-approval-btn" type="button" title="Ask for approval" aria-label="Ask for approval"><svg class="spaceman-approval-hand" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11V5.5a1.5 1.5 0 0 1 3 0V11V3.75a1.5 1.5 0 0 1 3 0V11V5.5a1.5 1.5 0 0 1 3 0v7.25V8a1.5 1.5 0 0 1 3 0v5.5c0 4.7-2.6 7.5-7.4 7.5h-1.2c-2.2 0-3.6-.8-4.9-2.3L4 15.3a1.7 1.7 0 0 1 2.4-2.4L8 14.5V11Z"/></svg><span>Ask for approval</span><svg class="spaceman-approval-chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="m1 1 4 4 4-4"/></svg></button>
             </div>
             <div class="spaceman-assistant-composer-right">
-              <button class="spaceman-assistant-chip has-chevron" id="spaceman-model-btn" type="button"><span>5.5 High</span><svg viewBox="0 0 10 6" aria-hidden="true"><path d="m1 1 4 4 4-4"/></svg></button>
+              <button class="spaceman-assistant-chip has-chevron" id="spaceman-model-btn" type="button"><span class="spaceman-model-name">5.5</span><span class="spaceman-model-reasoning">High</span><svg viewBox="0 0 10 6" aria-hidden="true"><path d="m1 1 4 4 4-4"/></svg></button>
               <button class="spaceman-assistant-chip active" id="spaceman-context-btn" type="button">IDE context</button>
               <button class="spaceman-assistant-send" id="spaceman-assistant-send" title="\u53d1\u9001" aria-label="\u53d1\u9001">${sendArrowIconSvg()}</button>
             </div>
@@ -223,12 +233,15 @@
         <button type="button" data-reasoning="Extra High">Extra High<span class="spaceman-model-check"></span></button>
         <div class="spaceman-command-divider"></div>
         <button class="spaceman-model-group-toggle" type="button" data-model-group="gpt">
-          <span>GPT-5.5</span>
+          <span>GPT-5.6</span>
           <svg viewBox="0 0 10 6" aria-hidden="true"><path d="m1 1 4 4 4-4"/></svg>
         </button>
         <div class="spaceman-model-group open" id="spaceman-model-group-gpt">
           <div class="spaceman-command-title spaceman-model-section">Model</div>
           <button type="button" data-model="GPT-5.5">GPT-5.5<span class="spaceman-model-check">*</span></button>
+          <button type="button" data-model="GPT-5.6-luna">GPT-5.6-luna<span class="spaceman-model-check"></span></button>
+          <button type="button" data-model="GPT-5.6-terra">GPT-5.6-terra<span class="spaceman-model-check"></span></button>
+          <button type="button" data-model="GPT-5.6-sol">GPT-5.6-sol<span class="spaceman-model-check"></span></button>
           <button type="button" data-model="GPT-5.4">GPT-5.4<span class="spaceman-model-check"></span></button>
           <button type="button" data-model="GPT-5.4-Mini">GPT-5.4-Mini<span class="spaceman-model-check"></span></button>
           <button type="button" data-model="GPT-5.3-Codex">GPT-5.3-Codex<span class="spaceman-model-check"></span></button>
@@ -268,6 +281,9 @@
     const viewAllBtn = panel.querySelector("#spaceman-assistant-view-all");
     const addBtn = panel.querySelector("#spaceman-add-btn");
     const approvalBtn = panel.querySelector("#spaceman-approval-btn");
+    const composerBar = panel.querySelector(".spaceman-assistant-composer-bar");
+    const composerLeft = panel.querySelector(".spaceman-assistant-composer-left");
+    const composerRight = panel.querySelector(".spaceman-assistant-composer-right");
     const modelBtn = panel.querySelector("#spaceman-model-btn");
     const contextBtn = panel.querySelector("#spaceman-context-btn");
     const addMenu = panel.querySelector("#spaceman-add-menu");
@@ -280,7 +296,74 @@
     let modelSettings = loadModelSettings();
     let activeConversationId = null;
     let pendingAttachments = [];
+    let executionMode = "ask";
     document.body.appendChild(colorPopover);
+
+    const setExecutionMode = (mode) => {
+      executionMode = mode === "full_access" ? "full_access" : "ask";
+      const label = executionMode === "full_access" ? "Full access" : "Ask for approval";
+      approvalBtn.dataset.executionMode = executionMode;
+      approvalBtn.title = label;
+      approvalBtn.setAttribute("aria-label", label);
+      const labelNode = approvalBtn.querySelector("span");
+      if (labelNode) labelNode.textContent = label;
+      panel.querySelectorAll("[data-approval]").forEach((option) => {
+        const selected = (option.dataset.approval === "Full access") === (executionMode === "full_access");
+        option.classList.toggle("selected", selected);
+        const marker = option.querySelector("span");
+        if (marker) marker.textContent = selected ? "*" : "";
+      });
+    };
+
+    const updateApprovalPresentation = () => {
+      if (!composerBar || !composerLeft || !composerRight || !approvalBtn) return;
+      const fits = () => {
+        const barRect = composerBar.getBoundingClientRect();
+        const rightRect = composerRight.getBoundingClientRect();
+        const modelArrow = modelBtn?.querySelector("svg");
+        const arrowRect = modelArrow?.getBoundingClientRect();
+        const leftOverflow = composerLeft.scrollWidth > composerLeft.clientWidth + 1;
+        const rightOverflow = rightRect.right > barRect.right + 1;
+        const arrowOverflow = arrowRect && (arrowRect.width < 8 || arrowRect.right > barRect.right + 1);
+        return !leftOverflow && !rightOverflow && !arrowOverflow;
+      };
+
+      panel.classList.remove(
+        "spaceman-assistant-approval-compact",
+        "spaceman-assistant-reasoning-compact",
+        "spaceman-assistant-model-compact"
+      );
+      const modelName = modelBtn?.querySelector(".spaceman-model-name");
+      const modelReasoning = modelBtn?.querySelector(".spaceman-model-reasoning");
+      if (modelName) {
+        modelName.textContent = modelSettings.model;
+        modelName.style.display = "inline";
+      }
+      if (modelReasoning) modelReasoning.style.display = "inline";
+      if (fits()) return;
+
+      panel.classList.add("spaceman-assistant-approval-compact");
+      if (fits()) return;
+
+      if (modelName) modelName.textContent = modelSettings.model.replace(/^GPT-/, "");
+      if (fits()) return;
+
+      if (modelReasoning) modelReasoning.style.display = "none";
+      panel.classList.add("spaceman-assistant-reasoning-compact");
+      if (fits()) return;
+
+      if (modelName) modelName.style.display = "none";
+      panel.classList.add("spaceman-assistant-model-compact");
+    };
+
+    if (typeof ResizeObserver === "function" && composerBar) {
+      const composerResizeObserver = new ResizeObserver(updateApprovalPresentation);
+      composerResizeObserver.observe(composerBar);
+      composerResizeObserver.observe(panel);
+    }
+    window.addEventListener("resize", updateApprovalPresentation);
+    panel.addEventListener("pointerup", () => requestAnimationFrame(updateApprovalPresentation));
+    requestAnimationFrame(updateApprovalPresentation);
 
     const setConversationView = (conversation = null) => {
       const title = conversation ? conversation.title : "New chat";
@@ -325,6 +408,7 @@
 
     settingsBtn.addEventListener("click", () => {
       settings.classList.toggle("open");
+      if (!settings.classList.contains("open")) colorPopover.classList.remove("open");
       drawColorField(colorCanvas);
       positionColorThumb(colorThumb, colorCanvas.width * .12, colorCanvas.height * .86);
       if (colorPopover.classList.contains("open")) positionColorPopover(colorButton, colorPopover);
@@ -351,9 +435,12 @@
     opacity.addEventListener("input", () => applyPanelColor(panel, selectedColor, transparencyToAlpha(opacity.value)));
     colorButton.addEventListener("click", (event) => {
       event.stopPropagation();
-      colorPopover.classList.toggle("open");
-      drawColorField(colorCanvas);
-      positionColorPopover(colorButton, colorPopover);
+      const shouldOpen = !colorPopover.classList.contains("open");
+      colorPopover.classList.toggle("open", shouldOpen);
+      if (shouldOpen) {
+        drawColorField(colorCanvas);
+        positionColorPopover(colorButton, colorPopover);
+      }
     });
     colorField.addEventListener("pointerdown", (event) => {
       colorField.setPointerCapture(event.pointerId);
@@ -402,18 +489,30 @@
         renderConversation(null);
       }
       visibleConversations.forEach((conversation) => {
-        const row = document.createElement("button");
-        row.type = "button";
+        const row = document.createElement("div");
+        row.setAttribute("role", "button");
+        row.tabIndex = 0;
         row.className = "spaceman-assistant-history-row";
+        row.dataset.conversationId = conversation.id;
         row.classList.toggle("active", conversation.id === activeConversationId);
-        row.innerHTML = `<span></span><time></time>`;
+        row.innerHTML = `<span class="spaceman-assistant-history-title"></span><time></time>`;
         row.children[0].textContent = conversation.title;
         row.children[1].textContent = formatRelativeTime(conversation.updatedAt);
         row.addEventListener("click", () => {
+          if (row.dataset.renaming === "1") return;
           activeConversationId = conversation.id;
           setConversationView(conversation);
           renderHistory();
           renderConversation(conversation);
+        });
+        row.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            activeConversationId = conversation.id;
+            setConversationView(conversation);
+            renderHistory();
+            renderConversation(conversation);
+          }
         });
         historyList.appendChild(row);
       });
@@ -434,16 +533,7 @@
       }
 
       if (action === "rename") {
-        const next = window.prompt("Rename chat", conversation.title || "New chat");
-        if (next && next.trim()) {
-          renameConversation(conversation.id, next.trim());
-          const updated = loadConversations().find((item) => item.id === conversation.id);
-          if (updated) {
-            setConversationView(updated);
-            renderHistory();
-            renderConversation(updated);
-          }
-        }
+        beginRename(conversation.id);
         closeMenus();
         return;
       }
@@ -473,6 +563,53 @@
       }
     }
 
+    function beginRename(conversationId) {
+      const conversation = loadConversations().find((item) => item.id === conversationId);
+      if (!conversation) return;
+
+      activeConversationId = conversationId;
+      setTaskView(true);
+      activeConversationId = conversationId;
+      renderHistory();
+
+      const row = historyList.querySelector(`[data-conversation-id="${CSS.escape(conversationId)}"]`);
+      const title = row?.querySelector(".spaceman-assistant-history-title");
+      if (!row || !title) return;
+      row.dataset.renaming = "1";
+
+      const editor = document.createElement("input");
+      editor.className = "spaceman-assistant-history-rename";
+      editor.type = "text";
+      editor.value = conversation.title || "New chat";
+      editor.maxLength = 120;
+      editor.setAttribute("aria-label", "重命名对话");
+      title.replaceWith(editor);
+      editor.focus();
+      editor.select();
+
+      let finished = false;
+      const finish = (save) => {
+        if (finished) return;
+        finished = true;
+        const next = editor.value.trim();
+        if (save && next) renameConversation(conversationId, next);
+        renderHistory();
+      };
+
+      editor.addEventListener("click", (event) => event.stopPropagation());
+      editor.addEventListener("keydown", (event) => {
+        event.stopPropagation();
+        if (event.key === "Enter") {
+          event.preventDefault();
+          finish(true);
+        } else if (event.key === "Escape") {
+          event.preventDefault();
+          finish(false);
+        }
+      });
+      editor.addEventListener("blur", () => finish(true));
+    }
+
     taskSearch.addEventListener("input", renderHistory);
     if (viewAllBtn) {
       viewAllBtn.addEventListener("click", () => setTaskView(true));
@@ -498,6 +635,7 @@
       event.stopPropagation();
       toggleCommandMenu(modelBtn, modelMenu);
       closeMenus(modelMenu);
+      updateApprovalPresentation();
     });
     contextBtn.addEventListener("click", () => {
       contextBtn.classList.toggle("active");
@@ -526,7 +664,7 @@
     });
     panel.querySelectorAll("[data-approval]").forEach((button) => {
       button.addEventListener("click", () => {
-        approvalBtn.querySelector("span").textContent = button.dataset.approval;
+        setExecutionMode(button.dataset.approval === "Full access" ? "full_access" : "ask");
         closeMenus();
       });
     });
@@ -535,6 +673,7 @@
         modelSettings = { ...modelSettings, reasoning: button.dataset.reasoning };
         saveModelSettings(modelSettings);
         applyModelSettings(panel, modelBtn, modelSettings);
+        updateApprovalPresentation();
       });
     });
     panel.querySelectorAll("[data-model]").forEach((button) => {
@@ -542,6 +681,7 @@
         modelSettings = { ...modelSettings, model: button.dataset.model };
         saveModelSettings(modelSettings);
         applyModelSettings(panel, modelBtn, modelSettings);
+        updateApprovalPresentation();
       });
     });
     panel.querySelectorAll("[data-model-group]").forEach((button) => {
@@ -561,10 +701,13 @@
       handleMoreAction(button.dataset.moreAction);
     });
     applyModelSettings(panel, modelBtn, modelSettings);
+    setExecutionMode("ask");
+    updateApprovalPresentation();
+    syncModelSettingsFromConfig(panel, modelBtn);
     renderHistory();
 
-    const submit = async () => {
-      const text = input.value.trim();
+    const submit = async ({ textOverride = "", executionModeOverride = "" } = {}) => {
+      const text = String(textOverride || input.value.trim());
       if (!text && pendingAttachments.length === 0) return;
       input.value = "";
       const conversation = upsertConversation(activeConversationId, text || "Attachment", pendingAttachments);
@@ -577,27 +720,46 @@
       const streamRun = appendStreamingRun();
       try {
         let streamedText = "";
-        const response = await requestAssistantReply(conversation.id, modelSettings, (delta) => {
-          streamedText += delta;
-          streamRun.update(streamedText);
-        });
+        const requestExecutionMode = executionModeOverride || executionMode;
+        const response = await requestAssistantReply(
+          conversation.id,
+          modelSettings,
+          (delta) => {
+            streamedText += delta;
+            streamRun.update(streamedText);
+          },
+          (tool) => streamRun.addTool(tool),
+          requestExecutionMode
+        );
         const reply = streamedText || response.reply || "\u6a21\u578b\u6ca1\u6709\u8fd4\u56de\u5185\u5bb9\u3002";
         streamRun.update(reply);
+        const toolEvents = streamRun.finish();
         saveAssistantReply(activeConversationId, reply, {
-          model: response.model || modelSettings.model
+          model: response.model || modelSettings.model,
+          toolEvents,
+          requestText: text
         });
       } catch (error) {
         const message = String(error.message || error);
         streamRun.update(message, true);
+        const toolEvents = streamRun.finish();
         saveAssistantReply(activeConversationId, message, {
           status: "\u8bf7\u6c42\u5931\u8d25",
-          error: true
+          error: true,
+          toolEvents,
+          requestText: text
         });
       }
       const updated = loadConversations().find((item) => item.id === activeConversationId);
       renderConversation(updated || conversation);
       renderHistory();
     };
+    window.addEventListener("spaceman:retry-full-access", (event) => {
+      const requestText = String(event.detail?.requestText || "").trim();
+      if (!requestText || !panel.classList.contains("open")) return;
+      setExecutionMode("full_access");
+      submit({ textOverride: requestText, executionModeOverride: "full_access" });
+    });
     send.addEventListener("click", submit);
     input.addEventListener("keydown", (event) => {
       if (input.value === "/" && event.key !== "Backspace") {
@@ -719,11 +881,36 @@
     try {
       const parsed = JSON.parse(localStorage.getItem(MODEL_SETTINGS_KEY) || "{}");
       return {
-        model: parsed.model || "GPT-5.5",
+        model: normalizeModelName(parsed.model || "GPT-5.5"),
         reasoning: parsed.reasoning || "High",
       };
     } catch {
       return { model: "GPT-5.5", reasoning: "High" };
+    }
+  }
+
+  function normalizeModelName(value) {
+    const text = String(value || "").trim();
+    const match = SPACEMAN_MODELS.find((model) => model.toLowerCase() === text.toLowerCase());
+    return match || text || "GPT-5.5";
+  }
+
+  async function syncModelSettingsFromConfig(panel, modelBtn) {
+    try {
+      const response = await fetch("/local-api/model-config/default", { cache: "no-store" });
+      const result = await response.json();
+      const configured = normalizeModelName(result?.data?.defaultModel);
+      if (!response.ok || !configured) return;
+      const raw = localStorage.getItem(MODEL_SETTINGS_KEY);
+      const saved = raw ? JSON.parse(raw) : null;
+      if (!saved || !saved.model || normalizeModelName(saved.model) === "GPT-5.5") {
+        modelSettings = { ...modelSettings, model: configured };
+        saveModelSettings(modelSettings);
+        applyModelSettings(panel, modelBtn, modelSettings);
+        updateApprovalPresentation();
+      }
+    } catch {
+      // The assistant remains usable when the local configuration endpoint is unavailable.
     }
   }
 
@@ -736,8 +923,23 @@
   }
 
   function applyModelSettings(panel, modelBtn, settings) {
-    const label = modelBtn && modelBtn.querySelector("span");
-    if (label) label.textContent = modelButtonLabel(settings);
+    settings.model = normalizeModelName(settings.model);
+    const modelName = modelBtn && modelBtn.querySelector(".spaceman-model-name");
+    const reasoning = modelBtn && modelBtn.querySelector(".spaceman-model-reasoning");
+    if (modelName) {
+      modelName.textContent = settings.model;
+      modelName.style.display = "inline";
+    }
+    if (reasoning) {
+      reasoning.textContent = settings.reasoning;
+      reasoning.style.display = "inline";
+    }
+    if (!modelName && modelBtn) {
+      const label = modelBtn.querySelector("span");
+      if (label) label.textContent = modelButtonLabel(settings);
+    }
+    const commandModel = panel.querySelector('[data-command="model"] span');
+    if (commandModel) commandModel.textContent = settings.model;
 
     panel.querySelectorAll("[data-reasoning]").forEach((button) => {
       const selected = button.dataset.reasoning === settings.reasoning;
@@ -842,6 +1044,7 @@
       el.className = "spaceman-assistant-run";
       let status = message.meta && message.meta.status ? message.meta.status : "";
       if (/^Working for \d+s$/i.test(status)) status = "";
+      const toolEvents = Array.isArray(message.meta && message.meta.toolEvents) ? message.meta.toolEvents : [];
       const commands = Array.isArray(message.meta && message.meta.commands)
         ? message.meta.commands.filter((command) => isUsefulCommand(command))
         : [];
@@ -861,18 +1064,7 @@
         statusNode.textContent = status;
       }
       const content = el.querySelector(".spaceman-run-content");
-      if (commands.length) {
-        const summary = document.createElement("div");
-        summary.className = "spaceman-command-summary";
-        summary.textContent = `Ran ${commands.length} commands`;
-        content.appendChild(summary);
-        commands.forEach((command) => {
-          const row = document.createElement("div");
-          row.className = "spaceman-command-row";
-          row.textContent = command;
-          content.appendChild(row);
-        });
-      }
+      renderToolEvents(content, toolEvents, commands, message.meta?.requestText || "");
       const text = document.createElement("div");
       text.className = "spaceman-assistant-answer";
       text.innerHTML = renderMarkdown(message.text);
@@ -921,17 +1113,114 @@
     }, 1100);
   }
 
+  function renderToolEvents(host, toolEvents = [], commands = [], requestText = "") {
+    if (!host) return;
+    if (toolEvents.length) {
+      const readTools = new Set([
+        "read_platform_status",
+        "list_satellites",
+        "list_snapshots",
+        "list_audit_events",
+        "read_model_configuration"
+      ]);
+      const readEvents = toolEvents.filter((event) => readTools.has(event.name));
+      const actionEvents = toolEvents.filter((event) => !readTools.has(event.name));
+      const focusEvents = actionEvents.length ? actionEvents : [];
+      if (!focusEvents.length) return;
+      const completed = focusEvents.filter((event) => event.status === "completed").length;
+      const waiting = focusEvents.filter((event) => event.status === "approval_required").length;
+      const failed = focusEvents.filter((event) => event.status === "failed").length;
+      const card = document.createElement("details");
+      card.className = `spaceman-tool-card ${waiting ? "pending" : failed ? "failed" : "completed"}`;
+      card.open = Boolean(waiting || failed);
+      const summary = document.createElement("summary");
+      const primary = focusEvents[focusEvents.length - 1] || {};
+      const title = waiting
+        ? `${primary.label || "平台操作"}`
+        : failed
+          ? `${primary.label || "平台操作"}`
+          : actionEvents.length
+            ? `${primary.label || "平台操作"}`
+            : "平台操作";
+      const count = waiting ? "" : failed ? "未完成" : `${completed} 项完成`;
+      summary.innerHTML = `<span class="spaceman-tool-card-icon" aria-hidden="true"></span><span class="spaceman-tool-card-title"></span><span class="spaceman-tool-card-count"></span><span class="spaceman-tool-card-chevron" aria-hidden="true"></span>`;
+      summary.querySelector(".spaceman-tool-card-title").textContent = title;
+      summary.querySelector(".spaceman-tool-card-count").textContent = count;
+      card.appendChild(summary);
+      const body = document.createElement("div");
+      body.className = "spaceman-tool-card-body";
+      if (failed) {
+        const notice = document.createElement("p");
+        notice.className = "spaceman-tool-notice failed";
+        notice.textContent = primary.detail || "该平台操作没有完成。";
+        body.appendChild(notice);
+      } else if (!waiting) {
+        const changes = document.createElement("div");
+        changes.className = "spaceman-tool-changes";
+        focusEvents.forEach((event) => {
+          const row = document.createElement("div");
+          row.className = "spaceman-tool-change";
+          row.innerHTML = "<span></span><strong></strong><em></em>";
+          row.querySelector("span").textContent = event.label || event.name || "平台操作";
+          row.querySelector("strong").textContent = event.detail || "已完成";
+          row.querySelector("em").textContent = "完成";
+          changes.appendChild(row);
+        });
+        body.appendChild(changes);
+      }
+      if (waiting && requestText) {
+        const approval = document.createElement("button");
+        approval.type = "button";
+        approval.className = "spaceman-tool-authorize";
+        approval.textContent = "授权并继续";
+        approval.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          window.dispatchEvent(new CustomEvent("spaceman:retry-full-access", { detail: { requestText } }));
+        });
+        body.appendChild(approval);
+      }
+      card.appendChild(body);
+      host.appendChild(card);
+      return;
+    }
+    if (commands.length) {
+      const summary = document.createElement("div");
+      summary.className = "spaceman-command-summary";
+      summary.textContent = `已执行 ${commands.length} 个步骤`;
+      host.appendChild(summary);
+      commands.forEach((command) => {
+        const row = document.createElement("div");
+        row.className = "spaceman-command-row";
+        row.textContent = command;
+        host.appendChild(row);
+      });
+    }
+  }
+
   function appendStreamingRun() {
     const body = document.getElementById("spaceman-assistant-body");
     if (!body) return { update() {} };
     const el = document.createElement("div");
     el.className = "spaceman-assistant-run transient streaming";
     el.innerHTML = `
+      <div class="spaceman-live-status">正在执行 <span>0s</span></div>
+      <div class="spaceman-run-divider"></div>
       <div class="spaceman-run-content">
+        <div class="spaceman-live-tools"></div>
         <div class="spaceman-assistant-answer spaceman-stream-answer"><span class="spaceman-stream-cursor"></span></div>
       </div>
     `;
     const answer = el.querySelector(".spaceman-assistant-answer");
+    const status = el.querySelector(".spaceman-live-status");
+    const liveTools = el.querySelector(".spaceman-live-tools");
+    const startedAt = Date.now();
+    const toolEvents = [];
+    const timer = window.setInterval(() => {
+      const seconds = Math.max(1, Math.floor((Date.now() - startedAt) / 1000));
+      const counter = status?.querySelector("span");
+      if (counter) counter.textContent = `${seconds}s`;
+    }, 500);
     body.appendChild(el);
     body.scrollTop = body.scrollHeight;
     return {
@@ -939,6 +1228,22 @@
         el.classList.toggle("error", Boolean(isError));
         answer.innerHTML = text ? renderMarkdown(text) : `<span class="spaceman-stream-cursor"></span>`;
         body.scrollTop = body.scrollHeight;
+      },
+      addTool(event) {
+        if (!event) return;
+        toolEvents.push(event);
+        renderToolEvents(liveTools, toolEvents);
+        if (status) {
+          const label = event.status === "approval_required" ? "等待操作授权" : "正在执行";
+          status.firstChild.textContent = `${label} `;
+        }
+        body.scrollTop = body.scrollHeight;
+      },
+      finish() {
+        window.clearInterval(timer);
+        status?.remove();
+        el.querySelector(".spaceman-run-divider")?.remove();
+        return toolEvents;
       }
     };
   }
@@ -1034,7 +1339,7 @@
     };
   }
 
-  async function requestAssistantReply(conversationId, modelSettings, onDelta = null) {
+  async function requestAssistantReply(conversationId, modelSettings, onDelta = null, onTool = null, executionMode = "ask") {
     const conversation = loadConversations().find((item) => item.id === conversationId);
     const messages = (conversation?.messages || []).map((message) => ({
       role: message.role === "assistant" ? "assistant" : "user",
@@ -1048,13 +1353,14 @@
         model: selectedModelForApi(modelSettings),
         messages,
         clientContext: collectSpacemanClientContext(),
-        stream: Boolean(onDelta)
+        stream: Boolean(onDelta),
+        executionMode
       })
     });
 
     const contentType = response.headers.get("content-type") || "";
     if (contentType.includes("text/event-stream")) {
-      return readAssistantStream(response, onDelta);
+      return readAssistantStream(response, onDelta, onTool);
     }
 
     const data = await response.json().catch(() => ({}));
@@ -1067,7 +1373,7 @@
     return data;
   }
 
-  async function readAssistantStream(response, onDelta) {
+  async function readAssistantStream(response, onDelta, onTool) {
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
@@ -1091,6 +1397,8 @@
             if (onDelta) onDelta(event.delta || "");
           } else if (event.type === "done") {
             model = event.model || model;
+          } else if (event.type === "tool") {
+            if (onTool && event.tool) onTool(event.tool);
           } else if (event.type === "error") {
             throw new Error(event.error || "Model stream failed");
           }
@@ -1402,7 +1710,12 @@
       el.addEventListener("click", (event) => {
         event.preventDefault();
         if (typeof window.closeMobileMenu === "function") window.closeMobileMenu();
-        navigatePlaceholder(el.getAttribute("data-spaceman-route"));
+        const route = el.getAttribute("data-spaceman-route");
+        if (route === "/constellation-editor") {
+          window.location.assign(el.href || route);
+          return;
+        }
+        navigatePlaceholder(route);
       });
     });
   }

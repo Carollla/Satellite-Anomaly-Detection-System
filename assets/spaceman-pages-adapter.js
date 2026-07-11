@@ -20,46 +20,73 @@
   suppressSplashConsole();
 
   const isPages = location.hostname.endsWith(".github.io");
-  if (!isPages) return;
-
-  const base = "/Satellite-Anomaly-Detection-System";
-  window.__SPACEMAN_ROUTE_BASE = base;
+  const usePerformanceProfile = isPages;
   const originalRequestAnimationFrame = window.requestAnimationFrame.bind(window);
   const originalCancelAnimationFrame = window.cancelAnimationFrame.bind(window);
-  const minFrameMs = 1000 / 30;
+  const minFrameMs = 1000 / 20;
   let lastFrameTime = 0;
   let frameHandle = 1;
   const pendingFrames = new Map();
 
-  window.requestAnimationFrame = function spacemanPagesRequestAnimationFrame(callback) {
-    const handle = frameHandle++;
-    const nativeHandle = originalRequestAnimationFrame((timestamp) => {
-      const delay = Math.max(0, minFrameMs - (timestamp - lastFrameTime));
-      if (delay > 1) {
-        const timer = window.setTimeout(() => {
-          pendingFrames.delete(handle);
-          const now = performance.now();
-          lastFrameTime = now;
-          callback(now);
-        }, delay);
-        pendingFrames.set(handle, { timer });
-        return;
-      }
-      pendingFrames.delete(handle);
-      lastFrameTime = timestamp;
-      callback(timestamp);
-    });
-    pendingFrames.set(handle, { nativeHandle });
-    return handle;
-  };
+  if (usePerformanceProfile) {
+    window.requestAnimationFrame = function spacemanRequestAnimationFrame(callback) {
+      const handle = frameHandle++;
+      const nativeHandle = originalRequestAnimationFrame((timestamp) => {
+        const delay = Math.max(0, minFrameMs - (timestamp - lastFrameTime));
+        if (delay > 1) {
+          const timer = window.setTimeout(() => {
+            pendingFrames.delete(handle);
+            const now = performance.now();
+            lastFrameTime = now;
+            callback(now);
+          }, delay);
+          pendingFrames.set(handle, { timer });
+          return;
+        }
+        pendingFrames.delete(handle);
+        lastFrameTime = timestamp;
+        callback(timestamp);
+      });
+      pendingFrames.set(handle, { nativeHandle });
+      return handle;
+    };
 
-  window.cancelAnimationFrame = function spacemanPagesCancelAnimationFrame(handle) {
-    const pending = pendingFrames.get(handle);
-    if (!pending) return;
-    pendingFrames.delete(handle);
-    if (pending.nativeHandle) originalCancelAnimationFrame(pending.nativeHandle);
-    if (pending.timer) window.clearTimeout(pending.timer);
-  };
+    window.cancelAnimationFrame = function spacemanCancelAnimationFrame(handle) {
+      const pending = pendingFrames.get(handle);
+      if (!pending) return;
+      pendingFrames.delete(handle);
+      if (pending.nativeHandle) originalCancelAnimationFrame(pending.nativeHandle);
+      if (pending.timer) window.clearTimeout(pending.timer);
+    };
+
+    const applyPerformanceProfile = () => {
+      const globe = window.globe || window.blueGlobe;
+      if (!globe || globe.__spacemanPagesPerformanceProfile) return false;
+      if (typeof globe.setFrameRate === "function") {
+        globe.setFrameRate(30);
+      }
+      globe.render_decimation = Math.max(globe.render_decimation || 1, 3);
+      globe.autoPause = true;
+      globe.__spacemanPagesPerformanceProfile = true;
+      return true;
+    };
+
+    let performanceAttempts = 0;
+    const performanceTimer = window.setInterval(() => {
+      performanceAttempts += 1;
+      const globe = window.globe || window.blueGlobe;
+      if (globe) globe.__spacemanPagesPerformanceProfile = false;
+      applyPerformanceProfile();
+      if (performanceAttempts > 240) {
+        window.clearInterval(performanceTimer);
+      }
+    }, 250);
+  }
+
+  if (!isPages) return;
+
+  const base = "/Satellite-Anomaly-Detection-System";
+  window.__SPACEMAN_ROUTE_BASE = base;
 
   const jsonResponse = (body, init = {}) => Promise.resolve(new Response(JSON.stringify(body), {
     status: init.status || 200,
@@ -278,27 +305,4 @@
     return originalSetAttribute.call(this, name, value);
   };
 
-  const applyPerformanceProfile = () => {
-    const globe = window.globe || window.blueGlobe;
-    if (!globe || globe.__spacemanPagesPerformanceProfile) return false;
-    if (typeof globe.setFrameRate === "function") {
-      globe.setFrameRate(30);
-    }
-    globe.render_decimation = Math.max(globe.render_decimation || 1, 2);
-    globe.desired_dpr = 1;
-    globe.autoPause = true;
-    globe.__spacemanPagesPerformanceProfile = true;
-    return true;
-  };
-
-  let performanceAttempts = 0;
-  const performanceTimer = window.setInterval(() => {
-    performanceAttempts += 1;
-    const globe = window.globe || window.blueGlobe;
-    if (globe) globe.__spacemanPagesPerformanceProfile = false;
-    applyPerformanceProfile();
-    if (performanceAttempts > 160) {
-      window.clearInterval(performanceTimer);
-    }
-  }, 250);
 })();

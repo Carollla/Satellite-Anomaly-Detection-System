@@ -159,22 +159,36 @@
       ["#spaceman-audit-menu-label", "安全审计"],
       ["#spaceman-model-menu-label", "模型配置"]
     ];
-    pairs.forEach(([selector, text]) => scope.querySelectorAll(selector).forEach((el) => { el.textContent = text; }));
-    scope.querySelectorAll("[data-spaceman-action='assistant']").forEach((el) => { el.textContent = "智能助手"; });
-    scope.querySelectorAll("[data-spaceman-route='/fault-injection']").forEach((el) => { el.textContent = "故障注入"; });
-    scope.querySelectorAll("[data-spaceman-route='/security-audit']").forEach((el) => { el.textContent = "安全审计"; });
-    scope.querySelectorAll("[data-spaceman-route='/model-config']").forEach((el) => { el.textContent = "模型配置"; });
+    pairs.forEach(([selector, text]) => scope.querySelectorAll(selector).forEach((el) => {
+      if (el.textContent !== text) el.textContent = text;
+    }));
+    scope.querySelectorAll("[data-spaceman-action='assistant']").forEach((el) => {
+      if (el.textContent !== "智能助手") el.textContent = "智能助手";
+    });
+    scope.querySelectorAll("[data-spaceman-route='/fault-injection']").forEach((el) => {
+      if (el.textContent !== "故障注入") el.textContent = "故障注入";
+    });
+    scope.querySelectorAll("[data-spaceman-route='/security-audit']").forEach((el) => {
+      if (el.textContent !== "安全审计") el.textContent = "安全审计";
+    });
+    scope.querySelectorAll("[data-spaceman-route='/model-config']").forEach((el) => {
+      if (el.textContent !== "模型配置") el.textContent = "模型配置";
+    });
   }
 
   function localizeSearch() {
     const input = document.getElementById("incremental-search-input");
-    if (input) input.placeholder = "搜索卫星、NORAD 编号、星座或天体...";
+    if (input && input.placeholder !== "搜索卫星、NORAD 编号、星座或天体...") {
+      input.placeholder = "搜索卫星、NORAD 编号、星座或天体...";
+    }
     const instructions = document.getElementById("incremental-search-instructions");
-    if (instructions) instructions.textContent = "输入搜索 · Enter 选择 · Esc 关闭";
+    if (instructions && instructions.textContent !== "输入搜索 · Enter 选择 · Esc 关闭") {
+      instructions.textContent = "输入搜索 · Enter 选择 · Esc 关闭";
+    }
     const close = document.getElementById("incremental-search-close");
     if (close) {
-      close.title = "关闭搜索";
-      close.setAttribute("aria-label", "关闭搜索");
+      if (close.title !== "关闭搜索") close.title = "关闭搜索";
+      if (close.getAttribute("aria-label") !== "关闭搜索") close.setAttribute("aria-label", "关闭搜索");
     }
   }
 

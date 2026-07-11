@@ -1,5 +1,6 @@
 import { createServer } from "node:http";
 import { createReadStream, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
+import { createHash, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -55,6 +56,17 @@ function loadSpacemanAiConfig() {
   }
 }
 
+function loadSpacemanOpsSkill() {
+  const skillPath = join(root, "spaceman-ops.skill.json");
+  if (!existsSync(skillPath)) return {};
+  try {
+    return JSON.parse(readFileSync(skillPath, "utf8"));
+  } catch (error) {
+    console.warn(`Failed to parse spaceman-ops.skill.json: ${error?.message || error}`);
+    return {};
+  }
+}
+
 function saveSpacemanAiConfig(config) {
   const configPath = join(root, "spaceman-ai.config.json");
   writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
@@ -67,12 +79,13 @@ function maskSecret(value) {
   return `${text.slice(0, 4)}${"*".repeat(Math.min(18, Math.max(8, text.length - 8)))}${text.slice(-4)}`;
 }
 
-function sendJson(res, body, status = 200) {
+function sendJson(res, body, status = 200, extraHeaders = {}) {
   res.writeHead(status, {
     "content-type": "application/json; charset=utf-8",
     "cache-control": "no-store",
     "access-control-allow-origin": "*",
-    "content-security-policy": csp
+    "content-security-policy": csp,
+    ...extraHeaders
   });
   res.end(JSON.stringify(body));
 }
@@ -117,6 +130,46 @@ async function readJsonBody(req) {
   const body = await readRequestBody(req);
   if (!body.trim()) return {};
   return JSON.parse(body);
+}
+
+function passwordDigest(password, salt = randomBytes(16).toString("hex")) {
+  const digest = scryptSync(String(password), salt, 64).toString("hex");
+  return `scrypt$${salt}$${digest}`;
+}
+
+function passwordMatches(password, storedDigest) {
+  const [algorithm, salt, expectedHex] = String(storedDigest || "").split("$");
+  if (algorithm !== "scrypt" || !salt || !expectedHex) return false;
+  const actual = scryptSync(String(password), salt, 64);
+  const expected = Buffer.from(expectedHex, "hex");
+  return actual.length === expected.length && timingSafeEqual(actual, expected);
+}
+
+function tokenDigest(token) {
+  return createHash("sha256").update(String(token || "")).digest("hex");
+}
+
+function getRequestSessionToken(req) {
+  const explicit = req.headers["x-session-token"];
+  if (explicit) return String(explicit);
+  const authorization = String(req.headers.authorization || "");
+  if (/^bearer\s+/i.test(authorization)) return authorization.replace(/^bearer\s+/i, "").trim();
+  const cookie = String(req.headers.cookie || "");
+  const match = cookie.match(/(?:^|;\s*)(?:user|spaceman_session)=([^;]+)/);
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
+function publicUser(user) {
+  return {
+    id: user.id,
+    username: user.username,
+    displayName: user.displayName || user.username,
+    email: user.email || `${user.username}@spaceman.local`,
+    role: user.role || "operator",
+    isVerified: true,
+    isSuperuser: user.role === "tenant_admin",
+    lastLoginAt: user.lastLoginAt || null
+  };
 }
 
 function getSpacemanStatus() {
@@ -368,16 +421,353 @@ function transformSpacemanStatusHtml(html) {
     .replace(/掳/g, "°");
 }
 
+const spacemanAssistantTools = [
+  {
+    type: "function",
+    function: {
+      name: "read_platform_status",
+      description: "读取当前 SPACEMAN 平台的真实运行状态、卫星总数、壳层、快照数量和数据来源。",
+      parameters: { type: "object", properties: {}, additionalProperties: false }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_satellites",
+      description: "按名称、NORAD ID 或壳层查询当前星座中的真实卫星。调用删除前必须先查询以确认目标。",
+      parameters: {
+        type: "object",
+        properties: {
+          query: { type: "string", description: "名称或 NORAD ID 的查询词，可为空" },
+          shellKey: { type: "string", description: "可选壳层 key，例如 leo-a、leo-b、meo、geo" },
+          limit: { type: "integer", minimum: 1, maximum: 50, description: "最多返回 50 条" }
+        },
+        additionalProperties: false
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_snapshots",
+      description: "读取全部星座快照及其卫星数量、创建时间和是否为不可删除的默认快照。",
+      parameters: { type: "object", properties: {}, additionalProperties: false }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "create_satellite",
+      description: "在当前星座创建一颗卫星。此操作会写入本地数据库并同步主视图，需要 Full access 授权。",
+      parameters: {
+        type: "object",
+        required: ["name", "shellKey", "altitudeKm", "inclinationDeg"],
+        properties: {
+          name: { type: "string", description: "卫星名称" },
+          shellKey: { type: "string", description: "已有壳层 key" },
+          altitudeKm: { type: "number", minimum: 160, maximum: 40000 },
+          inclinationDeg: { type: "number", minimum: 0, maximum: 120 },
+          eccentricity: { type: "number", minimum: 0, maximum: 0.8 },
+          raanDeg: { type: "number", minimum: 0, maximum: 360 },
+          meanAnomalyDeg: { type: "number", minimum: 0, maximum: 360 }
+        },
+        additionalProperties: false
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "remove_satellites",
+      description: "按卫星内部 id 删除一颗或多颗已确认的卫星。不可凭名称猜测目标；必须先 list_satellites 后使用返回的 id。需要 Full access 授权。",
+      parameters: {
+        type: "object",
+        required: ["satelliteIds"],
+        properties: {
+          satelliteIds: { type: "array", minItems: 1, maxItems: 50, items: { type: "string" } }
+        },
+        additionalProperties: false
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "save_snapshot",
+      description: "保存当前完整星座状态为可恢复快照，并同步主视图。需要 Full access 授权。",
+      parameters: {
+        type: "object",
+        properties: { name: { type: "string", description: "快照名称，可为空" } },
+        additionalProperties: false
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "restore_snapshot",
+      description: "将当前星座恢复到指定快照，并同步主视图。需要 Full access 授权。",
+      parameters: {
+        type: "object",
+        required: ["snapshotId"],
+        properties: { snapshotId: { type: "string" } },
+        additionalProperties: false
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "delete_snapshot",
+      description: "删除一个用户快照。默认 450 星快照不可删除。需要 Full access 授权。",
+      parameters: {
+        type: "object",
+        required: ["snapshotId"],
+        properties: { snapshotId: { type: "string" } },
+        additionalProperties: false
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "list_audit_events",
+      description: "读取本地数据库中真实记录的星座编辑、快照和配置变更审计事件。",
+      parameters: {
+        type: "object",
+        properties: { limit: { type: "integer", minimum: 1, maximum: 50 } },
+        additionalProperties: false
+      }
+    }
+  },
+  {
+    type: "function",
+    function: {
+      name: "read_model_configuration",
+      description: "读取模型中转站连接状态、默认模型、限流和掩码后的连接配置。不会返回 API 密钥。",
+      parameters: { type: "object", properties: {}, additionalProperties: false }
+    }
+  }
+];
+
+const spacemanAssistantWriteTools = new Set([
+  "create_satellite",
+  "remove_satellites",
+  "save_snapshot",
+  "restore_snapshot",
+  "delete_snapshot"
+]);
+
+function assistantToolLabel(name) {
+  return {
+    read_platform_status: "读取平台状态",
+    list_satellites: "查询卫星",
+    list_snapshots: "读取快照库",
+    create_satellite: "新增卫星",
+    remove_satellites: "移除卫星",
+    save_snapshot: "保存快照",
+    restore_snapshot: "恢复快照",
+    delete_snapshot: "删除快照",
+    list_audit_events: "读取审计事件",
+    read_model_configuration: "读取模型配置"
+  }[name] || name;
+}
+
+function assistantToolEvent(name, status, detail, result = null) {
+  return { name, label: assistantToolLabel(name), status, detail, result };
+}
+
+function assistantPlatformStatus() {
+  const db = readSpacemanDb();
+  const status = getSpacemanStatus();
+  return {
+    constellation: {
+      name: db.constellationConfigs?.find((item) => item.active)?.name || "SPACEMAN",
+      totalSatellites: db.satellites?.length || 0,
+      visibleSatellites: (db.satellites || []).filter((sat) => sat.visible !== false).length,
+      shells: (db.shells || []).map((shell) => ({
+        key: shell.key,
+        name: shell.name,
+        altitudeKm: shell.altitudeKm,
+        inclinationDeg: shell.inclinationDeg,
+        satellites: (db.satellites || []).filter((sat) => sat.shellKey === shell.key).length
+      }))
+    },
+    snapshots: (db.snapshots || []).length,
+    dataSource: status.dataSource || null,
+    availableInterfaces: [
+      "/local-api/constellation-editor/state",
+      "/local-api/constellation-editor/satellites",
+      "/local-api/model-config/default",
+      "/local-api/spaceman-status"
+    ]
+  };
+}
+
+function executeSpacemanAssistantTool(name, args = {}, executionMode = "ask") {
+  const writeRequested = spacemanAssistantWriteTools.has(name);
+  if (writeRequested && executionMode !== "full_access") {
+    return assistantToolEvent(name, "approval_required", "", {
+      executed: false,
+      reason: "full_access_required"
+    });
+  }
+
+  if (name === "read_platform_status") {
+    const result = assistantPlatformStatus();
+    return assistantToolEvent(name, "completed", `已读取 ${result.constellation.totalSatellites} 颗卫星与 ${result.snapshots} 个快照。`, result);
+  }
+
+  if (name === "list_satellites") {
+    const db = readSpacemanDb();
+    const query = String(args.query || "").trim().toLowerCase();
+    const shellKey = String(args.shellKey || "").trim();
+    const limit = Math.max(1, Math.min(50, Number(args.limit) || 20));
+    const all = (db.satellites || []).filter((sat) => {
+      if (shellKey && sat.shellKey !== shellKey) return false;
+      if (!query) return true;
+      return [sat.id, sat.name, sat.noradId, sat.shellKey].some((value) => String(value || "").toLowerCase().includes(query));
+    });
+    const satellites = all.slice(0, limit).map((sat) => ({
+      id: sat.id,
+      noradId: sat.noradId,
+      name: sat.name,
+      shellKey: sat.shellKey,
+      altitudeKm: sat.altitudeKm,
+      inclinationDeg: sat.inclinationDeg,
+      status: sat.status
+    }));
+    return assistantToolEvent(name, "completed", `查询到 ${all.length} 颗卫星，返回前 ${satellites.length} 条。`, { total: all.length, satellites });
+  }
+
+  if (name === "list_snapshots") {
+    const db = readSpacemanDb();
+    const snapshots = (db.snapshots || []).map((snapshot) => ({
+      id: snapshot.id,
+      name: snapshot.name,
+      type: snapshot.type,
+      totalSatellites: snapshot.totalSatellites,
+      createdAt: snapshot.createdAt,
+      deletable: snapshot.id !== "snapshot-default-450"
+    }));
+    return assistantToolEvent(name, "completed", `已读取 ${snapshots.length} 个快照。`, { snapshots });
+  }
+
+  if (name === "create_satellite") {
+    const db = readSpacemanDb();
+    const shellKey = String(args.shellKey || "").trim();
+    if (!db.shells?.some((shell) => shell.key === shellKey)) {
+      return assistantToolEvent(name, "failed", `壳层 ${shellKey || "(空)"} 不存在。请先读取平台状态确认壳层 key。`);
+    }
+    const altitudeKm = Number(args.altitudeKm);
+    const inclinationDeg = Number(args.inclinationDeg);
+    if (!Number.isFinite(altitudeKm) || altitudeKm < 160 || altitudeKm > 40000 || !Number.isFinite(inclinationDeg) || inclinationDeg < 0 || inclinationDeg > 120) {
+      return assistantToolEvent(name, "failed", "轨道高度必须在 160-40000 km，倾角必须在 0-120 度。");
+    }
+    const satellite = createEditorSatellite({ ...args, shellKey, altitudeKm, inclinationDeg }, db);
+    db.satellites.push(satellite);
+    pushDbLog(db, "助手新增卫星", "satellite", satellite.id, null, satellite, "由智能助手工具执行");
+    writeSpacemanDb(db);
+    const applied = applyDbToMainVisualizer(db);
+    return assistantToolEvent(name, "completed", `已新增 ${satellite.name}（${satellite.id}），主视图已同步。`, { satellite, applied });
+  }
+
+  if (name === "remove_satellites") {
+    const ids = [...new Set(Array.isArray(args.satelliteIds) ? args.satelliteIds.map(String) : [])];
+    if (!ids.length) return assistantToolEvent(name, "failed", "未提供可删除的卫星 id。");
+    const db = readSpacemanDb();
+    const removed = (db.satellites || []).filter((sat) => ids.includes(sat.id));
+    if (!removed.length) return assistantToolEvent(name, "failed", "没有匹配到可删除的卫星。请先查询卫星并使用返回的 id。");
+    db.satellites = db.satellites.filter((sat) => !ids.includes(sat.id));
+    pushDbLog(db, "助手移除卫星", "satellite", removed.map((sat) => sat.id).join(","), removed, null, "由智能助手工具执行");
+    writeSpacemanDb(db);
+    const applied = applyDbToMainVisualizer(db);
+    return assistantToolEvent(name, "completed", `已移除 ${removed.length} 颗卫星，主视图已同步。`, { removed: removed.map((sat) => ({ id: sat.id, name: sat.name })), applied });
+  }
+
+  if (name === "save_snapshot") {
+    const db = readSpacemanDb();
+    const snapshot = createSnapshot(db, String(args.name || "").trim());
+    pushDbLog(db, "助手保存快照", "snapshot", snapshot.id, null, { totalSatellites: snapshot.totalSatellites }, "由智能助手工具执行");
+    writeSpacemanDb(db);
+    const applied = applyDbToMainVisualizer(db);
+    return assistantToolEvent(name, "completed", `已保存快照“${snapshot.name}”。`, { id: snapshot.id, name: snapshot.name, totalSatellites: snapshot.totalSatellites, applied });
+  }
+
+  if (name === "restore_snapshot") {
+    const db = readSpacemanDb();
+    const snapshot = (db.snapshots || []).find((item) => item.id === String(args.snapshotId || ""));
+    if (!snapshot) return assistantToolEvent(name, "failed", "未找到该快照。请先读取快照库确认 snapshotId。");
+    db.satellites = JSON.parse(JSON.stringify(snapshot.satellites || []));
+    db.shells = JSON.parse(JSON.stringify(snapshot.shells || []));
+    pushDbLog(db, "助手恢复快照", "snapshot", snapshot.id, null, { totalSatellites: db.satellites.length }, "由智能助手工具执行");
+    writeSpacemanDb(db);
+    const applied = applyDbToMainVisualizer(db);
+    return assistantToolEvent(name, "completed", `已恢复快照“${snapshot.name}”，当前为 ${db.satellites.length} 颗卫星。`, { id: snapshot.id, name: snapshot.name, totalSatellites: db.satellites.length, applied });
+  }
+
+  if (name === "delete_snapshot") {
+    const snapshotId = String(args.snapshotId || "");
+    if (snapshotId === "snapshot-default-450") return assistantToolEvent(name, "failed", "默认 450 星快照受保护，不能删除。");
+    const db = readSpacemanDb();
+    const snapshot = (db.snapshots || []).find((item) => item.id === snapshotId);
+    if (!snapshot) return assistantToolEvent(name, "failed", "未找到该快照。请先读取快照库确认 snapshotId。");
+    db.snapshots = db.snapshots.filter((item) => item.id !== snapshotId);
+    pushDbLog(db, "助手删除快照", "snapshot", snapshotId, snapshot, null, "由智能助手工具执行");
+    writeSpacemanDb(db);
+    return assistantToolEvent(name, "completed", `已删除快照“${snapshot.name}”。`, { id: snapshotId, name: snapshot.name });
+  }
+
+  if (name === "list_audit_events") {
+    const db = readSpacemanDb();
+    const limit = Math.max(1, Math.min(50, Number(args.limit) || 20));
+    const events = (db.changeLogs || []).slice(0, limit).map((event) => ({
+      time: event.time,
+      action: event.action,
+      targetType: event.targetType,
+      targetId: event.targetId,
+      note: event.note
+    }));
+    return assistantToolEvent(name, "completed", `已读取 ${events.length} 条审计事件。`, { events });
+  }
+
+  if (name === "read_model_configuration") {
+    const config = getModelConfigPayload().data;
+    const safe = {
+      name: config.name,
+      provider: config.provider,
+      baseUrl: config.baseUrl,
+      hasApiKey: config.hasApiKey,
+      defaultModel: config.defaultModel,
+      timeoutMs: config.timeoutMs,
+      retryCount: config.retryCount,
+      rateLimitQps: config.rateLimitQps,
+      readOnly: config.readOnly,
+      usage: config.usage,
+      mappings: config.mappings
+    };
+    return assistantToolEvent(name, "completed", `已读取默认模型 ${safe.defaultModel} 的连接配置。`, safe);
+  }
+
+  return assistantToolEvent(name, "failed", "该工具当前不可用。");
+}
+
 function buildSpacemanSystemPrompt(status, clientContext = {}) {
+  const skill = loadSpacemanOpsSkill();
   return [
     "You are SPACEMAN Ops Assistant, a professional intelligent operations assistant for a satellite mission and constellation-configuration frontend.",
     "Always answer in concise, technical Chinese unless the user explicitly asks otherwise.",
     "Use the injected SPACEMAN_STATUS as the source of truth for current satellite counts, shells, altitude, inclination, data files, and available local interfaces.",
     "Do not answer with generic product marketing copy. Prefer operational answers: current state, diagnosis, next action, affected files/APIs, and cautions.",
     "If the user asks how many satellites exist, answer from SPACEMAN_STATUS.constellation.totalSatellites.",
-    "If the user asks how to edit constellation parameters, explain the current validated workflow and note that direct write APIs are intentionally not enabled until the UI validation flow is complete.",
+    "Treat SPACEMAN_OPS_SKILL as the authoritative product skill for the four 功能 modules. Use its exact entry paths and workflows when explaining how to add, remove, edit, inject, recover, audit, or configure.",
+    "When the user asks to add or remove a satellite, give the 星座编辑器 click path and required parameters. Do not claim that a write happened unless a real write API response is present in the conversation.",
+    "When the user asks about a fault, distinguish a simulated red-light fault injection from a real spacecraft failure and explain how to recover it from history.",
+    "When the user asks about security, structure the answer as event, operator, object, result, risk, and remediation.",
+    "When the user asks about models, preserve the exact model identifier and explain the connection/test/save workflow.",
     "When asked to help edit, ask for concrete parameters only if they are missing; otherwise provide an actionable change plan.",
     "You understand future digital-twin concepts: satellite health, payload status, link state, coverage, anomaly/fault injection, audit, and model configuration.",
+    `SPACEMAN_OPS_SKILL=${JSON.stringify(skill)}`,
     `SPACEMAN_STATUS=${JSON.stringify(status)}`,
     `CLIENT_CONTEXT=${JSON.stringify(clientContext || {})}`
   ].join("\n");
@@ -392,13 +782,107 @@ function toOpenAiMessages(messages = [], context = {}) {
       content: buildSpacemanSystemPrompt(status, context.clientContext)
     },
     ...normalized
-      .filter((message) => message && typeof message.content === "string" && message.content.trim())
-      .slice(-20)
-      .map((message) => ({
-        role: message.role === "assistant" ? "assistant" : "user",
-        content: message.content
-      }))
+      .filter((message) => message && (typeof message.content === "string" || message.role === "tool" || Array.isArray(message.tool_calls)))
+      .slice(-30)
+      .map((message) => {
+        if (message.role === "tool") {
+          return { role: "tool", tool_call_id: String(message.tool_call_id || ""), content: String(message.content || "{}") };
+        }
+        const next = { role: message.role === "assistant" ? "assistant" : "user", content: String(message.content || "") };
+        if (Array.isArray(message.tool_calls) && message.tool_calls.length) next.tool_calls = message.tool_calls;
+        return next;
+      })
   ];
+}
+
+async function requestAssistantUpstream({ model, messages, stream = false, tools = null, temperature = 0.25 }) {
+  const apiKey = process.env.SPACEMAN_AI_API_KEY || spacemanAiConfig.apiKey;
+  const body = { model, messages, temperature, stream };
+  if (tools?.length) {
+    body.tools = tools;
+    body.tool_choice = "auto";
+  }
+  return fetch(`${spacemanAiBaseUrl}/v1/chat/completions`, {
+    method: "POST",
+    headers: { "content-type": "application/json", "authorization": `Bearer ${apiKey}` },
+    body: JSON.stringify(body)
+  });
+}
+
+async function readAssistantCompletion(upstream) {
+  const text = await upstream.text();
+  let data = null;
+  try { data = JSON.parse(text); } catch { data = { raw: text }; }
+  if (!upstream.ok) throw new Error(data?.error?.message || data?.message || text || "Upstream request failed");
+  return data?.choices?.[0]?.message || { content: "" };
+}
+
+function parseAssistantToolArguments(raw) {
+  try {
+    const parsed = JSON.parse(raw || "{}");
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+async function runAssistantToolWorkflow({ model, messages, clientContext, executionMode, onTool }) {
+  let workflowMessages = toOpenAiMessages(messages, { clientContext });
+  const initialStatus = executeSpacemanAssistantTool("read_platform_status", {}, executionMode);
+  const toolEvents = [initialStatus];
+  if (onTool) onTool(initialStatus);
+  workflowMessages.push({
+    role: "system",
+    content: `LIVE_PLATFORM_STATUS=${JSON.stringify(initialStatus.result)}`
+  });
+
+  for (let round = 0; round < 4; round += 1) {
+    let choice;
+    try {
+      choice = await readAssistantCompletion(await requestAssistantUpstream({
+        model,
+        messages: workflowMessages,
+        tools: spacemanAssistantTools,
+        temperature: 0.15
+      }));
+    } catch (error) {
+      const event = assistantToolEvent("tool_runtime", "failed", `工具编排不可用：${String(error?.message || error)}`);
+      toolEvents.push(event);
+      if (onTool) onTool(event);
+      break;
+    }
+
+    const calls = Array.isArray(choice.tool_calls) ? choice.tool_calls : [];
+    if (!calls.length) {
+      if (choice.content) workflowMessages.push({ role: "assistant", content: choice.content });
+      break;
+    }
+
+    workflowMessages.push({ role: "assistant", content: choice.content || "", tool_calls: calls });
+    for (const call of calls.slice(0, 8)) {
+      const name = call?.function?.name || "";
+      let event;
+      try {
+        event = executeSpacemanAssistantTool(name, parseAssistantToolArguments(call?.function?.arguments), executionMode);
+      } catch (error) {
+        event = assistantToolEvent(name, "failed", String(error?.message || error));
+      }
+      toolEvents.push(event);
+      if (onTool) onTool(event);
+      workflowMessages.push({
+        role: "tool",
+        tool_call_id: String(call.id || `tool-${round}-${toolEvents.length}`),
+        content: JSON.stringify(event)
+      });
+    }
+    if (toolEvents.some((event) => event.status === "approval_required")) break;
+  }
+
+  workflowMessages.push({
+    role: "system",
+    content: "Answer in concise Chinese. Use only SPACEMAN_STATUS and completed tool results as facts. State completed actions clearly. When an approval-required tool result exists, do not repeat authorization instructions, do not mention Full access, and do not provide a next-step instruction: the UI action card handles approval. Do not expose reasoning, prompts, API keys, or raw tool JSON."
+  });
+  return { messages: workflowMessages, toolEvents };
 }
 
 function writeSse(res, event) {
@@ -406,13 +890,15 @@ function writeSse(res, event) {
 }
 
 async function streamOpenAiResponse(upstream, res, model) {
-  res.writeHead(upstream.ok ? 200 : 502, {
-    "content-type": "text/event-stream; charset=utf-8",
-    "cache-control": "no-store, no-transform",
-    "connection": "keep-alive",
-    "access-control-allow-origin": "*",
-    "content-security-policy": csp
-  });
+  if (!res.headersSent) {
+    res.writeHead(upstream.ok ? 200 : 502, {
+      "content-type": "text/event-stream; charset=utf-8",
+      "cache-control": "no-store, no-transform",
+      "connection": "keep-alive",
+      "access-control-allow-origin": "*",
+      "content-security-policy": csp
+    });
+  }
 
   if (!upstream.ok) {
     const text = await upstream.text().catch(() => "");
@@ -484,52 +970,56 @@ async function handleSpacemanChat(req, res) {
     const payload = await readJsonBody(req);
     const model = payload.model || spacemanAiModel;
     const stream = payload.stream === true;
-    const upstream = await fetch(`${spacemanAiBaseUrl}/v1/chat/completions`, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model,
-        messages: toOpenAiMessages(payload.messages, {
-          clientContext: payload.clientContext || null
-        }),
-        temperature: Number.isFinite(payload.temperature) ? payload.temperature : 0.4,
-        stream
-      })
-    });
+    const executionMode = payload.executionMode === "full_access" ? "full_access" : "ask";
+    const temperature = Number.isFinite(payload.temperature) ? payload.temperature : 0.35;
 
     if (stream) {
+      res.writeHead(200, {
+        "content-type": "text/event-stream; charset=utf-8",
+        "cache-control": "no-store, no-transform",
+        "connection": "keep-alive",
+        "access-control-allow-origin": "*",
+        "content-security-policy": csp
+      });
+      const workflow = await runAssistantToolWorkflow({
+        model,
+        messages: payload.messages,
+        clientContext: payload.clientContext || null,
+        executionMode,
+        onTool: (tool) => writeSse(res, { type: "tool", tool })
+      });
+      const upstream = await requestAssistantUpstream({
+        model,
+        messages: workflow.messages,
+        stream: true,
+        temperature
+      });
       return streamOpenAiResponse(upstream, res, model);
     }
 
-    const text = await upstream.text();
-    let data = null;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = { raw: text };
-    }
-
-    if (!upstream.ok) {
-      return sendJson(res, {
-        success: false,
-        configured: true,
-        status: upstream.status,
-        error: data?.error?.message || data?.message || text || "Upstream request failed"
-      }, 502);
-    }
-
-    const reply = data?.choices?.[0]?.message?.content || data?.choices?.[0]?.text || "";
+    const workflow = await runAssistantToolWorkflow({
+      model,
+      messages: payload.messages,
+      clientContext: payload.clientContext || null,
+      executionMode
+    });
+    const message = await readAssistantCompletion(await requestAssistantUpstream({
+      model,
+      messages: workflow.messages,
+      temperature
+    }));
     return sendJson(res, {
       success: true,
       configured: true,
       model,
-      reply,
-      usage: data?.usage || null
+      reply: message.content || "",
+      toolEvents: workflow.toolEvents
     });
   } catch (error) {
+    if (res.headersSent) {
+      writeSse(res, { type: "error", error: String(error?.message || error) });
+      return res.end();
+    }
     return sendJson(res, {
       success: false,
       configured: true,
@@ -628,6 +1118,9 @@ async function handleModelConfigApi(req, res, pathname) {
       source: "local-cache",
       models: [
         config.model || "gpt-5.5",
+        "gpt-5.6-luna",
+        "gpt-5.6-terra",
+        "gpt-5.6-sol",
         "gpt-5",
         "gpt-5-mini",
         "gpt-4.1",
@@ -784,14 +1277,18 @@ function buildDefaultSpacemanDb() {
     users: [
       {
         id: "user-local-admin",
-        username: "local_admin",
-        displayName: "本地管理员",
+        username: "admin",
+        displayName: "系统管理员",
         role: "tenant_admin",
-        loginCount: 1,
+        loginCount: 0,
         lastLoginAt: now,
-        authProvider: "local"
+        authProvider: "local",
+        passwordHash: passwordDigest("admin"),
+        createdAt: now,
+        updatedAt: now
       }
     ],
+    authSessions: [],
     apiConfigs: [
       {
         id: "default-model-api",
@@ -844,10 +1341,12 @@ function readSpacemanDb() {
   }
   try {
     const db = JSON.parse(readFileSync(spacemanDbPath, "utf8"));
+    let changed = ensureAuthSchema(db);
     if (!Array.isArray(db.snapshots) || !db.snapshots.some((snapshot) => snapshot.id === "snapshot-default-450")) {
       ensureDefaultSnapshot(db);
-      writeSpacemanDb(db);
+      changed = true;
     }
+    if (changed) writeSpacemanDb(db);
     return db;
   } catch (error) {
     const db = buildDefaultSpacemanDb();
@@ -855,6 +1354,155 @@ function readSpacemanDb() {
     writeFileSync(spacemanDbPath, `${JSON.stringify(db, null, 2)}\n`, "utf8");
     return db;
   }
+}
+
+function ensureAuthSchema(db) {
+  let changed = false;
+  db.users ||= [];
+  let admin = db.users.find((user) => String(user.username || "").toLowerCase() === "admin");
+  const legacyAdmin = db.users.find((user) => String(user.username || "").toLowerCase() === "local_admin" && !user.passwordHash);
+  if (!admin) {
+    const now = new Date().toISOString();
+    admin = legacyAdmin || { id: "user-local-admin" };
+    Object.assign(admin, {
+      username: "admin",
+      displayName: "系统管理员",
+      role: "tenant_admin",
+      loginCount: Number(admin.loginCount || 0),
+      lastLoginAt: admin.lastLoginAt || null,
+      authProvider: "local",
+      passwordHash: passwordDigest("admin"),
+      createdAt: admin.createdAt || now,
+      updatedAt: now
+    });
+    if (!legacyAdmin) db.users.unshift(admin);
+    changed = true;
+  } else if (!admin.passwordHash) {
+    admin.passwordHash = passwordDigest("admin");
+    admin.role = "tenant_admin";
+    admin.updatedAt = new Date().toISOString();
+    changed = true;
+  }
+
+  if (!Array.isArray(db.authSessions)) {
+    db.authSessions = [];
+    changed = true;
+  }
+  if (legacyAdmin && legacyAdmin !== admin) {
+    const duplicateId = admin.id;
+    Object.assign(legacyAdmin, admin, { id: legacyAdmin.id || "user-local-admin" });
+    db.users = db.users.filter((user) => user !== admin);
+    db.authSessions.forEach((session) => {
+      if (session.userId === duplicateId) session.userId = legacyAdmin.id;
+    });
+    admin = legacyAdmin;
+    changed = true;
+  }
+  const nowMs = Date.now();
+  const activeSessions = db.authSessions.filter((session) => Date.parse(session.expiresAt) > nowMs);
+  if (activeSessions.length !== db.authSessions.length) {
+    db.authSessions = activeSessions;
+    changed = true;
+  }
+  return changed;
+}
+
+function createLocalSession(db, user, remember) {
+  const token = randomBytes(32).toString("base64url");
+  const expiresInDays = remember ? 30 : 1;
+  const now = new Date();
+  db.authSessions ||= [];
+  db.authSessions.unshift({
+    id: `session-${Date.now()}-${randomBytes(3).toString("hex")}`,
+    userId: user.id,
+    tokenHash: tokenDigest(token),
+    createdAt: now.toISOString(),
+    expiresAt: new Date(now.getTime() + expiresInDays * 86400000).toISOString()
+  });
+  db.authSessions = db.authSessions.slice(0, 100);
+  return { token, expiresInDays };
+}
+
+function resolveSessionUser(req, db) {
+  const token = getRequestSessionToken(req);
+  if (!token) return null;
+  const digest = tokenDigest(token);
+  const session = (db.authSessions || []).find((item) => item.tokenHash === digest && Date.parse(item.expiresAt) > Date.now());
+  if (!session) return null;
+  return db.users.find((user) => user.id === session.userId) || null;
+}
+
+async function handleAuthApi(req, res, pathname) {
+  const route = pathname.replace(/\/$/, "");
+  const db = readSpacemanDb();
+
+  if (route.endsWith("/auth/session") && req.method === "GET") {
+    const user = resolveSessionUser(req, db);
+    return user
+      ? sendJson(res, { success: true, authenticated: true, user: publicUser(user) })
+      : sendJson(res, { success: true, authenticated: false, user: null });
+  }
+
+  if (route.endsWith("/auth/logout") && req.method === "POST") {
+    const digest = tokenDigest(getRequestSessionToken(req));
+    db.authSessions = (db.authSessions || []).filter((session) => session.tokenHash !== digest);
+    writeSpacemanDb(db);
+    return sendJson(res, { success: true });
+  }
+
+  if ((route.endsWith("/auth/login") || route.endsWith("/auth/register")) && req.method === "POST") {
+    try {
+      const payload = await readJsonBody(req);
+      const username = String(payload.username || "").trim();
+      const password = String(payload.password || "");
+      if (!/^[a-zA-Z0-9_.-]{3,32}$/.test(username)) {
+        return sendJson(res, { success: false, error: "用户名格式不正确。" }, 400);
+      }
+      if (password.length < 5 || password.length > 128) {
+        return sendJson(res, { success: false, error: "密码长度需为 5-128 位。" }, 400);
+      }
+
+      let user = db.users.find((item) => String(item.username || "").toLowerCase() === username.toLowerCase());
+      if (route.endsWith("/auth/register")) {
+        if (user) return sendJson(res, { success: false, error: "该用户名已存在。" }, 409);
+        const now = new Date().toISOString();
+        user = {
+          id: `user-${Date.now()}-${randomBytes(3).toString("hex")}`,
+          username,
+          displayName: username,
+          email: `${username}@spaceman.local`,
+          role: "operator",
+          loginCount: 1,
+          lastLoginAt: now,
+          authProvider: "local",
+          passwordHash: passwordDigest(password),
+          createdAt: now,
+          updatedAt: now
+        };
+        db.users.push(user);
+      } else {
+        if (!user || !passwordMatches(password, user.passwordHash)) {
+          return sendJson(res, { success: false, error: "用户名或密码错误。" }, 401);
+        }
+        user.loginCount = Number(user.loginCount || 0) + 1;
+        user.lastLoginAt = new Date().toISOString();
+        user.updatedAt = user.lastLoginAt;
+      }
+
+      const session = createLocalSession(db, user, Boolean(payload.remember));
+      writeSpacemanDb(db);
+      return sendJson(res, {
+        success: true,
+        token: session.token,
+        expiresInDays: session.expiresInDays,
+        user: publicUser(user)
+      });
+    } catch (error) {
+      return sendJson(res, { success: false, error: String(error?.message || error) }, 400);
+    }
+  }
+
+  return sendJson(res, { success: false, error: "认证接口不存在。" }, 404);
 }
 
 function writeSpacemanDb(db) {
@@ -920,10 +1568,6 @@ function createSnapshot(db, name = "") {
     shells: JSON.parse(JSON.stringify(db.shells))
   };
   db.snapshots.unshift(snapshot);
-  db.snapshots = [
-    ...db.snapshots.filter((item) => item.id === "snapshot-default-450"),
-    ...db.snapshots.filter((item) => item.id !== "snapshot-default-450").slice(0, 20)
-  ];
   return snapshot;
 }
 
@@ -1191,6 +1835,20 @@ async function handleConstellationEditorApi(req, res, pathname) {
     return sendJson(res, { success: true, removed, data: summarizeEditorDb(db).data });
   }
 
+  if (req.method === "POST" && clean.endsWith("/constellation-editor/restore-satellites")) {
+    const payload = await readJsonBody(req);
+    const satellites = Array.isArray(payload.satellites) ? payload.satellites : [];
+    const db = readSpacemanDb();
+    const existing = new Set((db.satellites || []).map((sat) => sat.id));
+    const restored = satellites
+      .filter((sat) => sat && sat.id && !existing.has(sat.id))
+      .map((sat) => ({ ...sat, updatedAt: new Date().toISOString() }));
+    db.satellites.push(...restored);
+    pushDbLog(db, `撤销删除卫星 ${restored.length} 颗`, "satellite", restored.map((sat) => sat.id).join(","), null, restored, "星座编辑器撤销删除");
+    writeSpacemanDb(db);
+    return sendJson(res, { success: true, restored, data: summarizeEditorDb(db).data });
+  }
+
   if (req.method === "POST" && clean.includes("/constellation-editor/shells/") && clean.endsWith("/count")) {
     const shellKey = decodeURIComponent(clean.split("/constellation-editor/shells/")[1].replace(/\/count$/, ""));
     const payload = await readJsonBody(req);
@@ -1264,6 +1922,21 @@ async function handleConstellationEditorApi(req, res, pathname) {
     return sendJson(res, { ...summarizeEditorDb(db), applied });
   }
 
+  if (req.method === "DELETE" && clean.includes("/constellation-editor/snapshots/")) {
+    const snapshotId = decodeURIComponent(clean.split("/constellation-editor/snapshots/")[1]);
+    if (snapshotId === "snapshot-default-450") {
+      return sendJson(res, { success: false, error: "默认场景不能删除" }, 400);
+    }
+    const db = readSpacemanDb();
+    const beforeCount = (db.snapshots || []).length;
+    const removed = (db.snapshots || []).find((snapshot) => snapshot.id === snapshotId);
+    db.snapshots = (db.snapshots || []).filter((snapshot) => snapshot.id !== snapshotId);
+    if (db.snapshots.length === beforeCount) return sendJson(res, { success: false, error: "Snapshot not found" }, 404);
+    pushDbLog(db, "删除场景快照", "snapshot", snapshotId, removed, null, removed?.name || "");
+    writeSpacemanDb(db);
+    return sendJson(res, { success: true, data: summarizeEditorDb(db).data });
+  }
+
   return sendJson(res, { success: false, error: "Constellation editor route not found" }, 404);
 }
 
@@ -1289,6 +1962,10 @@ function localApi(req, res, pathname) {
 
   if (pathname.endsWith("/spaceman-chat")) {
     return handleSpacemanChat(req, res);
+  }
+
+  if (pathname.includes("/auth/")) {
+    return handleAuthApi(req, res, pathname);
   }
 
   if (pathname.endsWith("/spaceman-status")) {
@@ -1369,13 +2046,16 @@ function localApi(req, res, pathname) {
   }
 
   if (pathname.includes("/api/user-state")) {
+    const db = readSpacemanDb();
+    const user = resolveSessionUser(req, db);
     return sendJson(res, {
       success: true,
       local: true,
       data: {
-        email: null,
-        emailVerified: false,
-        isSuperuser: false,
+        email: user?.email || null,
+        username: user?.username || null,
+        emailVerified: Boolean(user),
+        isSuperuser: user?.role === "tenant_admin",
         last_visit: []
       }
     });
@@ -1505,6 +2185,9 @@ async function serveFile(req, res, pathname) {
 
   const type = mime[extname(full)] || "application/octet-stream";
   if (type.startsWith("text/html")) {
+    const requestPath = req.url ? new URL(req.url, `http://${req.headers.host || "localhost"}`).pathname.replace(/\/$/, "") : pathname.replace(/\/$/, "");
+    const isAuthPage = requestPath === "/login";
+    skipSpacemanBranding = isAuthPage;
     let html = readFileSync(full, "utf8");
     html = html
       .replace(/<a href="\/about" data-route="\/about" class="flex items-center space-x-2 rtl:space-x-reverse"/g, '<a href="/" data-route="/" class="flex items-center space-x-2 rtl:space-x-reverse"')
@@ -1513,23 +2196,22 @@ async function serveFile(req, res, pathname) {
     if (req.url && new URL(req.url, `http://${req.headers.host || "localhost"}`).pathname.replace(/\/$/, "") === "/spaceman-status") {
       html = transformSpacemanStatusHtml(html);
     }
-    const requestPath = req.url ? new URL(req.url, `http://${req.headers.host || "localhost"}`).pathname.replace(/\/$/, "") : pathname.replace(/\/$/, "");
     html = unifyTopNav(html, requestPath);
     const statusPageScript = '<script defer src="/assets/spaceman-status-fix.js"></script>';
     const previewScript = '<script defer src="/assets/spaceman-preview.js"></script>';
-    const assistantScript = '<script defer src="/assets/spaceman-assistant.js"></script>';
-    const assistantCss = '<link rel="stylesheet" href="/assets/spaceman-assistant.css">';
+    const assistantScript = '<script defer src="/assets/spaceman-assistant.js?v=20260710-assistant-layout2"></script>';
+    const assistantCss = '<link rel="stylesheet" href="/assets/spaceman-assistant.css?v=20260710-assistant-layout2">';
     const faultScript = '<script defer src="/assets/spaceman-fault-injection.js"></script>';
     const faultCss = '<link rel="stylesheet" href="/assets/spaceman-fault-injection.css">';
     const script = '<script defer src="/assets/spaceman-branding.js"></script>';
-    if (!html.includes("/assets/spaceman-fault-injection.css")) html = html.replace("</head>", `${faultCss}</head>`);
-    if (!html.includes("/assets/spaceman-fault-injection.js")) html = html.replace("</body>", `${faultScript}</body>`);
+    if (!isAuthPage && !html.includes("/assets/spaceman-fault-injection.css")) html = html.replace("</head>", `${faultCss}</head>`);
+    if (!isAuthPage && !html.includes("/assets/spaceman-fault-injection.js")) html = html.replace("</body>", `${faultScript}</body>`);
     if (req.url && new URL(req.url, `http://${req.headers.host || "localhost"}`).pathname.replace(/\/$/, "") === "/spaceman-status") {
       if (!html.includes("/assets/spaceman-assistant.css")) html = html.replace("</head>", `${assistantCss}</head>`);
       if (!html.includes("/assets/spaceman-assistant.js")) html = html.replace("</body>", `${assistantScript}</body>`);
       if (!html.includes("/assets/spaceman-status-fix.js")) html = html.replace("</body>", `${statusPageScript}</body>`);
     }
-    if (!html.includes("/assets/spaceman-preview.js")) {
+    if (!isAuthPage && !html.includes("/assets/spaceman-preview.js")) {
       html = html.includes("</body>")
         ? html.replace("</body>", `${previewScript}</body>`)
         : `${html}${previewScript}`;

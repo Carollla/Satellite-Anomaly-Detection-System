@@ -112,11 +112,29 @@ nav.spaceman-unified-nav .navbar-dropdown-menu {
   z-index: 10 !important;
   display: none;
   width: 11rem !important;
-  margin-top: -12px !important;
+  margin-top: 0 !important;
   border-radius: 0.5rem !important;
   background-color: rgb(17 24 39) !important;
   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
   font-weight: 400 !important;
+}
+
+/* Align top-level menus with the navigation bottom edge. The 4px offset
+   matches the shared bar's vertical padding; nested menus stay side-by-side. */
+nav.spaceman-unified-nav > div > #navbar-desktop > ul > li > .navbar-dropdown-menu {
+  top: calc(100% + 0.25rem) !important;
+  left: 0 !important;
+  right: auto !important;
+  margin-top: 0 !important;
+  transform: none !important;
+}
+
+nav.spaceman-unified-nav .navbar-dropdown-menu .navbar-dropdown-menu {
+  top: 0 !important;
+  left: 100% !important;
+  right: auto !important;
+  margin-top: 0 !important;
+  transform: none !important;
 }
 
 nav.spaceman-unified-nav .navbar-dropdown-list {

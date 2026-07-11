@@ -63,6 +63,7 @@
     dataLoaded: false,
     history: [],
     rafStarted: false,
+    rafHandle: null,
     canvas: null,
     ctx: null,
     dpr: 1
@@ -499,7 +500,8 @@
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     const active = activeRecords();
     if (!active.length) {
-      requestAnimationFrame(drawFaultOverlay);
+      state.rafStarted = false;
+      state.rafHandle = null;
       return;
     }
 
@@ -521,7 +523,7 @@
     }
 
     ctx.restore();
-    requestAnimationFrame(drawFaultOverlay);
+    state.rafHandle = requestAnimationFrame(drawFaultOverlay);
   }
 
   function drawSatelliteFault(ctx, point, pulse, record) {
@@ -574,7 +576,7 @@
     ensureCanvas();
     if (state.rafStarted) return;
     state.rafStarted = true;
-    requestAnimationFrame(drawFaultOverlay);
+    state.rafHandle = requestAnimationFrame(drawFaultOverlay);
   }
 
   async function openPanel() {
@@ -622,7 +624,7 @@
     state.history = readHistory();
     document.addEventListener("click", interceptMenuClick, true);
     renderAlarmStack();
-    startOverlayLoop();
+    if (activeRecords().length) startOverlayLoop();
     window.spacemanFaultInjection = {
       open: openPanel,
       close: closePanel,

@@ -136,7 +136,7 @@ button:disabled {
 
 .editor-assets,
 .editor-inspector {
-  overflow: hidden;
+  overflow: auto;
 }
 
 .editor-assets {
@@ -562,6 +562,24 @@ button:disabled {
   overflow: auto;
 }
 
+.editor-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.editor-section-title h3 {
+  margin: 0;
+}
+
+.editor-section-title span {
+  color: #6b7280;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
 .history-row {
   padding: 8px;
 }
@@ -576,6 +594,11 @@ button:disabled {
   background: rgba(31, 41, 55, 0.42);
   padding: 8px;
   margin-bottom: 7px;
+}
+
+.snapshot-row.default {
+  border-color: rgba(96, 165, 250, 0.48);
+  background: rgba(30, 64, 175, 0.16);
 }
 
 .snapshot-row strong {
@@ -598,6 +621,67 @@ button:disabled {
   padding: 4px 8px;
   font-size: 11px;
   cursor: pointer;
+}
+
+.snapshot-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.snapshot-row button.danger {
+  border-color: rgba(239, 68, 68, 0.42);
+  background: rgba(127, 29, 29, 0.42);
+  color: #fecaca;
+}
+
+.editor-snapshot-modal-card p {
+  margin: -2px 0 4px;
+  color: #9ca3af;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.editor-snapshot-manager-card {
+  width: min(560px, calc(100vw - 32px));
+  max-height: min(620px, calc(100vh - 64px));
+}
+
+.editor-modal-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.editor-modal-heading h3 {
+  margin: 0;
+}
+
+.editor-modal-heading p {
+  margin: 5px 0 0;
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.editor-modal-close {
+  flex: 0 0 auto;
+  width: 30px;
+  min-height: 30px;
+  padding: 0 !important;
+  font-size: 20px !important;
+  line-height: 1;
+}
+
+.editor-snapshot-manager-list {
+  max-height: min(460px, calc(100vh - 200px));
+  overflow: auto;
+  padding-right: 3px;
+}
+
+.editor-empty-state {
+  margin: 0;
+  color: #9ca3af;
+  font-size: 13px;
 }
 
 .history-row strong {

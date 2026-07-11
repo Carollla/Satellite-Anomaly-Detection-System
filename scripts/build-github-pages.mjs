@@ -29,7 +29,7 @@ mkdirSync(out, { recursive: true });
 copyTree(root, out);
 writeFileSync(join(out, ".nojekyll"), "", "utf8");
 
-const adapter = `<script src="${repoBase}/assets/spaceman-pages-adapter.js?v=20260710-splashfix"></script>`;
+const adapter = `<script src="${repoBase}/assets/spaceman-pages-adapter.js?v=20260710-searchfix"></script>`;
 for (const file of listFiles(out)) {
   if (extname(file).toLowerCase() !== ".html") continue;
   let html = readFileSync(file, "utf8");
